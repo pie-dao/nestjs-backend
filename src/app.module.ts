@@ -11,7 +11,6 @@ console.log(process.env.MONGO_DB);
     PiesModule,
     ConfigModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_DB)
-    // 'mongodb+srv://heroku-app:4IGm1eTroN7iJ7GH@piedaobackendcluster.cmtix.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
   ],
   controllers: [AppController],
   providers: [AppService],
