@@ -2,7 +2,7 @@ import { Body, Get, Param } from '@nestjs/common';
 import { Query } from '@nestjs/common';
 import { Post } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PieDto } from './dto/pies.dto';
 import { PieEntity } from './entities/pie.entity';
 import { PiesService } from './pies.service';
@@ -13,8 +13,10 @@ export class PiesController {
   constructor(private readonly piesService: PiesService) {}
 
   @ApiOkResponse({type: PieEntity, isArray: true})
+  @ApiQuery({name: 'name', required: false})
+  @ApiQuery({name: 'address', required: false})
   @Get('all')
-  async getPies(@Query('name') name: string, @Query('address') address: string): Promise<PieEntity[]> {
+  async getPies(@Query('name') name?: string, @Query('address') address?: string): Promise<PieEntity[]> {
     try {
       return await this.piesService.getPies(name, address);
     } catch(error) {
