@@ -13,9 +13,30 @@ export class PiesService {
     {name: 'BCP', address: '0xe4f726adc8e89c6a6017f01eada77865db22da14'}
   ];
 
-  getPies(): Promise<PieEntity[]> {
-    return new Promise((resolve, reject) => {
-      resolve(this.pies);
+  getPies(name, address): Promise<PieEntity[]> {
+    return new Promise(async(resolve, reject) => {
+      let pies = [];
+      
+      switch(true) {
+        case name !== undefined:
+          try {
+            pies.push(await this.getPieByName(name));
+          } catch(error) {
+            reject(error);
+          }
+          break;
+        case address !== undefined:
+          try {
+            pies.push(await this.getPieByAddress(address));
+          } catch(error) {
+            reject(error);
+          }
+          break; 
+        default: 
+          pies = this.pies;         
+      }
+
+      resolve(pies);
     });
   }
 
