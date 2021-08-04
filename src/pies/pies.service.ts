@@ -1,17 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { PieDto } from './dto/pies.dto';
-import { PieEntity } from './entities/pie.entity';
+import { PieDocument, PieEntity } from './entities/pie.entity';
 
 @Injectable()
 export class PiesService {
-  // TODO: this is a temp hardcoded array.
-  // we shall fetch it from DB instead...
-  private pies: PieEntity[] = [
-    {name: 'BTC++', address: '0x0327112423f3a68efdf1fcf402f6c5cb9f7c33fd'}, 
-    {name: 'DEFI+S', address: '0xad6a626ae2b43dcb1b39430ce496d2fa0365ba9c'},
-    {name: 'DEFI++', address: '0x8d1ce361eb68e9e05573443c407d4a3bed23b033'},
-    {name: 'BCP', address: '0xe4f726adc8e89c6a6017f01eada77865db22da14'}
-  ];
+  constructor(@InjectModel(PieEntity.name) private pieModel: Model<PieDocument>) {}
 
   getPies(name, address): Promise<PieEntity[]> {
     return new Promise(async(resolve, reject) => {
@@ -33,7 +28,7 @@ export class PiesService {
           }
           break; 
         default: 
-          pies = this.pies;         
+          pies = await this.pieModel.find().exec();         
       }
 
       resolve(pies);
@@ -41,8 +36,9 @@ export class PiesService {
   }
 
   getPieByAddress(address: string): Promise<PieEntity> {
-    return new Promise((resolve, reject) => {
-      let pie = this.pies.find(pie => pie.address === address);
+    return new Promise(async(resolve, reject) => {
+      let pies = await this.pieModel.find().exec();
+      let pie = pies.find(pie => pie.address === address);
 
       if(pie) {
         resolve(pie);
@@ -54,8 +50,9 @@ export class PiesService {
   }
 
   getPieByName(name: string): Promise<PieEntity> {
-    return new Promise((resolve, reject) => {
-      let pie = this.pies.find(pie => pie.name === name);
+    return new Promise(async(resolve, reject) => {
+      let pies = await this.pieModel.find().exec();
+      let pie = pies.find(pie => pie.name === name);
 
       if(pie) {
         resolve(pie);
@@ -67,8 +64,13 @@ export class PiesService {
 
   createPie(pie: PieDto): Promise<PieEntity> {
     return new Promise((resolve, reject) => {
-      this.pies.push(pie);
-      resolve(pie);
+      try {
+        const createdPie = new this.pieModel(pie);
+        let pieDB = createdPie.save();
+        resolve(pieDB);
+      } catch(error) {
+        reject(error);
+      }
     });    
   }
 }
