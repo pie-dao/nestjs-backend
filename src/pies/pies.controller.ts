@@ -1,15 +1,17 @@
 import { Body, Get, Param } from '@nestjs/common';
 import { Post } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { PieDto } from './dto/pies.dto';
 import { PieEntity } from './entities/pie.entity';
 import { PiesService } from './pies.service';
 
+@ApiTags('Pies')
 @Controller('pies')
 export class PiesController {
   constructor(private readonly piesService: PiesService) {}
 
-  @Get()
+  @Get('all')
   async getPies(): Promise<PieEntity[]> {
     try {
       return await this.piesService.getPies();
@@ -36,7 +38,7 @@ export class PiesController {
     }
   }
 
-  @Post()
+  @Post('create')
   async createPie(@Body() pie: PieDto): Promise<PieEntity> {
     try {
       return await this.piesService.createPie(pie);
