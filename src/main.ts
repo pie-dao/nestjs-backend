@@ -1,9 +1,13 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // applying validationPipe on the whole app engine...
+  app.useGlobalPipes(new ValidationPipe());
 
   // Swagger Section Start
   // Docs and API Playground...
@@ -17,6 +21,8 @@ async function bootstrap() {
   SwaggerModule.setup('/playground', app, swaggerDocument);
   // Swagger Section End
 
-  await app.listen(3000);
+  // fixes for heroku hosting...
+  app.enableCors();
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

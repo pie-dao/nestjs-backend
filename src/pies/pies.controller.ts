@@ -2,7 +2,7 @@ import { Body, Get, NotFoundException, Param } from '@nestjs/common';
 import { Query } from '@nestjs/common';
 import { Post } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
-import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PieDto } from './dto/pies.dto';
 import { PieEntity } from './entities/pie.entity';
 import { PiesService } from './pies.service';
@@ -14,6 +14,7 @@ export class PiesController {
 
   @ApiOkResponse({type: PieEntity, isArray: true})
   @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
   @ApiQuery({name: 'name', required: false})
   @ApiQuery({name: 'address', required: false})
   @Get('all')
@@ -27,6 +28,7 @@ export class PiesController {
 
   @ApiOkResponse({type: PieEntity, isArray: false})
   @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
   @Get('address/:address')
   async getPieByAddress(@Param('address') address: string): Promise<PieEntity> {
     try {
@@ -38,6 +40,7 @@ export class PiesController {
 
   @ApiOkResponse({type: PieEntity, isArray: false})
   @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
   @Get('name/:name')
   async getPieByName(@Param('name') name: string): Promise<PieEntity> {
     try {
@@ -49,6 +52,7 @@ export class PiesController {
 
   @ApiCreatedResponse({type: PieEntity})
   @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
   @Post('create')
   async createPie(@Body() pie: PieDto): Promise<PieEntity> {
     try {
