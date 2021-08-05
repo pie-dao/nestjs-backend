@@ -1,12 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { PieDto } from './dto/pies.dto';
 import { PieDocument, PieEntity } from './entities/pie.entity';
 
 @Injectable()
 export class PiesService {
+  private readonly logger = new Logger(PiesService.name);
+
   constructor(@InjectModel(PieEntity.name) private pieModel: Model<PieDocument>) {}
+
+  @Cron('45 * * * * *')
+  updateNAVs() {
+    this.logger.debug('Called when the current second is 45');
+  }  
 
   getPies(name, address): Promise<PieEntity[]> {
     return new Promise(async(resolve, reject) => {
