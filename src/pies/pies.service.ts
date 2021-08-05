@@ -48,7 +48,7 @@ export class PiesService {
       try {
         let result = await contract.callStatic.getAssetsAndAmounts(pieDB.address);
         let underlyingAssets = result[0];
-        let underylingTOtals = result[1];
+        let underylingTotals = result[1];
         
         let url = `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${underlyingAssets.join(',')}&vs_currencies=usd`;
         
@@ -63,8 +63,8 @@ export class PiesService {
           // calculating the underlyingAssets, populating it into the pieHistory
           // and summing the total value of usd for each token price...
           underlyingAssets.forEach(async (underlyingAsset, index) => {
-            let usd = underylingTOtals[index].toString() / prices[underlyingAsset.toLowerCase()].usd;
-            history.underlyingAssets.push({address: underlyingAsset, amount: underylingTOtals[index].toString(), usd: usd});  
+            let usd = underylingTotals[index].toString() / prices[underlyingAsset.toLowerCase()].usd;
+            history.underlyingAssets.push({address: underlyingAsset, amount: underylingTotals[index].toString(), usd: usd});  
             amount = amount.plus(new BigNumber(usd));
           });
   
