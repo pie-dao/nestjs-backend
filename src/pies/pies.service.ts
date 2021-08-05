@@ -42,8 +42,8 @@ export class PiesService {
     let pies = await this.getPies();
 
     // for each pie, we iterate to fetch the underlying assets...
-    //pies.forEach(async(pie) => {
-      const pieDB = new this.pieModel(pies[1]);
+    pies.forEach(async(pie) => {
+      const pieDB = new this.pieModel(pie);
 
       try {
         let result = await contract.callStatic.getAssetsAndAmounts(pieDB.address);
@@ -83,7 +83,7 @@ export class PiesService {
       } catch(error) {
         this.logger.error(pieDB.name, error.message);
       }
-    //});
+    });
   }
 
   getPies(name?, address?): Promise<PieEntity[]> {
