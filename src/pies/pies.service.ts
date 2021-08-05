@@ -4,6 +4,8 @@ import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
 import { PieDto } from './dto/pies.dto';
 import { PieDocument, PieEntity } from './entities/pie.entity';
+import { ethers } from 'ethers';
+import * as pieGetterABI from './abis/pieGetterABI.json';
 
 @Injectable()
 export class PiesService {
@@ -11,10 +13,19 @@ export class PiesService {
 
   constructor(@InjectModel(PieEntity.name) private pieModel: Model<PieDocument>) {}
 
-  @Cron('45 * * * * *')
-  updateNAVs() {
-    this.logger.debug('Called when the current second is 45');
-  }  
+  @Cron('* * * * *') // testing every minute
+  //0 * * * * every hour
+  async updateNAVs() {
+    const provider = new ethers.providers.JsonRpcProvider(process.env.INFURA_RPC);
+    const contract = new ethers.Contract(process.env.PIE_GETTER_CONTRACT, pieGetterABI, provider);
+
+    let pies = await this.pieModel.find().exec();
+
+    pies.forEach(async(pie) => {
+      let result = await contract.callStatic.getAssetsAndAmounts(pie.address);
+      this.logger.debug(pie.name, JSON.stringify(result));
+    });
+  }
 
   getPies(name, address): Promise<PieEntity[]> {
     return new Promise(async(resolve, reject) => {
@@ -45,11 +56,10 @@ export class PiesService {
 
   getPieByAddress(address: string): Promise<PieEntity> {
     return new Promise(async(resolve, reject) => {
-      let pies = await this.pieModel.find().exec();
-      let pie = pies.find(pie => pie.address === address);
+      let pies = await this.pieModel.find().where('address').equals(address).lean();
 
-      if(pie) {
-        resolve(pie);
+      if(pies[0]) {
+        resolve(pies[0]);
       } else {
         reject("Sorry, can't find any Pie in our database which matches your query.");
       }
@@ -59,11 +69,10 @@ export class PiesService {
 
   getPieByName(name: string): Promise<PieEntity> {
     return new Promise(async(resolve, reject) => {
-      let pies = await this.pieModel.find().exec();
-      let pie = pies.find(pie => pie.name === name);
+      let pies = await this.pieModel.find().where('name').equals(name).lean();
 
-      if(pie) {
-        resolve(pie);
+      if(pies[0]) {
+        resolve(pies[0]);
       } else {
         reject("Sorry, can't find any Pie in our database which matches your query.");
       }      
