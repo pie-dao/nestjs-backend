@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsHexadecimal } from "class-validator";
+import { IsHexadecimal, IsArray } from "class-validator";
 
 export class PieDto {
   @ApiProperty()
@@ -8,4 +8,8 @@ export class PieDto {
   @ApiProperty()
   @IsHexadecimal()
   address: string;
+
+  @ApiProperty()
+  @IsArray()
+  history: Array<string>;  
 }

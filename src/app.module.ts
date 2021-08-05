@@ -6,7 +6,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 
-console.log(process.env.MONGO_DB);
 @Module({
   imports: [
     PiesModule,
