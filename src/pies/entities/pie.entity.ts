@@ -7,11 +7,11 @@ export type PieDocument = PieEntity & Document;
 
 @Schema()
 export class PieEntity {
-  @Prop()
+  @Prop([String, {required: true}])
   @ApiProperty()
   name: string;
 
-  @Prop()
+  @Prop([String, {required: true}])
   @ApiProperty()
   @IsHexadecimal()  
   address: string;

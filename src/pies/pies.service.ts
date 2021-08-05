@@ -13,7 +13,7 @@ export class PiesService {
 
   constructor(@InjectModel(PieEntity.name) private pieModel: Model<PieDocument>) {}
 
-  @Cron('* * * * *') // testing every minute
+  @Cron('*/5 * * * *')
   //0 * * * * every hour
   async updateNAVs() {
     const provider = new ethers.providers.JsonRpcProvider(process.env.INFURA_RPC);
@@ -22,8 +22,12 @@ export class PiesService {
     let pies = await this.pieModel.find().exec();
 
     pies.forEach(async(pie) => {
-      let result = await contract.callStatic.getAssetsAndAmounts(pie.address);
-      this.logger.debug(pie.name, JSON.stringify(result));
+      try {
+        let result = await contract.callStatic.getAssetsAndAmounts(pie.address);
+        this.logger.debug(pie.name, JSON.stringify(result));
+      } catch(error) {
+        this.logger.error(pie.name, error.message);
+      }
     });
   }
 

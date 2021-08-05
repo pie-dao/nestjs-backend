@@ -50,15 +50,15 @@ export class PiesController {
     }
   }
 
-  @ApiCreatedResponse({type: PieEntity})
-  @ApiNotFoundResponse()
-  @ApiBadRequestResponse()
-  @Post('create')
-  async createPie(@Body() pie: PieDto): Promise<PieEntity> {
-    try {
-      return await this.piesService.createPie(pie);
-    } catch(error) {
-      throw new NotFoundException(error);
-    }
-  }
+  // @ApiCreatedResponse({type: PieEntity})
+  // @ApiNotFoundResponse()
+  // @ApiBadRequestResponse()
+  // @Post('create')
+  // async createPie(@Body() pie: PieDto): Promise<PieEntity> {
+  //   try {
+  //     return await this.piesService.createPie(pie);
+  //   } catch(error) {
+  //     throw new NotFoundException(error);
+  //   }
+  // }
 }
