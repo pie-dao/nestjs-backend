@@ -8,6 +8,7 @@ import { ethers } from 'ethers';
 import * as pieGetterABI from './abis/pieGetterABI.json';
 import { PieHistoryDocument, PieHistoryEntity } from './entities/pie-history.entity';
 import { BigNumber } from 'bignumber.js';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class PiesService {
@@ -25,46 +26,64 @@ export class PiesService {
   private readonly logger = new Logger(PiesService.name);
 
   constructor(
+    private httpService: HttpService,
     @InjectModel(PieEntity.name) private pieModel: Model<PieDocument>,
     @InjectModel(PieHistoryEntity.name) private pieHistoryEntity: Model<PieHistoryDocument>
   ) {}
 
-  @Cron('* * * * *')
+  @Cron('10 * * * * *')
   //0 * * * * every hour
   async updateNAVs() {
+    // instance of the pie-getter contract...
     const provider = new ethers.providers.JsonRpcProvider(process.env.INFURA_RPC);
     const contract = new ethers.Contract(process.env.PIE_GETTER_CONTRACT, pieGetterABI, provider);
 
+    // retrieving all pies from database...
     let pies = await this.getPies();
 
-    pies.forEach(async(pie) => {
-      const pieDB = new this.pieModel(pie);
+    // for each pie, we iterate to fetch the underlying assets...
+    //pies.forEach(async(pie) => {
+      const pieDB = new this.pieModel(pies[1]);
 
       try {
         let result = await contract.callStatic.getAssetsAndAmounts(pieDB.address);
         let underlyingAssets = result[0];
         let underylingTOtals = result[1];
-
-        const history = new this.pieHistoryEntity({timestamp: Date.now(), amount: 0, underlyingAssets: []});
-        let amount = new BigNumber(0);
-
-        underlyingAssets.forEach((underlyingAsset, index) => {
-          history.underlyingAssets.push({address: underlyingAsset, amount: underylingTOtals[index].toString()});
-          // this total NAV should be calculated using prices from coingecko...
-          amount = amount.plus(new BigNumber(underylingTOtals[index].toString()));
-        });
-
-        history.amount = amount;
-        let historyDB = await history.save();
         
-        pieDB.history.push(historyDB);
-        pieDB.save();
+        let url = `https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=${underlyingAssets.join(',')}&vs_currencies=usd`;
+        
+        // fetching the prices for each underlying contract...
+        this.httpService.get(url).subscribe(async(response) => {
+          let prices = response.data;
 
-        this.logger.debug(pieDB);
+          // creating the pieHistory Enity...
+          const history = new this.pieHistoryEntity({timestamp: Date.now(), amount: 0, underlyingAssets: []});
+          let amount = new BigNumber(0);
+  
+          // calculating the underlyingAssets, populating it into the pieHistory
+          // and summing the total value of usd for each token price...
+          underlyingAssets.forEach(async (underlyingAsset, index) => {
+            let usd = underylingTOtals[index].toString() / prices[underlyingAsset.toLowerCase()].usd;
+            history.underlyingAssets.push({address: underlyingAsset, amount: underylingTOtals[index].toString(), usd: usd});  
+            amount = amount.plus(new BigNumber(usd));
+          });
+  
+          // finally updating the total amount in usd...
+          history.amount = amount;
+          // and saving the history entity...
+          let historyDB = await history.save();
+          
+          // pushing the new history into the main Pie Entity...
+          pieDB.history.push(historyDB);
+          // and finally saving the Pie Entity as well...
+          pieDB.save();
+  
+          this.logger.debug(pieDB);          
+        });
       } catch(error) {
         this.logger.error(pieDB.name, error.message);
       }
-    });
+    //});
   }
 
   getPies(name?, address?): Promise<PieEntity[]> {
