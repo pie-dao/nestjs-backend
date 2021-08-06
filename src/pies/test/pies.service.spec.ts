@@ -3,13 +3,12 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PieHistoryEntity, PieHistorySchema } from './entities/pie-history.entity';
-import { PieEntity, PieSchema } from './entities/pie.entity';
-import { PiesController } from './pies.controller';
-import { PiesService } from './pies.service';
+import { PieHistoryEntity, PieHistorySchema } from '../entities/pie-history.entity';
+import { PieEntity, PieSchema } from '../entities/pie.entity';
+import { PiesService } from '../pies.service';
 
-describe('PiesController', () => {
-  let controller: PiesController;
+describe('PiesService', () => {
+  let service: PiesService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,15 +19,14 @@ describe('PiesController', () => {
         MongooseModule.forRoot(process.env.MONGO_DB),
         MongooseModule.forFeature([{ name: PieEntity.name, schema: PieSchema }]),
         MongooseModule.forFeature([{ name: PieHistoryEntity.name, schema: PieHistorySchema }])        
-      ],      
-      controllers: [PiesController],
+      ],
       providers: [PiesService],
     }).compile();
 
-    controller = module.get<PiesController>(PiesController);
+    service = module.get<PiesService>(PiesService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(service).toBeDefined();
   });
 });
