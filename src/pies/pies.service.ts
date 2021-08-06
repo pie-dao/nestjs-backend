@@ -32,7 +32,7 @@ export class PiesService {
     @InjectModel(PieHistoryEntity.name) private pieHistoryModel: Model<PieHistoryDocument>
   ) {}
 
-  @Cron('* * * * *')
+  @Cron('0 * * * *')
   // Use this every 10 seconds cron setup for testing purposes.
   // 10 * * * * *
   // USe this every hour cron setup for production releases.
@@ -49,7 +49,7 @@ export class PiesService {
 
     // for each pie, we iterate to fetch the underlying assets...
     pies.forEach(async(pie) => {
-      const pieDB = new this.pieModel(pies[1]);
+      const pieDB = new this.pieModel(pie);
 
       try {
         let result = await contract.callStatic.getAssetsAndAmounts(pieDB.address);
@@ -68,21 +68,21 @@ export class PiesService {
   
           // calculating the underlyingAssets, populating it into the pieHistory
           // and summing the total value of usd for each token price...
-          // for(let i = 0; i < underlyingAssets.length; i++) {
-          //   // instance of the underlying contract...
-          //   let underlyingContract = new ethers.Contract(underlyingAssets[i], erc20, provider);
-          //   // fetching decimals and calculating precision for the underlyingAsset...
-          //   let decimals = await underlyingContract.decimals();
-          //   let precision = new BigNumber(10).pow(decimals);
+          for(let i = 0; i < underlyingAssets.length; i++) {
+            // instance of the underlying contract...
+            let underlyingContract = new ethers.Contract(underlyingAssets[i], erc20, provider);
+            // fetching decimals and calculating precision for the underlyingAsset...
+            let decimals = await underlyingContract.decimals();
+            let precision = new BigNumber(10).pow(decimals);
 
-          //   // calculating the value in usd for a given amount of underlyingAsset...
-          //   let usd = new BigNumber(underylingTotals[i].toString()).times(prices[underlyingAssets[i].toLowerCase()].usd).div(precision);
-          //   // refilling the underlyingAssets of the History Entity...
-          //   history.underlyingAssets.push({address: underlyingAssets[i], amount: underylingTotals[i].toString(), usd: usd.toString()});  
+            // calculating the value in usd for a given amount of underlyingAsset...
+            let usd = new BigNumber(underylingTotals[i].toString()).times(prices[underlyingAssets[i].toLowerCase()].usd).div(precision);
+            // refilling the underlyingAssets of the History Entity...
+            history.underlyingAssets.push({address: underlyingAssets[i], amount: underylingTotals[i].toString(), usd: usd.toString()});  
 
-          //   // updating the global amount of usd for the main pie of this history entity...
-          //   amount = amount.plus(usd);
-          // };
+            // updating the global amount of usd for the main pie of this history entity...
+            amount = amount.plus(usd);
+          };
   
           // finally updating the total amount in usd...
           history.amount = amount;
@@ -92,7 +92,7 @@ export class PiesService {
           // pushing the new history into the main Pie Entity...
           pieDB.history.push(historyDB);
           // and finally saving the Pie Entity as well...
-          pieDB.save();
+          await pieDB.save();
         });
       } catch(error) {
         this.logger.error(pieDB.name, error.message);
@@ -201,10 +201,10 @@ export class PiesService {
   }
 
   createPie(pie: PieDto): Promise<PieEntity> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
       try {
         const createdPie = new this.pieModel(pie);
-        let pieDB = createdPie.save();
+        let pieDB = await createdPie.save();
         resolve(pieDB);
       } catch(error) {
         reject(error);
