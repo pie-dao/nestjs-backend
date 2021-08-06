@@ -6,6 +6,7 @@ import { PieDto } from './dto/pies.dto';
 import { PieDocument, PieEntity } from './entities/pie.entity';
 import { ethers } from 'ethers';
 import * as pieGetterABI from './abis/pieGetterABI.json';
+import * as erc20 from './abis/erc20.json';
 import { PieHistoryDocument, PieHistoryEntity } from './entities/pie-history.entity';
 import { BigNumber } from 'bignumber.js';
 import { HttpService } from '@nestjs/axios';
@@ -43,7 +44,7 @@ export class PiesService {
 
     // for each pie, we iterate to fetch the underlying assets...
     pies.forEach(async(pie) => {
-      const pieDB = new this.pieModel(pie);
+      const pieDB = new this.pieModel(pies[1]);
 
       try {
         let result = await contract.callStatic.getAssetsAndAmounts(pieDB.address);
@@ -62,11 +63,21 @@ export class PiesService {
   
           // calculating the underlyingAssets, populating it into the pieHistory
           // and summing the total value of usd for each token price...
-          underlyingAssets.forEach(async (underlyingAsset, index) => {
-            let usd = underylingTotals[index].toString() / prices[underlyingAsset.toLowerCase()].usd;
-            history.underlyingAssets.push({address: underlyingAsset, amount: underylingTotals[index].toString(), usd: usd});  
-            amount = amount.plus(new BigNumber(usd));
-          });
+          for(let i = 0; i < underlyingAssets.length; i++) {
+            // instance of the underlying contract...
+            let underlyingContract = new ethers.Contract(underlyingAssets[i], erc20, provider);
+            // fetching decimals and calculating precision for the underlyingAsset...
+            let decimals = await underlyingContract.decimals();
+            let precision = new BigNumber(10).pow(decimals);
+
+            // calculating the value in usd for a given amount of underlyingAsset...
+            let usd = new BigNumber(underylingTotals[i].toString()).times(prices[underlyingAssets[i].toLowerCase()].usd).div(precision);
+            // refilling the underlyingAssets of the History Entity...
+            history.underlyingAssets.push({address: underlyingAssets[i], amount: underylingTotals[i].toString(), usd: usd.toString()});  
+
+            // updating the global amount of usd for the main pie of this history entity...
+            amount = amount.plus(usd);
+          };
   
           // finally updating the total amount in usd...
           history.amount = amount;
@@ -77,8 +88,6 @@ export class PiesService {
           pieDB.history.push(historyDB);
           // and finally saving the Pie Entity as well...
           pieDB.save();
-  
-          this.logger.debug(pieDB);          
         });
       } catch(error) {
         this.logger.error(pieDB.name, error.message);
