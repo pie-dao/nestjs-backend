@@ -29,12 +29,14 @@ export class PiesService {
   constructor(
     private httpService: HttpService,
     @InjectModel(PieEntity.name) private pieModel: Model<PieDocument>,
-    @InjectModel(PieHistoryEntity.name) private pieHistoryEntity: Model<PieHistoryDocument>
+    @InjectModel(PieHistoryEntity.name) private pieHistoryModel: Model<PieHistoryDocument>
   ) {}
 
-  @Cron('0 * * * *')
+  @Cron('10 * * * * *')
   // Use this every 10 seconds cron setup for testing purposes.
   // 10 * * * * *
+  // USe this every hour cron setup for production releases.
+  // 0 * * * *
   async updateNAVs() {
     // instance of the pie-getter contract...
     const provider = new ethers.providers.JsonRpcProvider(process.env.INFURA_RPC);
@@ -59,7 +61,7 @@ export class PiesService {
           let prices = response.data;
 
           // creating the pieHistory Enity...
-          const history = new this.pieHistoryEntity({timestamp: Date.now(), amount: 0, underlyingAssets: []});
+          const history = new this.pieHistoryModel({timestamp: Date.now(), amount: 0, underlyingAssets: []});
           let amount = new BigNumber(0);
   
           // calculating the underlyingAssets, populating it into the pieHistory
@@ -127,6 +129,47 @@ export class PiesService {
       }
 
       resolve(pies);
+    });
+  }
+
+  getPieHistory(name?, address?): Promise<PieHistoryEntity[]> {
+    return new Promise(async(resolve, reject) => {
+      let pie = null;
+      
+      switch(true) {
+        case name !== undefined:
+          try {
+            pie = await this.getPieByName(name);
+          } catch(error) {
+            reject(error);
+          }
+          break;
+        case address !== undefined:
+          try {
+            pie = await this.getPieByAddress(address);
+          } catch(error) {
+            reject(error);
+          }
+          break; 
+        default:
+          reject("either a Pie-Name or a Pie-Anddress must be provided")
+      }
+
+      resolve(await this.getPieHistoryDetails(pie));
+    });
+  }
+
+  private getPieHistoryDetails(pie: PieEntity): Promise<PieHistoryEntity[]> {
+    return new Promise(async(resolve, reject) => {
+      try {
+        let pieHistories = await this.pieHistoryModel.find({
+          '_id': { $in: pie.history }
+        }).lean();
+  
+        resolve(pieHistories);        
+      } catch(error) {
+        reject(error);
+      }
     });
   }
 

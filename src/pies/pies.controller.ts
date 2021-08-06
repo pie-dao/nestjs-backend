@@ -4,6 +4,7 @@ import { Post } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PieDto } from './dto/pies.dto';
+import { PieHistoryEntity } from './entities/pie-history.entity';
 import { PieEntity } from './entities/pie.entity';
 import { PiesService } from './pies.service';
 
@@ -25,6 +26,20 @@ export class PiesController {
       throw new NotFoundException(error);
     }
   };
+
+  @ApiOkResponse({type: PieHistoryEntity, isArray: true})
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @ApiQuery({name: 'name', required: false})
+  @ApiQuery({name: 'address', required: false})
+  @Get('history')
+  async getPieHistory(@Query('name') name?: string, @Query('address') address?: string): Promise<PieHistoryEntity[]> {
+    try {
+      return await this.piesService.getPieHistory(name, address);
+    } catch(error) {
+      throw new NotFoundException(error);
+    }
+  };  
 
   @ApiOkResponse({type: PieEntity, isArray: false})
   @ApiNotFoundResponse()
