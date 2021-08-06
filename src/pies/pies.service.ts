@@ -32,7 +32,7 @@ export class PiesService {
     @InjectModel(PieHistoryEntity.name) private pieHistoryModel: Model<PieHistoryDocument>
   ) {}
 
-  @Cron('10 * * * * *')
+  @Cron('0 * * * *')
   // Use this every 10 seconds cron setup for testing purposes.
   // 10 * * * * *
   // USe this every hour cron setup for production releases.
