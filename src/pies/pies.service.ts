@@ -32,12 +32,14 @@ export class PiesService {
     @InjectModel(PieHistoryEntity.name) private pieHistoryModel: Model<PieHistoryDocument>
   ) {}
 
-  @Cron('0 * * * *')
+  @Cron('10 * * * * *')
   // Use this every 10 seconds cron setup for testing purposes.
   // 10 * * * * *
   // USe this every hour cron setup for production releases.
   // 0 * * * *
   async updateNAVs() {
+    this.logger.debug("updateNAVs is running");
+    
     // instance of the pie-getter contract...
     const provider = new ethers.providers.JsonRpcProvider(process.env.INFURA_RPC);
     const contract = new ethers.Contract(process.env.PIE_GETTER_CONTRACT, pieGetterABI, provider);
