@@ -32,7 +32,7 @@ export class PiesService {
     @InjectModel(PieHistoryEntity.name) private pieHistoryModel: Model<PieHistoryDocument>
   ) {}
 
-  @Cron('0 * * * *')
+  @Cron('10 * * * * *')
   // Use this every 10 seconds cron setup for testing purposes.
   // 10 * * * * *
   // USe this every hour cron setup for production releases.
@@ -48,8 +48,8 @@ export class PiesService {
     let pies = await this.getPies();
 
     // for each pie, we iterate to fetch the underlying assets...
-    pies.forEach(async(pie) => {
-      const pieDB = new this.pieModel(pie);
+    for(let k = 0; k < pies.length; k++) {
+      const pieDB = new this.pieModel(pies[k]);
 
       try {
         let result = await contract.callStatic.getAssetsAndAmounts(pieDB.address);
@@ -93,11 +93,13 @@ export class PiesService {
           pieDB.history.push(historyDB);
           // and finally saving the Pie Entity as well...
           await pieDB.save();
+
+          this.logger.debug(pieDB.name, "nav updated");
         });
       } catch(error) {
         this.logger.error(pieDB.name, error.message);
       }
-    });
+    };
   }
 
   getPies(name?, address?): Promise<PieEntity[]> {
