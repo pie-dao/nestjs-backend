@@ -1,8 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PieEntity } from '../entities/pie.entity';
+import { PieHistoryEntity } from '../entities/pie-history.entity';
 import { PiesController } from '../pies.controller';
 import { PiesService } from '../pies.service';
-import { PiesStub } from './stubs/pies.stubs';
+import { PiesStub, PieStub } from './stubs/pies.stubs';
+import { PieHistoryStub } from './stubs/pies-history.stubs';
 
 jest.mock('../pies.service');
 
@@ -35,13 +37,67 @@ describe('PiesController', () => {
         pies = await controller.getPies();
       });
 
-      test('then it should call pieService', () => {
-        expect(service.getPies).toBeCalled();
+      test('then it should call pieService.getPies', () => {
+        expect(service.getPies).toHaveBeenCalled();
       });
 
       test('then it should return an array of PieEntity', () => {
-        expect(pies).toEqual(PiesStub);
-      })
+        expect(pies).toEqual(PiesStub());
+      });
+    });
+  });
+
+  describe('getPieByAddress', () => {
+    describe('When getPieByAddress is called', () => {
+      let pie: PieEntity;
+
+      beforeEach(async () => {
+        pie = await controller.getPieByAddress(PieStub().address);
+      });
+
+      test('then it should call pieService.getPieByAddress', () => {
+        expect(service.getPieByAddress).toHaveBeenCalledWith(PieStub().address);
+      });
+
+      test('then it should return a PieEntity', () => {
+        expect(pie).toEqual(PieStub());
+      });
+    });
+  });
+
+  describe('getPieByName', () => {
+    describe('When getPieByName is called', () => {
+      let pie: PieEntity;
+
+      beforeEach(async () => {
+        pie = await controller.getPieByName(PieStub().name);
+      });
+
+      test('then it should call pieService.getPieByName', () => {
+        expect(service.getPieByName).toHaveBeenCalledWith(PieStub().name);
+      });
+
+      test('then it should return a PieEntity', () => {
+        expect(pie).toEqual(PieStub());
+      });
+    });
+  });
+
+  describe('getPieHistory', () => {
+    describe('When getPieHistory is called', () => {
+      let pieHistory: PieHistoryEntity[];
+
+      beforeEach(async () => {
+        pieHistory = await controller.getPieHistory(null, PieStub().address);
+      });
+
+      test('then it should call pieService.getPieHistory', () => {
+        expect(service.getPieHistory).toHaveBeenCalledWith(null, PieStub().address);
+      });
+
+      test('then it should return a PieHistoryEntity', () => {
+        expect(pieHistory).toEqual(PieHistoryStub());
+      });
     });
   });
 });

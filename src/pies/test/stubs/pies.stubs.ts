@@ -18,5 +18,5 @@ export const PiesStub = (): PieEntity[]  => {
 
 export const PieStub = (): PieEntity  => {
   // returning a random pie...
-  return pies[Math.floor(Math.random() * 7) + 1];
+  return pies[0];
 }
