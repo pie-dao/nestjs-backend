@@ -34,75 +34,75 @@ describe('PiesService', () => {
     expect(service).toBeDefined();
   });
 
-  // describe('getPies', () => {
-  //   describe('When getPies is called', () => {
-  //     let pies: PieEntity[];
+  describe('getPies', () => {
+    describe('When getPies is called', () => {
+      let pies: PieEntity[];
 
-  //     beforeEach(async () => {
-  //       jest.spyOn(service, "getPies");
-  //       pies = await service.getPies();
-  //     });
+      beforeEach(async () => {
+        jest.spyOn(service, "getPies");
+        pies = await service.getPies();
+      });
 
-  //     test('then it should call pieService.getPies', () => {
-  //       expect(service.getPies).toHaveBeenCalled();
-  //     });
+      test('then it should call pieService.getPies', () => {
+        expect(service.getPies).toHaveBeenCalled();
+      });
 
-  //     test('then it should return an Array of PieEntity', () => {
-  //       let piesMock = PiesStub();
+      test('then it should return an Array of PieEntity', () => {
+        let piesMock = PiesStub();
 
-  //       expect(pies).toEqual(
-  //         expect.arrayContaining([
-  //           expect.objectContaining({name: piesMock[0].name, address: piesMock[0].address.toLowerCase()}),
-  //           expect.objectContaining({name: piesMock[1].name, address: piesMock[1].address.toLowerCase()}),
-  //           expect.objectContaining({name: piesMock[2].name, address: piesMock[2].address.toLowerCase()}),
-  //           expect.objectContaining({name: piesMock[3].name, address: piesMock[3].address.toLowerCase()}),
-  //           expect.objectContaining({name: piesMock[4].name, address: piesMock[4].address.toLowerCase()}),
-  //           expect.objectContaining({name: piesMock[5].name, address: piesMock[5].address.toLowerCase()}),
-  //           expect.objectContaining({name: piesMock[6].name, address: piesMock[6].address.toLowerCase()}),
-  //           expect.objectContaining({name: piesMock[7].name, address: piesMock[7].address.toLowerCase()})
-  //         ])
-  //       );
-  //     });
-  //   });
-  // });  
+        expect(pies).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({name: piesMock[0].name, address: piesMock[0].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[1].name, address: piesMock[1].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[2].name, address: piesMock[2].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[3].name, address: piesMock[3].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[4].name, address: piesMock[4].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[5].name, address: piesMock[5].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[6].name, address: piesMock[6].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[7].name, address: piesMock[7].address.toLowerCase()})
+          ])
+        );
+      });
+    });
+  });  
 
-  // describe('getPieByAddress', () => {
-  //   describe('When getPieByAddress is called', () => {
-  //     let pie: PieEntity;
+  describe('getPieByAddress', () => {
+    describe('When getPieByAddress is called', () => {
+      let pie: PieEntity;
 
-  //     beforeEach(async () => {
-  //       jest.spyOn(service, "getPieByAddress");
-  //       pie = await service.getPieByAddress(PieStub().address);
-  //     });
+      beforeEach(async () => {
+        jest.spyOn(service, "getPieByAddress");
+        pie = await service.getPieByAddress(PieStub().address);
+      });
 
-  //     test('then it should call pieService.getPieByAddress', () => {
-  //       expect(service.getPieByAddress).toHaveBeenCalledWith(PieStub().address);
-  //     });
+      test('then it should call pieService.getPieByAddress', () => {
+        expect(service.getPieByAddress).toHaveBeenCalledWith(PieStub().address);
+      });
 
-  //     test('then it should return a PieEntity', () => {
-  //       expect(pie.address).toEqual(PieStub().address.toLowerCase());
-  //     });
-  //   });
-  // }); 
+      test('then it should return a PieEntity', () => {
+        expect(pie.address).toEqual(PieStub().address.toLowerCase());
+      });
+    });
+  }); 
 
-  // describe('getPieByName', () => {
-  //   describe('When getPieByName is called', () => {
-  //     let pie: PieEntity;
+  describe('getPieByName', () => {
+    describe('When getPieByName is called', () => {
+      let pie: PieEntity;
 
-  //     beforeEach(async () => {
-  //       jest.spyOn(service, "getPieByName");
-  //       pie = await service.getPieByName(PieStub().name);
-  //     });
+      beforeEach(async () => {
+        jest.spyOn(service, "getPieByName");
+        pie = await service.getPieByName(PieStub().name);
+      });
 
-  //     test('then it should call pieService.getPieByName', () => {
-  //       expect(service.getPieByName).toHaveBeenCalledWith(PieStub().name);
-  //     });
+      test('then it should call pieService.getPieByName', () => {
+        expect(service.getPieByName).toHaveBeenCalledWith(PieStub().name);
+      });
 
-  //     test('then it should return a PieEntity', () => {
-  //       expect(pie.name).toEqual(PieStub().name);
-  //     });
-  //   });
-  // });   
+      test('then it should return a PieEntity', () => {
+        expect(pie.name).toEqual(PieStub().name);
+      });
+    });
+  });   
 
   describe('getPieHistory', () => {
     describe('When getPieHistory is called', () => {
