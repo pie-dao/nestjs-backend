@@ -13,8 +13,6 @@ describe('PiesService', () => {
   let service: PiesService;
 
   beforeEach(async () => {
-    jest.setTimeout(50000);
-
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         HttpModule,
@@ -39,6 +37,7 @@ describe('PiesService', () => {
       let pies: PieEntity[];
 
       beforeEach(async () => {
+        jest.setTimeout(15000);
         jest.spyOn(service, "getPies");
         pies = await service.getPies();
       });
@@ -71,6 +70,7 @@ describe('PiesService', () => {
       let pie: PieEntity;
 
       beforeEach(async () => {
+        jest.setTimeout(15000);
         jest.spyOn(service, "getPieByAddress");
         pie = await service.getPieByAddress(PieStub().address);
       });
@@ -90,6 +90,7 @@ describe('PiesService', () => {
       let pie: PieEntity;
 
       beforeEach(async () => {
+        jest.setTimeout(15000);
         jest.spyOn(service, "getPieByName");
         pie = await service.getPieByName(PieStub().name);
       });
@@ -109,6 +110,7 @@ describe('PiesService', () => {
       let pieHistory: PieHistoryEntity[];
 
       beforeEach(async () => {
+        jest.setTimeout(15000);
         jest.spyOn(service, "getPieHistory");
         pieHistory = await service.getPieHistory(undefined, PieStub().address.toLowerCase());
       });
