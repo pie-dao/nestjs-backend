@@ -88,11 +88,11 @@ describe('PiesController', () => {
       let pieHistory: PieHistoryEntity[];
 
       beforeEach(async () => {
-        pieHistory = await controller.getPieHistory(null, PieStub().address);
+        pieHistory = await controller.getPieHistory(undefined, PieStub().address);
       });
 
       test('then it should call pieService.getPieHistory', () => {
-        expect(service.getPieHistory).toHaveBeenCalledWith(null, PieStub().address);
+        expect(service.getPieHistory).toHaveBeenCalledWith(undefined, PieStub().address);
       });
 
       test('then it should return a PieHistoryEntity', () => {

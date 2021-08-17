@@ -139,27 +139,33 @@ export class PiesService {
   getPieHistory(name?, address?): Promise<PieHistoryEntity[]> {
     return new Promise(async(resolve, reject) => {
       let pie = null;
+      let error = null;
       
       switch(true) {
         case name !== undefined:
           try {
             pie = await this.getPieByName(name);
-          } catch(error) {
-            reject(error);
+          } catch(catched_error) {
+            error = catched_error;
           }
           break;
         case address !== undefined:
           try {
             pie = await this.getPieByAddress(address);
-          } catch(error) {
-            reject(error);
+          } catch(catched_error) {
+            error = catched_error;
           }
           break; 
         default:
-          reject("either a Pie-Name or a Pie-Anddress must be provided")
+          error = new Error("either a Pie-Name or a Pie-Anddress must be provided");
       }
 
-      resolve(await this.getPieHistoryDetails(pie));
+      if(pie) {
+        resolve(await this.getPieHistoryDetails(pie));
+      } else {
+        reject(error);
+      }
+      
     });
   }
 
@@ -202,11 +208,14 @@ export class PiesService {
     });    
   }
 
-  createPie(pie: PieDto): Promise<PieEntity> {
+  private createPie(pie: PieDto): Promise<PieEntity> {
     return new Promise(async(resolve, reject) => {
       try {
+        pie.address = pie.address.toLocaleLowerCase();
+
         const createdPie = new this.pieModel(pie);
         let pieDB = await createdPie.save();
+
         resolve(pieDB);
       } catch(error) {
         reject(error);
