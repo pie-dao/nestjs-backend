@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
@@ -151,19 +151,19 @@ export class PiesService {
         case name !== undefined:
           try {
             pie = await this.getPieByName(name);
-          } catch(catched_error) {
-            error = catched_error;
+          } catch(catchedError) {
+            error = catchedError;
           }
           break;
         case address !== undefined:
           try {
             pie = await this.getPieByAddress(address);
-          } catch(catched_error) {
-            error = catched_error;
+          } catch(catchedError) {
+            error = catchedError;
           }
           break; 
         default:
-          error = new Error("either a Pie-Name or a Pie-Anddress must be provided");
+          error = new NotFoundException("either a Pie-Name or a Pie-Anddress must be provided");
       }
 
       if(pie) {
@@ -175,7 +175,7 @@ export class PiesService {
     });
   }
 
-  private getPieHistoryDetails(pie: PieEntity): Promise<PieHistoryEntity[]> {
+  getPieHistoryDetails(pie: PieEntity): Promise<PieHistoryEntity[]> {
     return new Promise(async(resolve, reject) => {
       try {
         let pieHistories = await this.pieHistoryModel.find({
@@ -196,7 +196,7 @@ export class PiesService {
       if(pies[0]) {
         resolve(pies[0]);
       } else {
-        reject("Sorry, can't find any Pie in our database which matches your query.");
+        reject(new NotFoundException("Sorry, can't find any Pie in our database which matches your query."));
       }
       
     });
@@ -209,7 +209,7 @@ export class PiesService {
       if(pies[0]) {
         resolve(pies[0]);
       } else {
-        reject("Sorry, can't find any Pie in our database which matches your query.");
+        reject(new NotFoundException("Sorry, can't find any Pie in our database which matches your query."));
       }      
     });    
   }
