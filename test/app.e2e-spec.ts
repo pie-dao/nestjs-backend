@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
-import { PiesStub, PieStub } from './../src/pies/test/stubs/pies.stubs';
+import { AppModule } from '../src/app.module';
+import { PiesStub, PieStub } from '../src/pies/test/stubs/pies.stubs';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -65,5 +65,9 @@ describe('AppController (e2e)', () => {
     
     expect(response.status).toBe(200);
     expect(typeof response.body).toBe("object");
+  }); 
+  
+  afterAll(async () => {
+    await app.close();
   });  
 });

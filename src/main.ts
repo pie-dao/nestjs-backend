@@ -24,5 +24,8 @@ async function bootstrap() {
   // fixes for heroku hosting...
   app.enableCors();
   await app.listen(process.env.PORT || 3000);
+  return app;
 }
-bootstrap();
+
+let app = bootstrap();
+export default app;
