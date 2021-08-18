@@ -105,20 +105,21 @@ export class PiesService {
   getPies(name?, address?): Promise<PieEntity[]> {
     return new Promise(async(resolve, reject) => {
       let pies = [];
+      let error = null;
       
       switch(true) {
         case name !== undefined:
           try {
             pies.push(await this.getPieByName(name));
-          } catch(error) {
-            reject(error);
+          } catch(catchedError) {
+            error = catchedError;
           }
           break;
         case address !== undefined:
           try {
             pies.push(await this.getPieByAddress(address));
-          } catch(error) {
-            reject(error);
+          } catch(catchedError) {
+            error = catchedError;
           }
           break; 
         default:
@@ -132,7 +133,12 @@ export class PiesService {
           }         
       }
 
-      resolve(pies);
+      if(error) {
+        reject(error);
+      } else {
+        resolve(pies);
+      }      
+      
     });
   }
 

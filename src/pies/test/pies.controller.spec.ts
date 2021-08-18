@@ -5,6 +5,7 @@ import { PiesController } from '../pies.controller';
 import { PiesService } from '../pies.service';
 import { PiesStub, PieStub } from './stubs/pies.stubs';
 import { PieHistoryStub } from './stubs/pies-history.stubs';
+import { NotFoundException } from '@nestjs/common';
 
 jest.mock('../pies.service');
 
@@ -43,9 +44,15 @@ describe('PiesController', () => {
 
       test('then it should return an array of PieEntity', () => {
         expect(pies).toEqual(PiesStub());
-      });
+      });     
+
+      test('it should throw an error if no records are found', async() => {
+        await expect(controller.getPies("not_existing_token", null))
+        .rejects
+        .toThrow(NotFoundException);
+      });      
     });
-  });
+  }); 
 
   describe('getPieByAddress', () => {
     describe('When getPieByAddress is called', () => {
@@ -62,6 +69,12 @@ describe('PiesController', () => {
       test('then it should return a PieEntity', () => {
         expect(pie).toEqual(PieStub());
       });
+
+      test('it should throw an error if no records are found', async() => {
+        await expect(controller.getPieByAddress("not_existing_address"))
+        .rejects
+        .toThrow(NotFoundException);
+      });       
     });
   });
 
@@ -80,6 +93,12 @@ describe('PiesController', () => {
       test('then it should return a PieEntity', () => {
         expect(pie).toEqual(PieStub());
       });
+
+      test('it should throw an error if no records are found', async() => {
+        await expect(controller.getPieByName("not_existing_name"))
+        .rejects
+        .toThrow(NotFoundException);
+      });       
     });
   });
 
@@ -98,6 +117,12 @@ describe('PiesController', () => {
       test('then it should return a PieHistoryEntity', () => {
         expect(pieHistory).toEqual(PieHistoryStub());
       });
+
+      test('it should throw an error if no records are found', async() => {
+        await expect(controller.getPieHistory(undefined, "not_existing_address"))
+        .rejects
+        .toThrow(NotFoundException);
+      });      
     });
   });
 });
