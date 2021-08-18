@@ -214,7 +214,7 @@ export class PiesService {
     });    
   }
 
-  private createPie(pie: PieDto): Promise<PieEntity> {
+  createPie(pie: PieDto): Promise<PieEntity> {
     return new Promise(async(resolve, reject) => {
       try {
         pie.address = pie.address.toLocaleLowerCase();
@@ -228,4 +228,15 @@ export class PiesService {
       }
     });    
   }
+
+  deletePie(pie: PieEntity): Promise<PieEntity> {
+    return new Promise(async(resolve, reject) => {
+      try {
+        let pieDB = await this.pieModel.findOneAndDelete({ address: pie.address });
+        resolve(pieDB);
+      } catch(error) {
+        reject(error);
+      }
+    });    
+  }  
 }

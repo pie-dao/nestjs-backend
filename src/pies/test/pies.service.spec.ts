@@ -4,10 +4,10 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { Test, TestingModule } from '@nestjs/testing';
+import { PieDto } from '../dto/pies.dto';
 import { PieHistoryEntity, PieHistorySchema } from '../entities/pie-history.entity';
 import { PieEntity, PieSchema } from '../entities/pie.entity';
 import { PiesService } from '../pies.service';
-import { PieHistoryStub } from './stubs/pies-history.stubs';
 import { PiesStub, PieStub } from './stubs/pies.stubs';
 
 describe('PiesService', () => {
@@ -19,7 +19,7 @@ describe('PiesService', () => {
         HttpModule,
         ConfigModule.forRoot(),
         ScheduleModule.forRoot(),        
-        MongooseModule.forRoot(process.env.MONGO_DB),
+        MongooseModule.forRoot(process.env.MONGO_DB_TEST),
         MongooseModule.forFeature([{ name: PieEntity.name, schema: PieSchema }]),
         MongooseModule.forFeature([{ name: PieHistoryEntity.name, schema: PieHistorySchema }])        
       ],
@@ -31,6 +31,51 @@ describe('PiesService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('getPies', () => {
+    describe('When getPies is called', () => {
+      let pies: PieEntity[];
+
+      beforeEach(async () => {
+        jest.setTimeout(15000);
+        jest.spyOn(service, "getPies");
+        pies = await service.getPies();
+      });
+
+      test('then it should call pieService.getPies', () => {
+        expect(service.getPies).toHaveBeenCalled();
+      });
+
+      test('then it should return an Array of PieEntity', () => {
+        let piesMock = PiesStub();
+
+        expect(pies).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({name: piesMock[0].name, address: piesMock[0].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[1].name, address: piesMock[1].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[2].name, address: piesMock[2].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[3].name, address: piesMock[3].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[4].name, address: piesMock[4].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[5].name, address: piesMock[5].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[6].name, address: piesMock[6].address.toLowerCase()}),
+            expect.objectContaining({name: piesMock[7].name, address: piesMock[7].address.toLowerCase()})
+          ])
+        );
+      });
+
+      test('it should throw an error if no records are found by name', async() => {
+        await expect(service.getPies("not_existing_token", undefined))
+        .rejects
+        .toThrow(NotFoundException);
+      });
+
+      test('it should throw an error if no records are found by address', async() => {
+        await expect(service.getPies(undefined, "not_existing_token"))
+        .rejects
+        .toThrow(NotFoundException);
+      });          
+    });
   });
 
   describe('getPies by Name', () => {
@@ -80,52 +125,6 @@ describe('PiesService', () => {
       });
     });
   });   
-
-  describe('getPies', () => {
-    describe('When getPies is called', () => {
-      let pies: PieEntity[];
-
-      beforeEach(async () => {
-        jest.setTimeout(15000);
-        jest.spyOn(service, "getPies");
-        pies = await service.getPies();
-      });
-
-      test('then it should call pieService.getPies', () => {
-        expect(service.getPies).toHaveBeenCalled();
-      });
-
-      test('then it should return an Array of PieEntity', () => {
-        let piesMock = PiesStub();
-
-        expect(pies).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({name: piesMock[0].name, address: piesMock[0].address.toLowerCase()}),
-            expect.objectContaining({name: piesMock[1].name, address: piesMock[1].address.toLowerCase()}),
-            expect.objectContaining({name: piesMock[2].name, address: piesMock[2].address.toLowerCase()}),
-            expect.objectContaining({name: piesMock[3].name, address: piesMock[3].address.toLowerCase()}),
-            expect.objectContaining({name: piesMock[4].name, address: piesMock[4].address.toLowerCase()}),
-            expect.objectContaining({name: piesMock[5].name, address: piesMock[5].address.toLowerCase()}),
-            expect.objectContaining({name: piesMock[6].name, address: piesMock[6].address.toLowerCase()}),
-            expect.objectContaining({name: piesMock[7].name, address: piesMock[7].address.toLowerCase()})
-          ])
-        );
-      });
-
-      test('it should throw an error if no records are found by name', async() => {
-        await expect(service.getPies("not_existing_token", undefined))
-        .rejects
-        .toThrow(NotFoundException);
-      });
-
-      test('it should throw an error if no records are found by address', async() => {
-        await expect(service.getPies(undefined, "not_existing_token"))
-        .rejects
-        .toThrow(NotFoundException);
-      });          
-    });
-  });  
-
 
   describe('getPieByAddress', () => {
     describe('When getPieByAddress is called', () => {
@@ -229,6 +228,76 @@ describe('PiesService', () => {
         .rejects
         .toThrow(NotFoundException);
       });       
+    });   
+    
+    describe('When getPieHistory is called on a token without history', () => {
+
+      beforeEach(async () => {
+        jest.setTimeout(15000);
+        jest.spyOn(service, "getPieHistoryDetails");
+      });
+
+      test('it should throw an error', async() => {
+        await expect(service.getPieHistoryDetails(undefined))
+        .rejects
+        .toThrow(Error);
+      });
+    });    
+  }); 
+  
+  describe('createPie', () => {
+    describe('When createPie is called', () => {
+      let pie: PieDto = {name: "foobar", address: "foobar", history: []};
+      let pieDB: PieEntity;
+
+      beforeEach(async () => {
+        jest.setTimeout(15000);
+        jest.spyOn(service, "createPie");
+        pieDB = await service.createPie(pie);
+      });
+
+      test('then it should call pieService.createPie', () => {
+        expect(service.createPie).toHaveBeenCalledWith(pie);
+      });
+
+      test('then it should return a PieEntity', () => {
+        expect(pieDB.name).toEqual(pie.name);
+        expect(typeof pieDB).toBe("object");
+      });
+
+      test('it should throw an error if a non valid pieEntity is passed', async() => {
+        await expect(service.createPie(undefined))
+        .rejects
+        .toThrow(Error);
+      });      
     });
-  });  
+  }); 
+  
+  describe('deletePie', () => {
+    describe('When deletePie is called', () => {
+      let pieDB: PieEntity;
+      let response: PieEntity;
+
+      beforeEach(async () => {
+        jest.setTimeout(15000);
+        jest.spyOn(service, "deletePie");
+        pieDB = await service.getPieByName("foobar");
+        response = await service.deletePie(pieDB);
+      });
+
+      test('then it should call pieService.deletePie', () => {
+        expect(service.deletePie).toHaveBeenCalledWith(pieDB);
+      });
+
+      test('then it should detele a PieEntity', () => {
+        expect(typeof pieDB).toBe("object");
+      });
+
+      test('it should throw an error if a non valid pieEntity is passed', async() => {
+        await expect(service.deletePie(undefined))
+        .rejects
+        .toThrow(Error);
+      });       
+    });
+  });   
 });
