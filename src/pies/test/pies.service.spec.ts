@@ -33,12 +33,35 @@ describe('PiesService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('reset DB and re-initiate it', () => {
+    describe('When DB is empty, all pies should be initiated', () => {
+      jest.setTimeout(15000);
+      let piesDB: PieEntity[];
+
+      beforeAll(async () => {
+        jest.spyOn(service, "getPies");
+        
+        let pies = PiesStub();
+
+        for(let i = 0; i < pies.length; i++) {
+          await service.deletePie(pies[i]);
+        };
+
+        piesDB = await service.getPies();
+      }); 
+      
+      test('then it return an array of 8 PieEntity', () => {
+        expect(piesDB).toHaveLength(8);
+      });
+    });
+  });    
+
   describe('getPies', () => {
     describe('When getPies is called', () => {
+      jest.setTimeout(15000);
       let pies: PieEntity[];
 
       beforeEach(async () => {
-        jest.setTimeout(15000);
         jest.spyOn(service, "getPies");
         pies = await service.getPies();
       });
@@ -80,10 +103,10 @@ describe('PiesService', () => {
 
   describe('getPies by Name', () => {
     describe('When getPies is called with a name param', () => {
+      jest.setTimeout(15000);
       let pies: PieEntity[];
 
       beforeEach(async () => {
-        jest.setTimeout(15000);
         jest.spyOn(service, "getPies");
         pies = await service.getPies(PieStub().name, undefined);
       });
@@ -104,10 +127,10 @@ describe('PiesService', () => {
 
   describe('getPies by Address', () => {
     describe('When getPies is called with an address param', () => {
+      jest.setTimeout(15000);
       let pies: PieEntity[];
 
       beforeEach(async () => {
-        jest.setTimeout(15000);
         jest.spyOn(service, "getPies");
         pies = await service.getPies(undefined, PieStub().address);
       });
@@ -128,10 +151,10 @@ describe('PiesService', () => {
 
   describe('getPieByAddress', () => {
     describe('When getPieByAddress is called', () => {
+      jest.setTimeout(15000);
       let pie: PieEntity;
 
       beforeEach(async () => {
-        jest.setTimeout(15000);
         jest.spyOn(service, "getPieByAddress");
         pie = await service.getPieByAddress(PieStub().address);
       });
@@ -148,10 +171,10 @@ describe('PiesService', () => {
 
   describe('getPieByName', () => {
     describe('When getPieByName is called', () => {
+      jest.setTimeout(15000);
       let pie: PieEntity;
 
       beforeEach(async () => {
-        jest.setTimeout(15000);
         jest.spyOn(service, "getPieByName");
         pie = await service.getPieByName(PieStub().name);
       });
@@ -168,10 +191,10 @@ describe('PiesService', () => {
 
   describe('getPieHistory', () => {
     describe('When getPieHistory is called with an address param', () => {
+      jest.setTimeout(15000);
       let pieHistory: PieHistoryEntity[];
 
       beforeEach(async () => {
-        jest.setTimeout(15000);
         jest.spyOn(service, "getPieHistory");
         pieHistory = await service.getPieHistory(undefined, PieStub().address.toLowerCase());
       });
@@ -247,11 +270,11 @@ describe('PiesService', () => {
   
   describe('createPie', () => {
     describe('When createPie is called', () => {
+      jest.setTimeout(15000);
       let pie: PieDto = {name: "foobar", address: "foobar", history: []};
       let pieDB: PieEntity;
 
       beforeEach(async () => {
-        jest.setTimeout(15000);
         jest.spyOn(service, "createPie");
         pieDB = await service.createPie(pie);
       });
@@ -275,11 +298,11 @@ describe('PiesService', () => {
   
   describe('deletePie', () => {
     describe('When deletePie is called', () => {
+      jest.setTimeout(15000);
       let pieDB: PieEntity;
       let response: PieEntity;
 
       beforeEach(async () => {
-        jest.setTimeout(15000);
         jest.spyOn(service, "deletePie");
         pieDB = await service.getPieByName("foobar");
         response = await service.deletePie(pieDB);
@@ -299,5 +322,20 @@ describe('PiesService', () => {
         .toThrow(Error);
       });       
     });
+  }); 
+
+  describe('updateNAVs', () => {
+    describe('When calling updateNAVs', () => {
+      jest.setTimeout(500000);
+
+      beforeEach(async() => {
+        jest.spyOn(service, "updateNAVs");
+        await service.updateNAVs();
+      });
+
+      test('then it should call pieService.updateNAVs', () => {
+        expect(service.updateNAVs).toHaveBeenCalled();
+      });     
+    });    
   });   
 });
