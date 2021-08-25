@@ -19,6 +19,7 @@ export class StakingService {
         let holdersCounter = await this.getHoldersCounter(this.symbol);
         let blocks = 1000;
 
+        // fetching all holders, repeating the call to the graph till needed...
         while(holdersCounter > 0) {
           let response = await this.httpService.post(
             this.url,
