@@ -11,7 +11,7 @@ export class StakingController {
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @Get('accounts')
-  async getAccounts(): Promise<[]> {
+  async getAccounts(): Promise<any[]> {
     try {
       return await this.stakingService.getAccounts();
     } catch(error) {
