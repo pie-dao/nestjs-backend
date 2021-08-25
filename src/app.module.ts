@@ -5,13 +5,15 @@ import { PiesModule } from './pies/pies.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { StakingModule } from './staking/staking.module';
 
 @Module({
   imports: [
     PiesModule,
     ConfigModule.forRoot(),
     ScheduleModule.forRoot(),
-    MongooseModule.forRoot(process.env.MONGO_DB)
+    MongooseModule.forRoot(process.env.MONGO_DB),
+    StakingModule
   ],
   controllers: [AppController],
   providers: [AppService],
