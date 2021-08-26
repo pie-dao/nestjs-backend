@@ -1,5 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { StakingService } from './staking.service';
 
 @ApiTags('Staking')
@@ -15,7 +15,20 @@ export class StakingController {
     try {
       return await this.stakingService.getAccounts();
     } catch(error) {
-      throw new Error(error);
+      throw error;
+    }
+  };
+
+  @ApiOkResponse({type: Array, isArray: true})
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @ApiQuery({name: 'timestamp', required: true})
+  @Get('generate_participations')
+  async generateParticipations(@Query('timestamp') timestamp?: number): Promise<any[]> {
+    try {
+      return await this.stakingService.generateParticipations(timestamp);
+    } catch(error) {
+      throw error;
     }
   };  
 }
