@@ -23,6 +23,19 @@ export class StakingController {
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
   @ApiQuery({name: 'timestamp', required: true})
+  @Get('update_participations')
+  async updateParticipations(@Query('timestamp') timestamp?: number): Promise<any[]> {
+    try {
+      return await this.stakingService.updateParticipations(timestamp);
+    } catch(error) {
+      throw error;
+    }
+  };
+
+  @ApiOkResponse({type: Array, isArray: true})
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @ApiQuery({name: 'timestamp', required: true})
   @Get('generate_participations')
   async generateParticipations(@Query('timestamp') timestamp?: number): Promise<any[]> {
     try {

@@ -1,5 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { ParticipationDocument, ParticipationEntity } from './entities/participation.entity';
 
 @Injectable()
 export class StakingService {
@@ -9,125 +12,183 @@ export class StakingService {
   private symbol = 'DOUGH';
 
   constructor(
-    private httpService: HttpService
+    private httpService: HttpService,
+    @InjectModel(ParticipationEntity.name) private participationModel: Model<ParticipationDocument>,
   ) { }
 
   generateParticipations(inactiveTime: number): Promise<any[]> {
+    return new Promise(async(resolve, reject) => {
+      if(!inactiveTime) {
+        reject(new BadRequestException("Sorry, you must define a timestamp as inactiveTime value"));
+      }
+
+      try {
+        // fetching all votes from snapshot, in the last 3 months...
+        let votes = await this.getSnapshotVotes(inactiveTime);
+        // creating an array of voters...
+        let voters = Array.from(votes, vote => '"' + vote.voter.toLowerCase() + '"');
+        // removing duplicates from the voters array...
+        voters = voters.sort().filter(function(item, pos, ary) {
+          return !pos || item != ary[pos - 1];
+        });        
+
+        // retrieving the holders from our subgraph, filtering them by
+        // the addresses of those who've voted in the last 3 months...
+        let tokenHolders = await this.getAccounts(voters);
+  
+        const participations = [];
+
+        tokenHolders.forEach(tokenHolder => {
+          let holderVotes = votes.filter(vote => vote.voter.toLowerCase() == tokenHolder.holder.id);
+
+          participations.push({
+            address: tokenHolder.holder.id,
+            holder: tokenHolder,
+            votes: holderVotes
+          });
+        });
+        
+        resolve(participations);
+      } catch(error) {
+        reject(error);
+      }
+    });
+  }
+
+  updateParticipations(inactiveTime: number): Promise<any[]> {
     return new Promise(async (resolve, reject) => {
       if(!inactiveTime) {
         reject(new BadRequestException("Sorry, you must define a timestamp as inactiveTime value"));
       }
 
       try {
-        let tokenHolders = await this.getAccounts();
-        let votes = await this.getSnapshotVotes();
+        let participations = await this.generateParticipations(inactiveTime);
 
-        votes.forEach(vote => {
-          if ((vote.created * 1000) > inactiveTime) {
-            let tokenHolder = tokenHolders.find(x => x.holder.id == vote.voter.toLowerCase());
+        // for(let i = 0; i < participations.length; i++) {
+        //   await this.updateParticipation(participations[i]);
+        // }
 
-            if(tokenHolder) {
-              tokenHolder.participation = 1;
-            }
-          }
-        });
-
-        const participationElements = [];
-
-        tokenHolders.forEach(tokenHolder => {
-          participationElements.push({
-            address: tokenHolder.holder.id,
-            participation: tokenHolder.participation
-          });
-        });
-
-        resolve(participationElements);
+        resolve(participations);
       } catch (error) {
         reject(error);
       }
     });
   }
 
-  getAccounts(): Promise<any[]> {
+  getAccounts(ids?: Array<string>): Promise<any[]> {
     return new Promise(async (resolve, reject) => {
       try {
-        let holders = [];
         let lastID = "";
-        let holdersCounter = await this.getHoldersCounter(this.symbol);
         let blocks = 1000;
+        let accounts = [];
 
-        // fetching all holders, repeating the call to the graph till needed...
-        while (holdersCounter > 0) {
-          let response = await this.httpService.post(
-            this.graphUrl,
-            {
-              query: `{
-                positions(first: ${blocks}, where: {token: "${this.doughV2}", id_gt: "${lastID}"}) {
-                  id
-                  balance
-                  holder {
-                    id
-                  }
-                  token {
-                    id
-                    name
-                    symbol
-                    decimals
-                  }
-                }
-              }`
-            }
-          ).toPromise();
+        let holders = await this.fetchAccounts(blocks, lastID, ids);
 
-          holders = holders.concat(response.data.data.positions);
-          holdersCounter -= blocks;
+        while(holders.length > 0) {
+          accounts = accounts.concat(holders);
+          holders = await this.fetchAccounts(blocks, holders[holders.length - 1].id, ids);
         }
 
-        resolve(holders);
+        resolve(accounts);
       } catch (error) {
         reject(error);
       }
     });
   }
 
-  private getHoldersCounter(symbol: string): Promise<any> {
-    return new Promise(async (resolve, reject) => {
+  private fetchAccounts(blocks: number, lastID: string, ids?: Array<string>): Promise<any[]> {
+    return new Promise(async(resolve, reject) => {
       try {
+        let query = null;
+
+        if(ids) {
+          query = `{
+            positions(first: ${blocks}, where: {token: "${this.doughV2}", id_gt: "${lastID}", holder_in: [${ids}]}) {
+              id
+              balance
+              holder {
+                id
+              }
+              token {
+                id
+                name
+                symbol
+                decimals
+              }
+            }
+          }`
+        } else {
+          query = `{
+            positions(first: ${blocks}, where: {token: "${this.doughV2}", id_gt: "${lastID}"}) {
+              id
+              balance
+              holder {
+                id
+              }
+              token {
+                id
+                name
+                symbol
+                decimals
+              }
+            }
+          }`          
+        }
+
         let response = await this.httpService.post(
           this.graphUrl,
           {
-            query: `{
-              holdersCounters(where: {id: "${symbol}"}) {
-                id
-                count
-              }
-            }`
+            query: query
           }
         ).toPromise();
 
-        resolve(response.data.data.holdersCounters[0].count);
-      } catch (error) {
+        resolve(response.data.data.positions);
+      } catch(error) {
         reject(error);
       }
-    });
+    })
   }
 
-  private getSnapshotVotes(): Promise<any[]> {
+  private updateParticipation(participation: any): Promise<ParticipationEntity> {
+    return new Promise(async(resolve, reject) => {
+      try {
+        let participationDB = null;
+        let participationsDB = await this.participationModel
+        .find({ address: participation.address.toLocaleLowerCase() })
+        .lean();
+
+        if(participationsDB.length > 0) {
+          participationDB = participationsDB[0];
+          participationDB.participation = participation.participation;
+          participationDB.save();
+
+          resolve(participationsDB[0]);
+        } else {
+          const participationModel = new this.participationModel(participation);
+          let participationDB = await participationModel.save();
+
+          resolve(participationDB);
+        }
+
+      } catch(error) {
+        reject(error);
+      }
+    });    
+  }
+
+  private getSnapshotVotes(inactiveTime: number): Promise<any[]> {
     return new Promise(async (resolve, reject) => {
       try {
-        let date = new Date();
-        date.setMonth(date.getMonth() - 3);
-        let validRange = Math.floor(Number(date) / 1000);
-
-        let block = 1000;
+        let validRange = inactiveTime / 1000;
+        let blocks = 1000;
         let skip = 0;
         let snapshotVotes = [];
-        let votes = await this.fetchSnapshotVotes(validRange, block, skip);
+        let votes = await this.fetchSnapshotVotes(validRange, blocks, skip);
 
         while(votes.length > 0) {
           snapshotVotes = snapshotVotes.concat(votes);
-          skip += block;
-          votes = await this.fetchSnapshotVotes(validRange, block, skip);
+          skip += blocks;
+          votes = await this.fetchSnapshotVotes(validRange, blocks, skip);
         }
 
         resolve(snapshotVotes);
@@ -137,7 +198,7 @@ export class StakingService {
     });
   }
 
-  private fetchSnapshotVotes(range, block, skip): Promise<any[]> {
+  private fetchSnapshotVotes(range, blocks, skip): Promise<any[]> {
     return new Promise(async (resolve, reject) => {
       try {        
         let response = await this.httpService.post(
@@ -145,11 +206,11 @@ export class StakingService {
           {
             query: `{
               votes (
-                first: ${block},
+                first: ${blocks},
                 skip: ${skip},
                 where: {
                   space: "piedao"
-                  created_lt: ${range}
+                  created_gt: ${range}
                 }
               ) {
                 id
