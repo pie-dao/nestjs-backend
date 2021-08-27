@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -9,7 +9,6 @@ export class StakingService {
   private graphUrl = 'https://api.thegraph.com/subgraphs/name/chiptuttofuso/piedao-subgraph-mainnet';
   private snapshotUrl = 'https://hub.snapshot.org/graphql';
   private doughV2 = '0xad32a8e6220741182940c5abf610bde99e737b2d';
-  private symbol = 'DOUGH';
 
   constructor(
     private httpService: HttpService,
