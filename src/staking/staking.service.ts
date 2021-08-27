@@ -16,15 +16,11 @@ export class StakingService {
     @InjectModel(ParticipationEntity.name) private participationModel: Model<ParticipationDocument>,
   ) { }
 
-  generateParticipations(inactiveTime: number): Promise<any[]> {
+  generateParticipations(): Promise<any[]> {
     return new Promise(async(resolve, reject) => {
-      if(!inactiveTime) {
-        reject(new BadRequestException("Sorry, you must define a timestamp as inactiveTime value"));
-      }
-
       try {
         // fetching all votes from snapshot, in the last 3 months...
-        let votes = await this.getSnapshotVotes(inactiveTime);
+        let votes = await this.getSnapshotVotes();
         // creating an array of voters...
         let voters = Array.from(votes, vote => '"' + vote.voter.toLowerCase() + '"');
         // removing duplicates from the voters array...
@@ -55,14 +51,10 @@ export class StakingService {
     });
   }
 
-  updateParticipations(inactiveTime: number): Promise<any[]> {
+  updateParticipations(): Promise<any[]> {
     return new Promise(async (resolve, reject) => {
-      if(!inactiveTime) {
-        reject(new BadRequestException("Sorry, you must define a timestamp as inactiveTime value"));
-      }
-
       try {
-        let participations = await this.generateParticipations(inactiveTime);
+        let participations = await this.generateParticipations();
 
         // for(let i = 0; i < participations.length; i++) {
         //   await this.updateParticipation(participations[i]);
@@ -176,13 +168,17 @@ export class StakingService {
     });    
   }
 
-  private getSnapshotVotes(inactiveTime: number): Promise<any[]> {
+  private getSnapshotVotes(): Promise<any[]> {
     return new Promise(async (resolve, reject) => {
       try {
-        let validRange = inactiveTime / 1000;
+        let date = new Date();
+        date.setMonth(date.getMonth() - 3);
+        let validRange = Math.floor(Number(date) / 1000);
+
         let blocks = 1000;
         let skip = 0;
         let snapshotVotes = [];
+
         let votes = await this.fetchSnapshotVotes(validRange, blocks, skip);
 
         while(votes.length > 0) {
