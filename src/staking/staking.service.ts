@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { ethers } from 'ethers';
 import * as ethDater from 'ethereum-block-by-date';
 import { ParticipationDocument, ParticipationEntity } from './entities/participation.entity';
+import { MerkleTree } from '../helpers/merkleTree/merkle-tree';
 import { Cron } from '@nestjs/schedule';
 
 @Injectable()
@@ -34,6 +35,13 @@ export class StakingService {
         );
 
         console.log("generateEpoch", block);
+
+        let participations = await this.getParticipations();
+
+        let merkleTreeObj = new MerkleTree();
+        const merkleTree = merkleTreeObj.createParticipationTree(participations);
+        console.log("merkleTree", merkleTree);
+
         resolve(block);
       } catch(error) {
         reject(error);
@@ -46,7 +54,7 @@ export class StakingService {
   getParticipations(kind?: string): Promise<any[]> {
     return new Promise(async(resolve, reject) => {
       try {
-        // fetching all votes from snapshot, in the last month...
+        // fetching all votes from snapshot in the last month...
         let votes = await this.getSnapshotVotes(1);
 
         // retrieving the stakers from our subgraph...
