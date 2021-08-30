@@ -57,5 +57,5 @@ export class StakingController {
     } catch(error) {
       throw error;
     }
-  };  
+  };
 }

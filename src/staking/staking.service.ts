@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { ethers } from 'ethers';
+import * as ethDater from 'ethereum-block-by-date';
 import { ParticipationDocument, ParticipationEntity } from './entities/participation.entity';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class StakingService {
@@ -15,11 +18,36 @@ export class StakingService {
     @InjectModel(ParticipationEntity.name) private participationModel: Model<ParticipationDocument>,
   ) { }
 
+  @Cron('10 * * * * *')
+  // Use this every 10 seconds cron setup for testing purposes.
+  // 10 * * * * *
+  // USe this every hour cron setup for production releases.
+  // 0 * * * *  
+  generateEpoch(): Promise<any> {
+    return new Promise(async(resolve, reject) => {
+      try {
+        const provider = new ethers.providers.JsonRpcProvider(process.env.INFURA_RPC);
+        const ethDaterHelper = new ethDater(provider);
+        let block = await ethDaterHelper.getDate(
+          this.generateBackmonthTimestamp(3, true),
+          true
+        );
+
+        console.log("generateEpoch", block);
+        resolve(block);
+      } catch(error) {
+        reject(error);
+      }
+    });
+  }
+
+  // TODO: this one should be private, and integrated inside a new function
+  // called getEpochs, so we can avoid generate wrong participations based on any timerange...
   getParticipations(kind?: string): Promise<any[]> {
     return new Promise(async(resolve, reject) => {
       try {
-        // fetching all votes from snapshot, in the last 3 months...
-        let votes = await this.getSnapshotVotes();
+        // fetching all votes from snapshot, in the last month...
+        let votes = await this.getSnapshotVotes(1);
 
         // retrieving the stakers from our subgraph...
         let stakers = await this.getStakers();
@@ -29,20 +57,20 @@ export class StakingService {
 
         stakers.forEach(staker => {
           let stakerVotes = votes.filter(vote => vote.voter.toLowerCase() == staker.id);
-          let eligible = stakerVotes.length ? 1 : 0;
+          let participation = stakerVotes.length ? 1 : 0;
 
           switch(kind) {
             default:
             case 'simple':
               participations.push({
                 address: staker.id,
-                eligible: eligible
+                participation: participation
               });
               break;
             case 'complex':
               participations.push({
                 address: staker.id,
-                eligible: eligible,
+                participation: participation,
                 staker: staker,
                 votes: stakerVotes
               });            
@@ -245,13 +273,10 @@ export class StakingService {
     })
   }
 
-  private getSnapshotVotes(): Promise<any[]> {
+  private getSnapshotVotes(months: number): Promise<any[]> {
     return new Promise(async (resolve, reject) => {
       try {
-        let date = new Date();
-        date.setMonth(date.getMonth() - 3);
-        let validRange = Math.floor(Number(date) / 1000);
-
+        let validRange = this.generateBackmonthTimestamp(months, false);
         let blocks = 1000;
         let skip = 0;
         let snapshotVotes = [];
@@ -306,5 +331,39 @@ export class StakingService {
         reject(error);
       }
     });
+  }
+
+  private generateBackmonthTimestamp(months: number, milliseconds: boolean): number {
+    let date = new Date();
+    date.setMonth(date.getMonth() - months);
+
+    if(milliseconds) {
+      return Number(date);
+    } else {
+      return Math.floor(Number(date) / 1000);
+    }
+  }
+
+  private getOldestLock(locks: Array<any>): any {
+    let oldestLock = this.generateBackmonthTimestamp(0, false);
+
+    locks.forEach(lock => {
+      if(lock.lockedAt < oldestLock) {
+        oldestLock = lock;
+      }
+    });
+
+    return oldestLock;
+  }
+
+  private getVotersFromShapshotVotes(votes: Array<any>): Array<string> {
+    // creating an array of voters...
+    let voters = Array.from(votes, vote => '"' + vote.voter.toLowerCase() + '"');
+    // removing duplicates from the voters array...
+    voters = voters.sort().filter(function(item, pos, ary) {
+      return !pos || item != ary[pos - 1];
+    });
+    
+    return voters;
   }
 }

@@ -2693,6 +2693,13 @@ etag@~1.8.1:
   resolved "https://registry.npmjs.org/etag/-/etag-1.8.1.tgz"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
 
+ethereum-block-by-date@^1.4.2:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/ethereum-block-by-date/-/ethereum-block-by-date-1.4.2.tgz#ff7ee7c97db89a983a15c2f651a137ba5a0a1af9"
+  integrity sha512-nSib8vMu5diAn+pI7KZ3qadw5vkyM19slBDGG97F6WWOuOOaXg9AyJfe7GhcqJRW6VIoEhu0gwUdsURS+r492w==
+  dependencies:
+    moment "^2.29.1"
+
 ethers@^5.4.4:
   version "5.4.4"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.4.4.tgz#35cce530505b84c699da944162195cfb3f894947"
@@ -4244,7 +4251,7 @@ moment-timezone@^0.5.x:
   dependencies:
     moment ">= 2.9.0"
 
-"moment@>= 2.9.0", moment@>=2.14.0:
+"moment@>= 2.9.0", moment@>=2.14.0, moment@^2.29.1:
   version "2.29.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
   integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
