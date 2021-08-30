@@ -6,41 +6,47 @@ import { ParticipationDocument, ParticipationEntity } from './entities/participa
 
 @Injectable()
 export class StakingService {
-  private graphUrl = 'https://api.thegraph.com/subgraphs/name/chiptuttofuso/piedao-subgraph-mainnet';
+  // TODO: change this url into the subgraph mainnet one, once deployed...
+  private graphUrl = 'https://api.thegraph.com/subgraphs/name/chiptuttofuso/piedaosubgraphdevelop';
   private snapshotUrl = 'https://hub.snapshot.org/graphql';
-  private doughV2 = '0xad32a8e6220741182940c5abf610bde99e737b2d';
 
   constructor(
     private httpService: HttpService,
     @InjectModel(ParticipationEntity.name) private participationModel: Model<ParticipationDocument>,
   ) { }
 
-  generateParticipations(): Promise<any[]> {
+  getParticipations(kind?: string): Promise<any[]> {
     return new Promise(async(resolve, reject) => {
       try {
         // fetching all votes from snapshot, in the last 3 months...
         let votes = await this.getSnapshotVotes();
-        // creating an array of voters...
-        let voters = Array.from(votes, vote => '"' + vote.voter.toLowerCase() + '"');
-        // removing duplicates from the voters array...
-        voters = voters.sort().filter(function(item, pos, ary) {
-          return !pos || item != ary[pos - 1];
-        });        
 
-        // retrieving the holders from our subgraph, filtering them by
-        // the addresses of those who've voted in the last 3 months...
-        let tokenHolders = await this.getAccounts(voters);
-  
+        // retrieving the stakers from our subgraph...
+        let stakers = await this.getStakers();
+        
+        // generating the participations...
         const participations = [];
 
-        tokenHolders.forEach(tokenHolder => {
-          let holderVotes = votes.filter(vote => vote.voter.toLowerCase() == tokenHolder.holder.id);
+        stakers.forEach(staker => {
+          let stakerVotes = votes.filter(vote => vote.voter.toLowerCase() == staker.id);
+          let eligible = stakerVotes.length ? 1 : 0;
 
-          participations.push({
-            address: tokenHolder.holder.id,
-            holder: tokenHolder,
-            votes: holderVotes
-          });
+          switch(kind) {
+            default:
+            case 'simple':
+              participations.push({
+                address: staker.id,
+                eligible: eligible
+              });
+              break;
+            case 'complex':
+              participations.push({
+                address: staker.id,
+                eligible: eligible,
+                staker: staker,
+                votes: stakerVotes
+              });            
+          }
         });
         
         resolve(participations);
@@ -50,77 +56,176 @@ export class StakingService {
     });
   }
 
-  updateParticipations(): Promise<any[]> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let participations = await this.generateParticipations();
-
-        // for(let i = 0; i < participations.length; i++) {
-        //   await this.updateParticipation(participations[i]);
-        // }
-
-        resolve(participations);
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
-  getAccounts(ids?: Array<string>): Promise<any[]> {
+  getStakers(ids?: Array<string>): Promise<any[]> {
     return new Promise(async (resolve, reject) => {
       try {
         let lastID = "";
         let blocks = 1000;
-        let accounts = [];
+        let stakers = [];
 
-        let holders = await this.fetchAccounts(blocks, lastID, ids);
+        let holders = await this.fetchStakers(blocks, lastID, ids);
 
         while(holders.length > 0) {
-          accounts = accounts.concat(holders);
-          holders = await this.fetchAccounts(blocks, holders[holders.length - 1].id, ids);
+          stakers = stakers.concat(holders);
+          holders = await this.fetchStakers(blocks, holders[holders.length - 1].id, ids);
         }
 
-        resolve(accounts);
+        resolve(stakers);
       } catch (error) {
         reject(error);
       }
     });
   }
 
-  private fetchAccounts(blocks: number, lastID: string, ids?: Array<string>): Promise<any[]> {
+  getLocks(lockedAt?: string, ids?: Array<string>): Promise<any[]> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let lastID = "";
+        let blocks = 1000;
+        let locks = [];
+
+        if(!lockedAt) {
+          let date = new Date();
+          lockedAt = Math.floor(Number(date) / 1000).toString();
+        }
+
+        let stakersLocks = await this.fetchLocks(blocks, lastID, lockedAt, ids);
+
+        while(stakersLocks.length > 0) {
+          locks = locks.concat(stakersLocks);
+          stakersLocks = await this.fetchLocks(blocks, stakersLocks[stakersLocks.length - 1].id, lockedAt, ids);
+        }
+
+        resolve(locks);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  private fetchLocks(blocks: number, lastID: string, lockedAt?: string, ids?: Array<string>): Promise<any[]> {
+    return new Promise(async(resolve, reject) => {
+      try {
+        let query = null;
+        
+        if(ids) {
+          query = `{
+            locks(first: ${blocks}, where: {id_gt: "${lastID}", lockedAt_lt: ${lockedAt}, staker_in: [${ids}]}) {
+              id
+              lockDuration
+              lockedAt
+              amount
+              lockId
+              withdrawn
+              staker {
+                id
+                totalStaked
+                veTokenTotalSupply
+                accountVeTokenBalance
+                accountWithdrawableRewards
+                accountWithdrawnRewards
+                accountDepositTokenBalance
+                accountDepositTokenAllowance
+              }
+            }
+          }`;
+        } else {
+          query = `{
+            locks(first: ${blocks}, where: {id_gt: "${lastID}", lockedAt_lt: ${lockedAt}}) {
+              id
+              lockDuration
+              lockedAt
+              amount
+              lockId
+              withdrawn
+              staker {
+                id
+                totalStaked
+                veTokenTotalSupply
+                accountVeTokenBalance
+                accountWithdrawableRewards
+                accountWithdrawnRewards
+                accountDepositTokenBalance
+                accountDepositTokenAllowance
+              }
+            }
+          }`;
+        } 
+
+        let response = await this.httpService.post(
+          this.graphUrl,
+          {
+            query: query
+          }
+        ).toPromise();
+
+        resolve(response.data.data.locks);
+      } catch(error) {
+        reject(error);
+      }
+    })
+  }
+
+  private fetchStakers(blocks: number, lastID: string, ids?: Array<string>): Promise<any[]> {
     return new Promise(async(resolve, reject) => {
       try {
         let query = null;
 
         if(ids) {
           query = `{
-            positions(first: ${blocks}, where: {token: "${this.doughV2}", id_gt: "${lastID}", holder_in: [${ids}]}) {
+            stakers(first: ${blocks}, where: {id_gt: "${lastID}", id_in: [${ids}]}) {
               id
-              balance
-              holder {
+              totalStaked
+              veTokenTotalSupply
+              accountVeTokenBalance
+              accountWithdrawableRewards
+              accountWithdrawnRewards
+              accountDepositTokenBalance
+              accountDepositTokenAllowance
+              accountLocks {
                 id
+                lockId
+                lockDuration
+                lockedAt
+                amount
+                withdrawn
+                ejected
+                boosted
               }
-              token {
+              accountRewards {
                 id
-                name
-                symbol
-                decimals
+                timestamp
+                amount
+                type
               }
             }
           }`
         } else {
           query = `{
-            positions(first: ${blocks}, where: {token: "${this.doughV2}", id_gt: "${lastID}"}) {
+            stakers(first: ${blocks}, where: {id_gt: "${lastID}"}) {
               id
-              balance
-              holder {
+              totalStaked
+              veTokenTotalSupply
+              accountVeTokenBalance
+              accountWithdrawableRewards
+              accountWithdrawnRewards
+              accountDepositTokenBalance
+              accountDepositTokenAllowance
+              accountLocks {
                 id
+                lockId
+                lockDuration
+                lockedAt
+                amount
+                withdrawn
+                ejected
+                boosted
               }
-              token {
+              accountRewards {
                 id
-                name
-                symbol
-                decimals
+                timestamp
+                amount
+                type
               }
             }
           }`          
@@ -133,38 +238,11 @@ export class StakingService {
           }
         ).toPromise();
 
-        resolve(response.data.data.positions);
+        resolve(response.data.data.stakers);
       } catch(error) {
         reject(error);
       }
     })
-  }
-
-  private updateParticipation(participation: any): Promise<ParticipationEntity> {
-    return new Promise(async(resolve, reject) => {
-      try {
-        let participationDB = null;
-        let participationsDB = await this.participationModel
-        .find({ address: participation.address.toLocaleLowerCase() })
-        .lean();
-
-        if(participationsDB.length > 0) {
-          participationDB = participationsDB[0];
-          participationDB.participation = participation.participation;
-          participationDB.save();
-
-          resolve(participationsDB[0]);
-        } else {
-          const participationModel = new this.participationModel(participation);
-          let participationDB = await participationModel.save();
-
-          resolve(participationDB);
-        }
-
-      } catch(error) {
-        reject(error);
-      }
-    });    
   }
 
   private getSnapshotVotes(): Promise<any[]> {

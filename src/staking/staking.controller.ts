@@ -10,10 +10,17 @@ export class StakingController {
   @ApiOkResponse({type: Array, isArray: true})
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
-  @Get('accounts')
-  async getAccounts(): Promise<any[]> {
+  @ApiQuery({name: 'ids', required: false})
+  @Get('stakers')
+  async getStakers(@Query('ids') ids?: string): Promise<any[]> {
     try {
-      return await this.stakingService.getAccounts();
+      let stakersIds = null;
+
+      if(ids) {
+        stakersIds = ids.split(",").map(id => '"' + id + '"');
+      }
+
+      return await this.stakingService.getStakers(stakersIds);
     } catch(error) {
       throw error;
     }
@@ -22,10 +29,18 @@ export class StakingController {
   @ApiOkResponse({type: Array, isArray: true})
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
-  @Get('update_participations')
-  async updateParticipations(): Promise<any[]> {
+  @ApiQuery({name: 'locked_at', required: false})
+  @ApiQuery({name: 'ids', required: false})
+  @Get('locks')
+  async getLocks(@Query('locked_at') locked_at?: string, @Query('ids') ids?: string): Promise<any[]> {
     try {
-      return await this.stakingService.updateParticipations();
+      let stakersIds = null;
+
+      if(ids) {
+        stakersIds = ids.split(",").map(id => '"' + id + '"');
+      }
+
+      return await this.stakingService.getLocks(locked_at, stakersIds);
     } catch(error) {
       throw error;
     }
@@ -34,10 +49,11 @@ export class StakingController {
   @ApiOkResponse({type: Array, isArray: true})
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
-  @Get('generate_participations')
-  async generateParticipations(): Promise<any[]> {
+  @ApiQuery({name: 'kind', required: false})
+  @Get('participations')
+  async getParticipations(@Query('kind') kind?: string): Promise<any[]> {
     try {
-      return await this.stakingService.generateParticipations();
+      return await this.stakingService.getParticipations(kind);
     } catch(error) {
       throw error;
     }
