@@ -19,11 +19,11 @@ export class StakingService {
     @InjectModel(EpochEntity.name) private epochModel: Model<EpochDocument>,
   ) { }
 
-  @Cron('10 * * * * *')
+  @Cron('0 0 1 * *')
   // Use this every 10 seconds cron setup for testing purposes.
   // 10 * * * * *
   // USe this every hour cron setup for production releases.
-  // 0 * * * *  
+  // 0 0 1 * * 
   generateEpoch(): Promise<any> {
     return new Promise(async(resolve, reject) => {
       try {
