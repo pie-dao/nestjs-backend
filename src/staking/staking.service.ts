@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ethers } from 'ethers';
 import * as ethDater from 'ethereum-block-by-date';
-import { ParticipationDocument, ParticipationEntity } from './entities/participation.entity';
+import { EpochDocument, EpochEntity } from './entities/epoch.entity';
 import { MerkleTree } from '../helpers/merkleTree/merkle-tree';
 import { Cron } from '@nestjs/schedule';
 
@@ -16,7 +16,7 @@ export class StakingService {
 
   constructor(
     private httpService: HttpService,
-    @InjectModel(ParticipationEntity.name) private participationModel: Model<ParticipationDocument>,
+    @InjectModel(EpochEntity.name) private epochModel: Model<EpochDocument>,
   ) { }
 
   @Cron('10 * * * * *')
@@ -27,27 +27,57 @@ export class StakingService {
   generateEpoch(): Promise<any> {
     return new Promise(async(resolve, reject) => {
       try {
-        const provider = new ethers.providers.JsonRpcProvider(process.env.INFURA_RPC);
-        const ethDaterHelper = new ethDater(provider);
-        let block = await ethDaterHelper.getDate(
-          this.generateBackmonthTimestamp(3, true),
-          true
-        );
-
-        console.log("generateEpoch", block);
-
-        let participations = await this.getParticipations();
+        let participations = await this.getParticipations("complex");
 
         let merkleTreeObj = new MerkleTree();
         const merkleTree = merkleTreeObj.createParticipationTree(participations);
-        console.log("merkleTree", merkleTree);
-
-        resolve(block);
+        
+        let epoch = await this.saveEpoch(participations, merkleTree);
+        console.log(`generateEpoch`, epoch);
+        resolve(epoch);
       } catch(error) {
         reject(error);
       }
     });
   }
+
+  private saveEpoch(participations: Array<any>, merkleTree: any): Promise<EpochEntity> {
+    return new Promise(async(resolve, reject) => {
+      try {
+        const provider = new ethers.providers.JsonRpcProvider(process.env.INFURA_RPC);
+        const ethDaterHelper = new ethDater(provider);
+
+        let startDate = this.generateBackmonthTimestamp(1, true);
+        let endDate = this.generateBackmonthTimestamp(0, true);
+        
+        let startBlock = await ethDaterHelper.getDate(
+          startDate,
+          true
+        );
+
+        let endBlock = await ethDaterHelper.getDate(
+          endDate,
+          true
+        );
+
+        const epochModel = new this.epochModel();
+        epochModel.startDate = startDate;
+        epochModel.endDate = endDate;
+        epochModel.startBlock = startBlock.block;
+        epochModel.endBlock = endBlock.block;
+        epochModel.participants = participations;
+        epochModel.merkleTree = merkleTree;
+        epochModel.proposals = this.getProposalsFromParticipations(participations);
+        epochModel.rewards = 'to be implemented';
+
+        let epochDB = await epochModel.save();
+        resolve(epochDB);
+  
+      } catch(error) {
+        reject(error);
+      }
+    });    
+  }  
 
   // TODO: this one should be private, and integrated inside a new function
   // called getEpochs, so we can avoid generate wrong participations based on any timerange...
@@ -373,5 +403,22 @@ export class StakingService {
     });
     
     return voters;
+  }
+
+  private getProposalsFromParticipations(participations: Array<any>): Array<string> {
+    let proposals = [];
+
+    participations.forEach(staker => {
+      staker.votes.forEach(vote => {
+        proposals.push(vote.proposal.id);  
+      });
+    });
+    
+    // removing duplicates from the proposals array...
+    proposals = proposals.sort().filter(function(item, pos, ary) {
+      return !pos || item != ary[pos - 1];
+    });
+    
+    return proposals;
   }
 }

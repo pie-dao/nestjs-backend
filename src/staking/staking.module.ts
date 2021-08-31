@@ -4,12 +4,12 @@ import { StakingController } from './staking.controller';
 import { HttpModule} from '@nestjs/axios';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MerkleTree } from '../helpers/merkleTree/merkle-tree';
-import { ParticipationEntity, ParticipationSchema } from './entities/participation.entity';
+import { EpochEntity, EpochSchema } from './entities/epoch.entity';
 
 @Module({
   imports: [
     HttpModule,
-    MongooseModule.forFeature([{ name: ParticipationEntity.name, schema: ParticipationSchema }])
+    MongooseModule.forFeature([{ name: EpochEntity.name, schema: EpochSchema }])
   ],
   controllers: [StakingController],
   providers: [StakingService, MerkleTree]

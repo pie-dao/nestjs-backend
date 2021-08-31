@@ -12,7 +12,7 @@ import { StakingModule } from './staking/staking.module';
     PiesModule,
     ConfigModule.forRoot(),
     ScheduleModule.forRoot(),
-    MongooseModule.forRoot(process.env.MONGO_DB),
+    MongooseModule.forRoot(process.env.NODE_ENV == 'development' ? process.env.MONGO_DB_TEST : process.env.MONGO_DB),
     StakingModule
   ],
   controllers: [AppController],

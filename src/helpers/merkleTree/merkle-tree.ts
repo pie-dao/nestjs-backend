@@ -22,7 +22,7 @@ export class MerkleTree {
   
       return entryWithLeaf;
     });
-    
+
     this.generateTree(entriesWithLeafs.map((item) => item.leaf));
 
     return {
@@ -73,10 +73,6 @@ export class MerkleTree {
   getRoot() {
     return this.layers[this.layers.length - 1][0];
   }
-
-  // getHexRoot() {
-  //   return bufferToHex(this.getRoot());
-  // }
 
   getProof(el) {
     let idx = MerkleTree.bufIndexOf(el, this.elements);
