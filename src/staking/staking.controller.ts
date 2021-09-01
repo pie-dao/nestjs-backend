@@ -50,10 +50,11 @@ export class StakingController {
   @ApiOkResponse({type: EpochEntity, isArray: true})
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
+  @ApiQuery({name: 'startDate', required: false})
   @Get('epochs')
-  async getEpochs(): Promise<Array<EpochEntity>> {
+  async getEpochs(@Query('startDate') startDate?: number): Promise<Array<EpochEntity>> {
     try {
-      return await this.stakingService.getEpochs();
+      return await this.stakingService.getEpochs(startDate);
     } catch(error) {
       throw error;
     }
@@ -62,10 +63,11 @@ export class StakingController {
   @ApiOkResponse({type: EpochEntity})
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
+  @ApiQuery({name: 'id', required: false})
   @Get('epoch')
-  async getEpoch(): Promise<EpochEntity> {
+  async getEpoch(@Query('id') id?: string): Promise<EpochEntity> {
     try {
-      return await this.stakingService.getEpoch();
+      return await this.stakingService.getEpoch(id);
     } catch(error) {
       throw error;
     }

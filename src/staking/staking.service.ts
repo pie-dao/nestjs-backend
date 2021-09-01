@@ -7,6 +7,7 @@ import * as ethDater from 'ethereum-block-by-date';
 import { EpochDocument, EpochEntity } from './entities/epoch.entity';
 import { MerkleTree } from '../helpers/merkleTree/merkle-tree';
 import { Cron } from '@nestjs/schedule';
+import * as mongoose from 'mongoose';
 
 @Injectable()
 export class StakingService {
@@ -20,29 +21,55 @@ export class StakingService {
   ) { }
 
   // TODO: we shall add pagination here...
-  getEpochs(): Promise<Array<EpochEntity>> {
+  getEpochs(startDate?: number): Promise<Array<EpochEntity>> {
     return new Promise(async(resolve, reject) => {
       try {
-        let epochsDB = await this.epochModel
-        .find()
-        .lean();
+        let epochsDB = null;
 
-        resolve(epochsDB);
+        if(startDate) {
+          epochsDB = await this.epochModel
+          .find({ startDate: { $gte: startDate } })
+          .lean();
+        } else {
+          epochsDB = await this.epochModel
+          .find()
+          .lean();          
+        }
+
+        if(epochsDB.length) {
+          resolve(epochsDB);
+        } else {
+          throw new Error('Sorry, no epochs has been founded on our database.');
+        }
       } catch(error) {
         reject(error);
       }
     });
   }  
 
-  getEpoch(): Promise<EpochEntity> {
+  getEpoch(id?: string): Promise<EpochEntity> {
     return new Promise(async(resolve, reject) => {
       try {
-        let epochDB = await this.epochModel
-        .findOne()
-        .sort({ _id: -1 })
-        .lean();
+        let epochDB = null;
+        
+        if(id) {
+          let query = {_id: new mongoose.Types.ObjectId(id)};
 
-        resolve(epochDB);
+          epochDB = await this.epochModel
+          .find(query)
+          .lean();
+        } else {
+          epochDB = await this.epochModel
+          .findOne()
+          .sort({ _id: -1 })
+          .lean();          
+        }
+
+        if(epochDB) {
+          resolve(epochDB);
+        } else {
+          reject(new Error("Sorry, can't find any epoch with this id."))
+        }
       } catch(error) {
         reject(error);
       }
