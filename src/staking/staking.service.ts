@@ -97,9 +97,9 @@ export class StakingService {
   }  
 
   @Cron('0 0 1 * *')
-  // Use this every 10 seconds cron setup for testing purposes.
+  // Use this every 10 seconds cron setup, for testing purposes.
   // 10 * * * * *
-  // USe this every hour cron setup for production releases.
+  // USe this every first day of the month, for production releases.
   // 0 0 1 * * 
   private generateEpoch(): Promise<EpochEntity> {
     return new Promise(async(resolve, reject) => {
@@ -399,6 +399,23 @@ export class StakingService {
     }
   }
 
+  private getProposalsFromParticipations(participations: Array<any>): Array<string> {
+    let proposals = [];
+
+    participations.forEach(staker => {
+      staker.votes.forEach(vote => {
+        proposals.push(vote.proposal.id);  
+      });
+    });
+    
+    // removing duplicates from the proposals array...
+    proposals = proposals.sort().filter(function(item, pos, ary) {
+      return !pos || item != ary[pos - 1];
+    });
+    
+    return proposals;
+  }
+
   private getOldestLock(locks: Array<any>): any {
     let oldestLock = this.generateBackmonthTimestamp(0, false);
 
@@ -420,22 +437,5 @@ export class StakingService {
     });
     
     return voters;
-  }
-
-  private getProposalsFromParticipations(participations: Array<any>): Array<string> {
-    let proposals = [];
-
-    participations.forEach(staker => {
-      staker.votes.forEach(vote => {
-        proposals.push(vote.proposal.id);  
-      });
-    });
-    
-    // removing duplicates from the proposals array...
-    proposals = proposals.sort().filter(function(item, pos, ary) {
-      return !pos || item != ary[pos - 1];
-    });
-    
-    return proposals;
   }
 }

@@ -3,7 +3,6 @@ import { PieHistoryStub } from "../test/stubs/pies-history.stubs";
 import { NotFoundException } from "@nestjs/common";
 
 export const PiesService = jest.fn().mockReturnValue({
-  //getPies: jest.fn().mockResolvedValue(PiesStub()),
   getPies: jest.fn().mockImplementation((name, address) => { 
     return new Promise((resolve, reject) => {
       let pies = PiesStub();
