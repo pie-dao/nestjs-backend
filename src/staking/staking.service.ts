@@ -19,103 +19,30 @@ export class StakingService {
     @InjectModel(EpochEntity.name) private epochModel: Model<EpochDocument>,
   ) { }
 
-  @Cron('0 0 1 * *')
-  // Use this every 10 seconds cron setup for testing purposes.
-  // 10 * * * * *
-  // USe this every hour cron setup for production releases.
-  // 0 0 1 * * 
-  generateEpoch(): Promise<any> {
+  // TODO: we shall add pagination here...
+  getEpochs(): Promise<Array<EpochEntity>> {
     return new Promise(async(resolve, reject) => {
       try {
-        let participations = await this.getParticipations("complex");
+        let epochsDB = await this.epochModel
+        .find()
+        .lean();
 
-        let merkleTreeObj = new MerkleTree();
-        const merkleTree = merkleTreeObj.createParticipationTree(participations);
-        
-        let epoch = await this.saveEpoch(participations, merkleTree);
-        console.log(`generateEpoch`, epoch);
-        resolve(epoch);
+        resolve(epochsDB);
       } catch(error) {
         reject(error);
       }
     });
-  }
-
-  private saveEpoch(participations: Array<any>, merkleTree: any): Promise<EpochEntity> {
-    return new Promise(async(resolve, reject) => {
-      try {
-        const provider = new ethers.providers.JsonRpcProvider(process.env.INFURA_RPC);
-        const ethDaterHelper = new ethDater(provider);
-
-        let startDate = this.generateBackmonthTimestamp(1, true);
-        let endDate = this.generateBackmonthTimestamp(0, true);
-        
-        let startBlock = await ethDaterHelper.getDate(
-          startDate,
-          true
-        );
-
-        let endBlock = await ethDaterHelper.getDate(
-          endDate,
-          true
-        );
-
-        const epochModel = new this.epochModel();
-        epochModel.startDate = startDate;
-        epochModel.endDate = endDate;
-        epochModel.startBlock = startBlock.block;
-        epochModel.endBlock = endBlock.block;
-        epochModel.participants = participations;
-        epochModel.merkleTree = merkleTree;
-        epochModel.proposals = this.getProposalsFromParticipations(participations);
-        epochModel.rewards = 'to be implemented';
-
-        let epochDB = await epochModel.save();
-        resolve(epochDB);
-  
-      } catch(error) {
-        reject(error);
-      }
-    });    
   }  
 
-  // TODO: this one should be private, and integrated inside a new function
-  // called getEpochs, so we can avoid generate wrong participations based on any timerange...
-  getParticipations(kind?: string): Promise<any[]> {
+  getEpoch(): Promise<EpochEntity> {
     return new Promise(async(resolve, reject) => {
       try {
-        // fetching all votes from snapshot in the last month...
-        let votes = await this.getSnapshotVotes(1);
+        let epochDB = await this.epochModel
+        .findOne()
+        .sort({ _id: -1 })
+        .lean();
 
-        // retrieving the stakers from our subgraph...
-        let stakers = await this.getStakers();
-        
-        // generating the participations...
-        const participations = [];
-
-        stakers.forEach(staker => {
-          let stakerVotes = votes.filter(vote => vote.voter.toLowerCase() == staker.id);
-          let participation = stakerVotes.length ? 1 : 0;
-
-          switch(kind) {
-            default:
-            case 'simple':
-              participations.push({
-                address: staker.id,
-                participation: participation
-              });
-              break;
-            case 'complex':
-              participations.push({
-                address: staker.id,
-                participation: participation,
-                staker: staker,
-                votes: stakerVotes
-              });            
-          }
-        });
-        
-        resolve(participations);
+        resolve(epochDB);
       } catch(error) {
         reject(error);
       }
@@ -164,6 +91,96 @@ export class StakingService {
 
         resolve(locks);
       } catch (error) {
+        reject(error);
+      }
+    });
+  }  
+
+  @Cron('0 0 1 * *')
+  // Use this every 10 seconds cron setup for testing purposes.
+  // 10 * * * * *
+  // USe this every hour cron setup for production releases.
+  // 0 0 1 * * 
+  private generateEpoch(): Promise<EpochEntity> {
+    return new Promise(async(resolve, reject) => {
+      try {
+        let participations = await this.getParticipations();
+
+        let merkleTreeObj = new MerkleTree();
+        const merkleTree = merkleTreeObj.createParticipationTree(participations);
+        
+        let epoch = await this.saveEpoch(participations, merkleTree);
+        resolve(epoch);
+      } catch(error) {
+        reject(error);
+      }
+    });
+  }
+
+  private saveEpoch(participations: Array<any>, merkleTree: any): Promise<EpochEntity> {
+    return new Promise(async(resolve, reject) => {
+      try {
+        const provider = new ethers.providers.JsonRpcProvider(process.env.INFURA_RPC);
+        const ethDaterHelper = new ethDater(provider);
+
+        let startDate = this.generateBackmonthTimestamp(1, true);
+        let endDate = this.generateBackmonthTimestamp(0, true);
+        
+        let startBlock = await ethDaterHelper.getDate(
+          startDate,
+          true
+        );
+
+        let endBlock = await ethDaterHelper.getDate(
+          endDate,
+          true
+        );
+
+        const epochModel = new this.epochModel();
+        epochModel.startDate = startDate;
+        epochModel.endDate = endDate;
+        epochModel.startBlock = startBlock.block;
+        epochModel.endBlock = endBlock.block;
+        epochModel.participants = participations;
+        epochModel.merkleTree = merkleTree;
+        epochModel.proposals = this.getProposalsFromParticipations(participations);
+        epochModel.rewards = 'to be implemented';
+
+        let epochDB = await epochModel.save();
+        resolve(epochDB);
+  
+      } catch(error) {
+        reject(error);
+      }
+    });    
+  }
+
+  private getParticipations(): Promise<any[]> {
+    return new Promise(async(resolve, reject) => {
+      try {
+        // fetching all votes from snapshot in the last month...
+        let votes = await this.getSnapshotVotes(1);
+
+        // retrieving the stakers from our subgraph...
+        let stakers = await this.getStakers();
+        
+        // generating the participations...
+        const participations = [];
+
+        stakers.forEach(staker => {
+          let stakerVotes = votes.filter(vote => vote.voter.toLowerCase() == staker.id);
+          let participation = stakerVotes.length ? 1 : 0;
+
+          participations.push({
+            address: staker.id,
+            participation: participation,
+            staker: staker,
+            votes: stakerVotes
+          });
+        });
+        
+        resolve(participations);
+      } catch(error) {
         reject(error);
       }
     });

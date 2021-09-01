@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { EpochEntity } from './entities/epoch.entity';
 import { StakingService } from './staking.service';
 
 @ApiTags('Staking')
@@ -46,14 +47,25 @@ export class StakingController {
     }
   };
 
-  @ApiOkResponse({type: Array, isArray: true})
+  @ApiOkResponse({type: EpochEntity, isArray: true})
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
-  @ApiQuery({name: 'kind', required: false})
-  @Get('participations')
-  async getParticipations(@Query('kind') kind?: string): Promise<any[]> {
+  @Get('epochs')
+  async getEpochs(): Promise<Array<EpochEntity>> {
     try {
-      return await this.stakingService.getParticipations(kind);
+      return await this.stakingService.getEpochs();
+    } catch(error) {
+      throw error;
+    }
+  };
+
+  @ApiOkResponse({type: EpochEntity})
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @Get('epoch')
+  async getEpoch(): Promise<EpochEntity> {
+    try {
+      return await this.stakingService.getEpoch();
     } catch(error) {
       throw error;
     }
