@@ -33,13 +33,13 @@ export class StakingService {
         } else {
           epochsDB = await this.epochModel
           .find()
-          .lean();          
+          .lean();
         }
 
         if(epochsDB.length) {
           resolve(epochsDB);
         } else {
-          throw new Error('Sorry, no epochs has been founded on our database.');
+          reject('Sorry, no epochs has been founded on our database.');
         }
       } catch(error) {
         reject(error);
@@ -53,10 +53,8 @@ export class StakingService {
         let epochDB = null;
         
         if(id) {
-          let query = {_id: new mongoose.Types.ObjectId(id)};
-
           epochDB = await this.epochModel
-          .find(query)
+          .findOne({_id: id})
           .lean();
         } else {
           epochDB = await this.epochModel
@@ -68,7 +66,7 @@ export class StakingService {
         if(epochDB) {
           resolve(epochDB);
         } else {
-          reject(new Error("Sorry, can't find any epoch with this id."))
+          reject("Sorry, can't find any epoch with this id.")
         }
       } catch(error) {
         reject(error);

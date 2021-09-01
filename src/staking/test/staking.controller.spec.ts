@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EpochEntity } from '../entities/epoch.entity';
 import { StakingController } from '../staking.controller';
@@ -46,7 +47,7 @@ describe('StakingController', () => {
       test('it should throw an error if no records are found', async() => {
         await expect(controller.getStakers("not, existing, ids"))
         .rejects
-        .toThrow(Error);
+        .toThrow(NotFoundException);
       });      
     });
   }); 
@@ -63,14 +64,14 @@ describe('StakingController', () => {
         expect(service.getLocks).toHaveBeenCalled();
       });
 
-      test('then it should return an array of Stakers', () => {
+      test('then it should return an array of Locks', () => {
         expect(locks).toEqual(LocksStub());
       });     
 
       test('it should throw an error if no records are found', async() => {
         await expect(controller.getLocks(undefined, "not, existing, ids"))
         .rejects
-        .toThrow(Error);
+        .toThrow(NotFoundException);
       });      
     });
   });  
@@ -95,7 +96,7 @@ describe('StakingController', () => {
       test('it should throw an error if no records are found', async() => {
         await expect(controller.getEpoch())
         .rejects
-        .toThrow(Error);
+        .toThrow(NotFoundException);
       });      
     });
   });
@@ -119,7 +120,7 @@ describe('StakingController', () => {
       test('it should throw an error if no records are found', async() => {
         await expect(controller.getEpochs())
         .rejects
-        .toThrow(Error);
+        .toThrow(NotFoundException);
       });       
     });
   });   

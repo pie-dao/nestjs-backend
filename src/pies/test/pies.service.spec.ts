@@ -90,13 +90,13 @@ describe('PiesService', () => {
       test('it should throw an error if no records are found by name', async() => {
         await expect(service.getPies("not_existing_token", undefined))
         .rejects
-        .toThrow(NotFoundException);
+        .toEqual("Sorry, can't find any Pie in our database which matches your query.")
       });
 
       test('it should throw an error if no records are found by address', async() => {
         await expect(service.getPies(undefined, "not_existing_token"))
         .rejects
-        .toThrow(NotFoundException);
+        .toEqual("Sorry, can't find any Pie in our database which matches your query.")
       });          
     });
   });
@@ -210,7 +210,7 @@ describe('PiesService', () => {
       test('it should throw an error if no records are found by address', async() => {
         await expect(service.getPieHistory(undefined, "not_existing_token"))
         .rejects
-        .toThrow(NotFoundException);
+        .toEqual("Sorry, can't find any Pie in our database which matches your query.")
       });       
     });
 
@@ -234,7 +234,7 @@ describe('PiesService', () => {
       test('it should throw an error if no records are found by name', async() => {
         await expect(service.getPieHistory("not_existing_token", undefined))
         .rejects
-        .toThrow(NotFoundException);
+        .toEqual("Sorry, can't find any Pie in our database which matches your query.")
       });       
     });  
     
@@ -249,7 +249,7 @@ describe('PiesService', () => {
       test('it should throw an error', async() => {
         await expect(service.getPieHistory(undefined, undefined))
         .rejects
-        .toThrow(NotFoundException);
+        .toEqual("either a Pie-Name or a Pie-Anddress must be provided")
       });       
     });   
     

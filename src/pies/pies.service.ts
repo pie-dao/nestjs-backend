@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
@@ -162,7 +162,7 @@ export class PiesService {
           }
           break; 
         default:
-          error = new NotFoundException("either a Pie-Name or a Pie-Anddress must be provided");
+          error = "either a Pie-Name or a Pie-Anddress must be provided";
       }
 
       if(pie) {
@@ -195,7 +195,7 @@ export class PiesService {
       if(pies[0]) {
         resolve(pies[0]);
       } else {
-        reject(new NotFoundException("Sorry, can't find any Pie in our database which matches your query."));
+        reject("Sorry, can't find any Pie in our database which matches your query.");
       }
       
     });
@@ -208,7 +208,7 @@ export class PiesService {
       if(pies[0]) {
         resolve(pies[0]);
       } else {
-        reject(new NotFoundException("Sorry, can't find any Pie in our database which matches your query."));
+        reject("Sorry, can't find any Pie in our database which matches your query.");
       }      
     });    
   }

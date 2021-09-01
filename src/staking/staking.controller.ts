@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Query } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { EpochEntity } from './entities/epoch.entity';
 import { StakingService } from './staking.service';
@@ -23,7 +23,7 @@ export class StakingController {
 
       return await this.stakingService.getStakers(stakersIds);
     } catch(error) {
-      throw error;
+      throw new NotFoundException(error);
     }
   };
 
@@ -43,7 +43,7 @@ export class StakingController {
 
       return await this.stakingService.getLocks(locked_at, stakersIds);
     } catch(error) {
-      throw error;
+      throw new NotFoundException(error);
     }
   };
 
@@ -56,7 +56,7 @@ export class StakingController {
     try {
       return await this.stakingService.getEpochs(startDate);
     } catch(error) {
-      throw error;
+      throw new NotFoundException(error);
     }
   };
 
@@ -69,7 +69,7 @@ export class StakingController {
     try {
       return await this.stakingService.getEpoch(id);
     } catch(error) {
-      throw error;
+      throw new NotFoundException(error);
     }
   };
 }
