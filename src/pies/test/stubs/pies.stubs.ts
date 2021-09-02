@@ -9,6 +9,7 @@ const pies = [
   {name: "PLAY", address: "0x33e18a092a93ff21ad04746c7da12e35d34dc7c4", history: []},
   {name: "DEFI+L", address: "0x78f225869c08d478c34e5f645d07a87d3fe8eb78", history: []},
   {name: "USD++", address: "0x9a48bd0ec040ea4f1d3147c025cd4076a2e71e3e", history: []},
+  {name: "NOT_EXISTING_PIE", address: "0x0000000000000000000000000000000000000000", history: []}
 ];
 
 export const PiesStub = (): PieEntity[]  => {

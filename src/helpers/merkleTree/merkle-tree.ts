@@ -13,7 +13,7 @@ export class MerkleTree {
     this.layers = MerkleTree.getLayers(this.elements);
   }
 
-  createParticipationTree = (entries = []) => {
+  createParticipationTree(entries = []) {
     const entriesWithLeafs = entries.map((item) => {
       const entryWithLeaf = {
         ...item,
@@ -94,18 +94,19 @@ export class MerkleTree {
     }, []);
   }
 
-  getHexProof(el) {
-    const proof = this.getProof(el);
-
-    return MerkleTree.bufArrToHexArr(proof);
-  }
-
   static getPairElement(idx, layer) {
-    const pairIdx = idx % 2 === 0 ? idx + 1 : idx - 1;
+    let pairIdx = null;
+
+    if(idx % 2 === 0) {
+      pairIdx = idx + 1;
+    } else {
+      pairIdx = idx - 1;
+    }
 
     if (pairIdx < layer.length) {
       return layer[pairIdx];
     }
+
     return null;
   }
 
@@ -119,18 +120,6 @@ export class MerkleTree {
     }
 
     return -1;
-  }
-
-  static bufDedup(elements) {
-    return elements.filter((el, idx) => idx === 0 || !elements[idx - 1].equals(el));
-  }
-
-  static bufArrToHexArr(arr) {
-    if (arr.some((el) => !Buffer.isBuffer(el))) {
-      throw new Error('Array is not an array of buffers');
-    }
-
-    return arr.map((el) => `0x${el.toString('hex')}`);
   }
 }
 

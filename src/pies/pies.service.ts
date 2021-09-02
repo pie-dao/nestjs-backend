@@ -22,6 +22,7 @@ export class PiesService {
     {name: "PLAY", address: "0x33e18a092a93ff21ad04746c7da12e35d34dc7c4", history: []},
     {name: "DEFI+L", address: "0x78f225869c08d478c34e5f645d07a87d3fe8eb78", history: []},
     {name: "USD++", address: "0x9a48bd0ec040ea4f1d3147c025cd4076a2e71e3e", history: []},
+    {name: "NOT_EXISTING_PIE", address: "0x0000000000000000000000000000000000000000", history: []}
   ];
 
   private readonly logger = new Logger(PiesService.name);
@@ -37,7 +38,7 @@ export class PiesService {
   // 10 * * * * *
   // USe this every hour cron setup for production releases.
   // 0 * * * *
-  async updateNAVs() {
+  async updateNAVs(test?: boolean) {
     this.logger.debug("updateNAVs is running");
 
     // instance of the pie-getter contract...
@@ -45,7 +46,7 @@ export class PiesService {
     const contract = new ethers.Contract(process.env.PIE_GETTER_CONTRACT, pieGetterABI, provider);
 
     // retrieving all pies from database...
-    let pies = await this.getPies();
+    let pies = await this.getPies(undefined, undefined, test);
 
     // for each pie, we iterate to fetch the underlying assets...
     for(let k = 0; k < pies.length; k++) {
@@ -101,7 +102,7 @@ export class PiesService {
     };
   }
 
-  getPies(name?, address?): Promise<PieEntity[]> {
+  getPies(name?: string, address?: string, test?: boolean): Promise<PieEntity[]> {
     return new Promise(async(resolve, reject) => {
       let pies = [];
       let error = null;
@@ -129,6 +130,10 @@ export class PiesService {
             for(let i = 0; i < this.pies.length; i++) {
               pies.push(await this.createPie(this.pies[i]));
             };
+          } else {
+            if(!test) {
+              pies = pies.filter(pie => pie.name != "NOT_EXISTING_PIE");
+            }
           }     
       }
 

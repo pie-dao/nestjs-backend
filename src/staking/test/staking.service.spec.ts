@@ -6,7 +6,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EpochEntity, EpochSchema } from '../entities/epoch.entity';
 import { EpochsStub } from './stubs/epochs.stubs';
-import { NotFoundException } from '@nestjs/common';
 
 describe('StakingService', () => {
   let service: StakingService;
@@ -58,7 +57,7 @@ describe('StakingService', () => {
         test('it should throw an error if no records are found', async() => {
           await expect(service.getEpochs(Number(Date.now())))
           .rejects
-          .toEqual("Sorry, no epochs has been founded on our database.");
+          .toEqual(new Error("Sorry, no epochs has been founded on our database."));
         });       
       });
     });
@@ -108,7 +107,7 @@ describe('StakingService', () => {
         test('it should throw an error if no records are found', async() => {
           await expect(service.getEpoch("612f7b555633c83b8a586b5a"))
           .rejects
-          .toEqual("Sorry, can't find any epoch with this id.");
+          .toEqual(new Error("Sorry, can't find any epoch with this id."));
         });       
       });
     });  
@@ -148,7 +147,7 @@ describe('StakingService', () => {
         expect(service.getLocks).toHaveBeenCalled();
       });
 
-      test('then it should return an array of Stakers', () => {
+      test('then it should return an array of Locks', () => {
         expect(typeof locks).toEqual("object");
       });     
 
@@ -158,6 +157,25 @@ describe('StakingService', () => {
         .toThrow(Error);
       });      
     });
+
+    describe('When getLocks is called with params', () => {
+      jest.setTimeout(15000);
+      let locks: any[];
+      let timestamp = Number(Date.now()).toString();
+
+      beforeEach(async () => {
+        jest.spyOn(service, "getLocks");
+        locks = await service.getLocks(timestamp);
+      });
+
+      test('then it should call stakingService.getLocks', () => {
+        expect(service.getLocks).toHaveBeenCalledWith(timestamp);
+      });
+
+      test('then it should return an array of Locks', () => {
+        expect(typeof locks).toEqual("object");
+      });    
+    });    
   }); 
 
   describe('getStakers', () => {
@@ -184,5 +202,77 @@ describe('StakingService', () => {
         .toThrow(Error);
       });      
     });
+  }); 
+
+  describe('generateEpoch', () => {
+    describe('When generateEpoch is called', () => {
+      jest.setTimeout(50000);
+      let epoch: EpochEntity;
+
+      beforeEach(async () => {
+        jest.spyOn(service, "generateEpoch");
+        epoch = await service.generateEpoch();
+      });
+
+      test('then it should call stakingService.generateEpoch', () => {
+        expect(service.generateEpoch).toHaveBeenCalled();
+      });
+
+      test('then it should return an EpochEntity', () => {
+        expect(typeof epoch).toEqual("object");
+      });     
+    });
+
+    describe('When generateEpoch is called using wrong snapshot url', () => {
+      jest.setTimeout(50000);
+
+      beforeEach(async () => {
+        jest.spyOn(service, "generateEpoch");
+
+        jest.spyOn(service, "setSnapshotUrl");
+        service.setSnapshotUrl("wrong_url");
+      });      
+      
+      test('then it should call stakingService.setSnapshotUrl', () => {
+        expect(service.setSnapshotUrl).toHaveBeenCalledWith("wrong_url");
+      });      
+
+      test('then new snapshotUrl should be set', () => {
+        let snapshotUrl = service.getSnapshotUrl();
+        expect(snapshotUrl).toEqual("wrong_url");
+      });     
+
+      test('it should throw an error if something went wrong', async() => {
+        await expect(service.generateEpoch())
+        .rejects
+        .toThrow(Error);
+      });     
+    });   
+    
+    describe('When generateEpoch is called using wrong eth provider', () => {
+      jest.setTimeout(50000);
+
+      beforeEach(async () => {
+        jest.spyOn(service, "generateEpoch");
+
+        jest.spyOn(service, "setEthProvider");
+        service.setEthProvider("wrong_provider");
+      });
+
+      test('then it should call stakingService.setEthProvider', () => {
+        expect(service.setEthProvider).toHaveBeenCalledWith("wrong_provider");
+      }); 
+
+      test('then new snapshotUrl should be set', () => {
+        let ethProvider = service.getEthProvider();
+        expect(ethProvider).toEqual("wrong_provider");
+      });   
+
+      test('it should throw an error if something went wrong', async() => {
+        await expect(service.generateEpoch())
+        .rejects
+        .toThrow(Error);
+      });     
+    });     
   }); 
 });

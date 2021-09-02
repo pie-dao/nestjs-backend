@@ -50,8 +50,8 @@ describe('PiesService', () => {
         piesDB = await service.getPies();
       }); 
       
-      test('then it return an array of 8 PieEntity', () => {
-        expect(piesDB).toHaveLength(8);
+      test('then it return an array of 9 PieEntity', () => {
+        expect(piesDB).toHaveLength(9);
       });
     });
   });    
@@ -330,7 +330,7 @@ describe('PiesService', () => {
 
       beforeEach(async() => {
         jest.spyOn(service, "updateNAVs");
-        await service.updateNAVs();
+        await service.updateNAVs(true);
       });
 
       test('then it should call pieService.updateNAVs', () => {
