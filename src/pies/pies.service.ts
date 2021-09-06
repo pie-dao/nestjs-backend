@@ -7,6 +7,7 @@ import { PieDocument, PieEntity } from './entities/pie.entity';
 import { ethers } from 'ethers';
 import * as pieGetterABI from './abis/pieGetterABI.json';
 import * as erc20 from './abis/erc20.json';
+import * as erc20byte32 from './abis/erc20byte32.json';
 import { PieHistoryDocument, PieHistoryEntity } from './entities/pie-history.entity';
 import { BigNumber } from 'bignumber.js';
 import { HttpService } from '@nestjs/axios';
@@ -33,12 +34,12 @@ export class PiesService {
     @InjectModel(PieHistoryEntity.name) private pieHistoryModel: Model<PieHistoryDocument>
   ) {}
 
-  @Cron('0 * * * *')
-  // Use this every 10 seconds cron setup for testing purposes.
-  // 10 * * * * *
+  // Use this every 5 minutes cron setup for testing purposes.
+  // */5 * * * *
   // USe this every hour cron setup for production releases.
   // 0 * * * *
-  async updateNAVs(test?: boolean) {
+  @Cron('0 * * * *')
+  async updateNAVs(test?: boolean): Promise<boolean> {
     this.logger.debug("updateNAVs is running");
 
     // instance of the pie-getter contract...
@@ -53,7 +54,14 @@ export class PiesService {
       const pie = new this.pieModel(pies[k]);
 
       try {
-        let result = await contract.callStatic.getAssetsAndAmounts(pie.address);
+        let pieContract = new ethers.Contract(pie.address, erc20, provider);;
+        
+        let pieSupply = await pieContract.totalSupply();
+        let pieDecimals = await pieContract.decimals();
+        let piePrecision = new BigNumber(10).pow(pieDecimals);
+        let totalSupply = new BigNumber(pieSupply.toString()).div(piePrecision);
+
+        let result = await contract.callStatic.getAssetsAndAmountsForAmount(pie.address, pieSupply);
         let underlyingAssets = result[0];
         let underylingTotals = result[1];
         
@@ -65,33 +73,59 @@ export class PiesService {
 
         // creating the pieHistory Enity...
         const history = new this.pieHistoryModel({timestamp: Date.now(), amount: 0, underlyingAssets: []});
-        let amount = new BigNumber(0);
+        let pieMarketCapUSD = new BigNumber(0);
 
         // calculating the underlyingAssets, populating it into the pieHistory
         // and summing the total value of usd for each token price...
         for(let i = 0; i < underlyingAssets.length; i++) {
-          // instance of the underlying contract...
-          let underlyingContract = new ethers.Contract(underlyingAssets[i], erc20, provider);
-          // fetching decimals and calculating precision for the underlyingAsset...
-          let decimals = await underlyingContract.decimals();
-          let precision = new BigNumber(10).pow(decimals);
+          try {
+            let underlyingContract = null;
 
-          // calculating the value in usd for a given amount of underlyingAsset...
-          let usd = new BigNumber(underylingTotals[i].toString()).times(prices[underlyingAssets[i].toLowerCase()].usd).div(precision);
-          // refilling the underlyingAssets of the History Entity...
-          history.underlyingAssets.push({address: underlyingAssets[i], amount: underylingTotals[i].toString(), usd: usd.toString()});  
+            if(underlyingAssets[i].toLowerCase() !== '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2'.toLowerCase()) {
+              // instance of the underlying contract...
+              underlyingContract = new ethers.Contract(underlyingAssets[i], erc20, provider);
+            } else {
+              underlyingContract = new ethers.Contract(underlyingAssets[i], erc20byte32, provider);
+            }
 
-          // updating the global amount of usd for the main pie of this history entity...
-          amount = amount.plus(usd);
+            // fetching decimals and calculating precision for the underlyingAsset...
+            let decimals = await underlyingContract.decimals();
+            let symbol = await underlyingContract.symbol();
+            let precision = new BigNumber(10).pow(decimals);
+
+            // calculating the value in usd for a given amount of underlyingAsset...
+            let usdPrice = prices[underlyingAssets[i].toLowerCase()].usd;
+            let marketCapUSD = new BigNumber(underylingTotals[i].toString()).times(usdPrice).div(precision);
+
+            // refilling the underlyingAssets of the History Entity...
+            history.underlyingAssets.push({
+              address: underlyingAssets[i], 
+              symbol: symbol, 
+              decimals: decimals,
+              amount: underylingTotals[i].toString(),
+              usdPrice: usdPrice.toString(),
+              marketCapUSD: marketCapUSD.toString()
+            });
+
+            // updating the global amount of usd for the main pie of this history entity...
+            pieMarketCapUSD = pieMarketCapUSD.plus(marketCapUSD);            
+          } catch(error) {
+            this.logger.error(pie.name, underlyingAssets[i], error.message);
+          }
         };
 
         // finally updating the total amount in usd...
-        history.amount = amount;
+        history.marketCapUSD = pieMarketCapUSD;
+        history.totalSupply = pieSupply;
+        history.decimals = pieDecimals;
+        history.nav = (pieMarketCapUSD.toNumber() / totalSupply.toNumber());
+
         // and saving the history entity...
         let historyDB = await history.save();
         
         // pushing the new history into the main Pie Entity...
         pie.history.push(historyDB);
+
         // and finally saving the Pie Entity as well...
         let pieDB = await pie.save();
 
@@ -100,6 +134,8 @@ export class PiesService {
         this.logger.error(pie.name, error.message);
       }
     };
+
+    return true;
   }
 
   getPies(name?: string, address?: string, test?: boolean): Promise<PieEntity[]> {

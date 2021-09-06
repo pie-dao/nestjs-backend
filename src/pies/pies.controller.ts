@@ -13,6 +13,15 @@ import { PiesService } from './pies.service';
 export class PiesController {
   constructor(private readonly piesService: PiesService) {}
 
+  // @Get('updatenavs')
+  // async updateNavs(): Promise<boolean> {
+  //   try {
+  //     return await this.piesService.updateNAVs();
+  //   } catch(error) {
+  //     throw new NotFoundException(error);
+  //   }
+  // }
+
   @ApiOkResponse({type: PieEntity, isArray: true})
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()

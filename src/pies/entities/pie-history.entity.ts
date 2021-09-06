@@ -13,7 +13,19 @@ export class PieHistoryEntity {
 
   @Prop()
   @ApiProperty()
-  amount: BigNumber;
+  nav: number;  
+
+  @Prop()
+  @ApiProperty()
+  decimals: number;  
+
+  @Prop()
+  @ApiProperty()
+  marketCapUSD: BigNumber;
+
+  @Prop()
+  @ApiProperty()
+  totalSupply: BigNumber;  
 
   @Prop()
   @ApiProperty()

@@ -8,7 +8,10 @@ const histories = [
       {address: "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD", amount: "20437259837801076081", usd: "5.22895467854075651963"}
     ], 
     timestamp: "1628253732831", 
-    amount: new BigNumber("26.13762717355117514798")
+    marketCapUSD: new BigNumber("26.13762717355117514798"),
+    totalSupply: new BigNumber("26.13762717355117514798"),
+    nav: 0,
+    decimals: 18
   },
   {
     underlyingAssets: [
@@ -16,7 +19,10 @@ const histories = [
       {address: "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD", amount: "20437259837801076081", usd: "5.22895467854075651963"}
     ], 
     timestamp: "1628253732831", 
-    amount: new BigNumber("26.13762717355117514798")
+    marketCapUSD: new BigNumber("26.13762717355117514798"),
+    totalSupply: new BigNumber("26.13762717355117514798"),
+    nav: 0,
+    decimals: 18
   },
 ]
 
