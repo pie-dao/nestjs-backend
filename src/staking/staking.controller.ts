@@ -72,4 +72,17 @@ export class StakingController {
       throw new NotFoundException(error);
     }
   };
+
+  @ApiOkResponse({type: Object})
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @ApiQuery({name: 'participations', required: false})
+  @Get('merkle-tree')
+  async getMerkleTree(@Query('participations') participations?: any[]): Promise<Object> {
+    try {
+      return await this.stakingService.getMerkleTree(participations);
+    } catch(error) {
+      throw new NotFoundException(error);
+    }
+  };
 }

@@ -170,6 +170,26 @@ export class StakingService {
     });
   }  
 
+  getMerkleTree(participations: any[]): Promise<Object> {
+    return new Promise(async(resolve, reject) => {
+      try {
+        if(participations) {
+          //console.log("using participations", participations);
+          let merkleTreeObj = new MerkleTree();
+          console.log("generate merkleTree");
+          const merkleTree = merkleTreeObj.createParticipationTree(participations);
+          console.log("generate merkleTree", merkleTree);
+          resolve(merkleTree);
+        } else {
+          reject('Sorry, you must pass a participations json as parameter');
+        }
+      } catch(error) {
+        console.log(error);
+        reject(error);
+      }
+    });
+  }
+
   @Cron('0 0 1 * *')
   // Use this every 10 seconds cron setup, for testing purposes.
   // 10 * * * * *

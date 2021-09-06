@@ -14,6 +14,10 @@ export class MerkleTree {
   }
 
   createParticipationTree(entries = []) {
+    if(typeof entries == "string") {
+      entries = JSON.parse(entries);
+    }
+
     const entriesWithLeafs = entries.map((item) => {
       const entryWithLeaf = {
         ...item,
