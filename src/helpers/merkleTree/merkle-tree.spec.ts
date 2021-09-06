@@ -6,9 +6,9 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EpochEntity, EpochSchema } from '../../staking/entities/epoch.entity';
-import { MerkleTreeStub } from './stubs/merkle-tree.stubs';
+import { MerkleTreeStub, HardcodedMerkleTreeStub } from './stubs/merkle-tree.stubs';
 import { VotesStub } from './stubs/votes.stubs';
-import { ParticipationsStub } from './stubs/participations.stubs';
+import { ParticipationsStub, HardcodedParticipationsStub } from './stubs/participations.stubs';
 
 describe('MerkleTree', () => {
   let service: StakingService;
@@ -38,6 +38,27 @@ describe('MerkleTree', () => {
   describe('createParticipationTree with Mocks and check validity', () => {
     describe('When createParticipationTree is called with a mock participations and votes', () => {  
       jest.setTimeout(15000);
+      let merkleTree = null;
+      let merkleTreeObj = new MerkleTree();
+
+      beforeEach(async () => {
+        jest.spyOn(merkleTreeObj, "createParticipationTree");
+        merkleTree = merkleTreeObj.createParticipationTree(HardcodedParticipationsStub());
+      });
+
+      test('then it should call merkleTree.createParticipationTree', () => {
+        expect(merkleTreeObj.createParticipationTree).toHaveBeenCalled();
+      });
+
+      test('then it should return a correct MerkleTree', () => {
+        expect(merkleTree).toMatchObject(HardcodedMerkleTreeStub());
+      });    
+    });
+  });  
+
+  describe('createParticipationTree with Mocks and check validity', () => {
+    describe('When createParticipationTree is called with a mock participations and votes', () => {  
+      jest.setTimeout(15000);
       let votes, participations, merkleTree = null;
       let merkleTreeObj = new MerkleTree();
 
@@ -56,7 +77,7 @@ describe('MerkleTree', () => {
         expect(merkleTreeObj.createParticipationTree).toHaveBeenCalled();
       });
 
-      test('then it should return a MerkleTree', () => {
+      test('then it should return a correct MerkleTree', () => {
         expect(merkleTree).toMatchObject(MerkleTreeStub());
       });    
     });

@@ -1246,7 +1246,128 @@ const merkleTree = {
   "root": "0x0e5a0ea3a8369f1b976957d699d13b057b6c9fc5077984e4e595da4ea825d967"
 };
 
+const hardcodedMerkleTree = {
+  "elements": [
+    "0x0d4d0927a702565168254a83ecb539518257a1494325afec2cb2e30787847cb3",
+    "0x149dbfb7cc9049b99d96675bf83debb7077bcd7346439dc2a3e1a4833460e37a",
+    "0x33d48ea83c63059cc4456b1c7057b9642de2a1bc3a3e6da35da3a016dc6c435e",
+    "0x54d8abaf31034094c8e0caa13e0e0ef3a1dd9a558f3d088697b6ea98bd432200",
+    "0x568e9ccaf90f22bf40efe66d5364011871c94080ece9b8ef4323b0584c6ae0fa",
+    "0x5ecd1899e0eeb72d47d89819bc34688c6928e58ef2f9f8ee6b0e67af963587d9",
+    "0x6a3b9f53c04de2b4570c27525dd9d97547c8b06f1fc76b724c979a94549a305d",
+    "0x96cacbfd1c62bbb30092901328c816991f38fdfd46bc6c9543c37e4ac5d662f3",
+    "0xae3df0cd4fcb699d31c26b7f705a60183e2c50f87d46f3159bbaad8676f2aced",
+    "0xe0e59c6e3180a4cf66928b2e18c96b450630b22ce853deb69954b3ae0cafc4ea",
+    "0xfb236bd507668e0b1b53f9d5ba21e03317a3f0e402b27d4dade410e08109ed24",
+    "0xfe36bef4600de03e0f3f30352a4e524b89e2a2e40cd7e0701eb476b15284d75d"
+  ],
+  "layers": [
+    [
+      "0x0d4d0927a702565168254a83ecb539518257a1494325afec2cb2e30787847cb3",
+      "0x149dbfb7cc9049b99d96675bf83debb7077bcd7346439dc2a3e1a4833460e37a",
+      "0x33d48ea83c63059cc4456b1c7057b9642de2a1bc3a3e6da35da3a016dc6c435e",
+      "0x54d8abaf31034094c8e0caa13e0e0ef3a1dd9a558f3d088697b6ea98bd432200",
+      "0x568e9ccaf90f22bf40efe66d5364011871c94080ece9b8ef4323b0584c6ae0fa",
+      "0x5ecd1899e0eeb72d47d89819bc34688c6928e58ef2f9f8ee6b0e67af963587d9",
+      "0x6a3b9f53c04de2b4570c27525dd9d97547c8b06f1fc76b724c979a94549a305d",
+      "0x96cacbfd1c62bbb30092901328c816991f38fdfd46bc6c9543c37e4ac5d662f3",
+      "0xae3df0cd4fcb699d31c26b7f705a60183e2c50f87d46f3159bbaad8676f2aced",
+      "0xe0e59c6e3180a4cf66928b2e18c96b450630b22ce853deb69954b3ae0cafc4ea",
+      "0xfb236bd507668e0b1b53f9d5ba21e03317a3f0e402b27d4dade410e08109ed24",
+      "0xfe36bef4600de03e0f3f30352a4e524b89e2a2e40cd7e0701eb476b15284d75d"
+    ],
+    [
+      "0x76e3e303ad7666e19dcb880038f584bdf23fa621cd4fcad05013ffc0ccbccb32",
+      "0x6e32fad57d3171755b1b9daa3f838f2e41ac4e91d2dddfde5dc881a21f8f1d13",
+      "0x5e3dda0ad195e642850961ac51ed7bac65c63ba8d807c2d2045dca6af9f01fae",
+      "0x16c98989635330165d33bb804f20a2394f02ac8545c78244840e19bc8fd08555",
+      "0x25e3d4eee55af655004f62faf3a084a7a8ebe2e209e4081899d88e518603d5dd",
+      "0xdcf70a839b73082843e87adc3f49cf5be67d14ffd2e722182297840da752ba58"
+    ],
+    [
+      "0xdfd64b627448e89fc3e612f78641258c62c82e966a12cbe9f57ba8447909f00b",
+      "0xf0f049b00cfe8c4499840cb7204864a63fabbd8e327839027f3c83994e5f9f65",
+      "0xaa64bdaf4511c5f611308454451f2da9cda9945c43e707acd8e2fd6938d4da2b"
+    ],
+    [
+      "0x4061e24aed69d25cacee0a55af55d9560d27fa55393380a876185ee064e27a75",
+      "0xaa64bdaf4511c5f611308454451f2da9cda9945c43e707acd8e2fd6938d4da2b"
+    ],
+    [
+      "0xee074602ebde218d19b8ce824a4ca024eb94e7bb95da72ef9e00012522012211"
+    ]
+  ],
+  "leafs": [
+    {
+      "address": "0xd18a54f89603Fe4301b29EF6a8ab11b9Ba24f139",
+      "participation": 1,
+      "leaf": "0x54d8abaf31034094c8e0caa13e0e0ef3a1dd9a558f3d088697b6ea98bd432200"
+    },
+    {
+      "address": "0xe89dEe662C94FfEE76d0942f4a4bAD27cC076dd2",
+      "participation": 0,
+      "leaf": "0xfe36bef4600de03e0f3f30352a4e524b89e2a2e40cd7e0701eb476b15284d75d"
+    },
+    {
+      "address": "0xCB388d0f190496109316e0d5526DA46D72E52F61",
+      "participation": 1,
+      "leaf": "0x6a3b9f53c04de2b4570c27525dd9d97547c8b06f1fc76b724c979a94549a305d"
+    },
+    {
+      "address": "0xc96265c36F6D77747f9c259946a1eF55FcE946b7",
+      "participation": 0,
+      "leaf": "0xe0e59c6e3180a4cf66928b2e18c96b450630b22ce853deb69954b3ae0cafc4ea"
+    },
+    {
+      "address": "0x16B89DF3B761D83D772376d3D18AeE63f7D74Dfd",
+      "participation": 1,
+      "leaf": "0x33d48ea83c63059cc4456b1c7057b9642de2a1bc3a3e6da35da3a016dc6c435e"
+    },
+    {
+      "address": "0x51BB5E83a7e686e39ec0d6FCFe62A0402f7Ef8f6",
+      "participation": 0,
+      "leaf": "0xfb236bd507668e0b1b53f9d5ba21e03317a3f0e402b27d4dade410e08109ed24"
+    },
+    {
+      "address": "0x3d867dBbb7e5a448A6864DA063D9AB723Aec90c2",
+      "participation": 1,
+      "leaf": "0x568e9ccaf90f22bf40efe66d5364011871c94080ece9b8ef4323b0584c6ae0fa"
+    },
+    {
+      "address": "0x70E2402986807128Ff949579A8d444ec9465AEFf",
+      "participation": 0,
+      "leaf": "0xae3df0cd4fcb699d31c26b7f705a60183e2c50f87d46f3159bbaad8676f2aced"
+    },
+    {
+      "address": "0x1e17A75616cd74f5846B1b71622Aa8e10ea26Cc0",
+      "participation": 1,
+      "leaf": "0x149dbfb7cc9049b99d96675bf83debb7077bcd7346439dc2a3e1a4833460e37a"
+    },
+    {
+      "address": "0x9B83fb36D0c865E0C8a539759f1F97146D748DAb",
+      "participation": 0,
+      "leaf": "0x0d4d0927a702565168254a83ecb539518257a1494325afec2cb2e30787847cb3"
+    },
+    {
+      "address": "0x42556f667Dfc74704914F98d1e0c0aC4Ea2f492e",
+      "participation": 1,
+      "leaf": "0x5ecd1899e0eeb72d47d89819bc34688c6928e58ef2f9f8ee6b0e67af963587d9"
+    },
+    {
+      "address": "0x7884C447d5CD98e794c1A5c08e3107fbF29B2877",
+      "participation": 0,
+      "leaf": "0x96cacbfd1c62bbb30092901328c816991f38fdfd46bc6c9543c37e4ac5d662f3"
+    }
+  ],
+  "root": "0xee074602ebde218d19b8ce824a4ca024eb94e7bb95da72ef9e00012522012211"
+};
+
 export const MerkleTreeStub = (): any => {
   // returning merkleTree object...
   return merkleTree;
+}
+
+export const HardcodedMerkleTreeStub = (): any => {
+  // returning merkleTree object...
+  return hardcodedMerkleTree;
 }
