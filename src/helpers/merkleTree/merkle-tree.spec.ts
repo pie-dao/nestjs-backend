@@ -6,6 +6,9 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EpochEntity, EpochSchema } from '../../staking/entities/epoch.entity';
+import { MerkleTreeStub } from './stubs/merkle-tree.stubs';
+import { VotesStub } from './stubs/votes.stubs';
+import { ParticipationsStub } from './stubs/participations.stubs';
 
 describe('MerkleTree', () => {
   let service: StakingService;
@@ -30,6 +33,33 @@ describe('MerkleTree', () => {
   it('should be defined', () => {
     let merkleTreeObj = new MerkleTree();
     expect(merkleTreeObj).toBeDefined();
+  });
+
+  describe('createParticipationTree with Mocks and check validity', () => {
+    describe('When createParticipationTree is called with a mock participations and votes', () => {  
+      jest.setTimeout(15000);
+      let votes, participations, merkleTree = null;
+      let merkleTreeObj = new MerkleTree();
+
+      beforeEach(async () => {
+        // fetching all votes from snapshot in the last month...
+        votes = VotesStub();
+
+        // generating the participations by poviding the last-month votes...
+        participations = ParticipationsStub();
+
+        jest.spyOn(merkleTreeObj, "createParticipationTree");
+        merkleTree = merkleTreeObj.createParticipationTree(participations);
+      });
+
+      test('then it should call merkleTree.createParticipationTree', () => {
+        expect(merkleTreeObj.createParticipationTree).toHaveBeenCalled();
+      });
+
+      test('then it should return a MerkleTree', () => {
+        expect(merkleTree).toMatchObject(MerkleTreeStub());
+      });    
+    });
   });
 
   describe('createParticipationTree', () => {
