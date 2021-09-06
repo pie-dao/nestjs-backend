@@ -29,6 +29,7 @@ export class MerkleTree {
       elements: this.elements, 
       layers: this.layers,
       leafs: entriesWithLeafs,
+      root: this.getRoot()
     };
   };  
 
