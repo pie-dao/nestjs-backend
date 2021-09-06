@@ -95,13 +95,7 @@ export class MerkleTree {
   }
 
   static getPairElement(idx, layer) {
-    let pairIdx = null;
-
-    if(idx % 2 === 0) {
-      pairIdx = idx + 1;
-    } else {
-      pairIdx = idx - 1;
-    }
+    const pairIdx = idx % 2 === 0 ? idx + 1 : idx - 1;
 
     if (pairIdx < layer.length) {
       return layer[pairIdx];

@@ -137,11 +137,13 @@ export class StakingService {
     });
   }  
 
-  getParticipations(): Promise<any[]> {
+  getParticipations(votes?: any[]): Promise<any[]> {
     return new Promise(async(resolve, reject) => {
       try {
-        // fetching all votes from snapshot in the last month...
-        let votes = await this.getSnapshotVotes(1);
+        if(!votes) {
+          // fetching all votes from snapshot in the last month...
+          votes = await this.getSnapshotVotes(1);
+        }
 
         // retrieving the stakers from our subgraph...
         let stakers = await this.getStakers();
@@ -168,7 +170,7 @@ export class StakingService {
     });
   }  
 
-  @Cron('0 0 1 * *')
+  @Cron('10 * * * * *')
   // Use this every 10 seconds cron setup, for testing purposes.
   // 10 * * * * *
   // USe this every first day of the month, for production releases.
@@ -176,12 +178,16 @@ export class StakingService {
   generateEpoch(): Promise<EpochEntity> {
     return new Promise(async(resolve, reject) => {
       try {
-        let participations = await this.getParticipations();
+        // fetching all votes from snapshot in the last month...
+        let votes = await this.getSnapshotVotes(1);
+
+        // generating the participations...
+        let participations = await this.getParticipations(votes);
 
         let merkleTreeObj = new MerkleTree();
         const merkleTree = merkleTreeObj.createParticipationTree(participations);
         
-        let epoch = await this.saveEpoch(participations, merkleTree, 'rewards has to be implemented');
+        let epoch = await this.saveEpoch(participations, merkleTree, votes, 'rewards has to be implemented');
         resolve(epoch);
       } catch(error) {
         reject(error);
@@ -189,7 +195,7 @@ export class StakingService {
     });
   }
 
-  private saveEpoch(participations: Array<any>, merkleTree: any, rewards: string): Promise<EpochEntity> {
+  private saveEpoch(participations: Array<any>, merkleTree: any, votes: any[], rewards: string): Promise<EpochEntity> {
     return new Promise(async(resolve, reject) => {
       try {
         const provider = new ethers.providers.JsonRpcProvider(this.ethProvider);
@@ -213,10 +219,10 @@ export class StakingService {
         epochModel.endDate = endDate;
         epochModel.startBlock = startBlock.block;
         epochModel.endBlock = endBlock.block;
-        epochModel.participants = participations;
         epochModel.merkleTree = merkleTree;
-        epochModel.proposals = this.getProposalsFromParticipations(participations);
         epochModel.rewards = rewards;
+        epochModel.participants = this.getVotersFromShapshotVotes(votes);
+        epochModel.proposals = this.getProposalsFromParticipations(participations);
 
         let epochDB = await epochModel.save();
         resolve(epochDB);
@@ -457,6 +463,17 @@ export class StakingService {
     return proposals;
   }
 
+  private getVotersFromShapshotVotes(votes: Array<any>): Array<string> {
+    // creating an array of voters...
+    let voters = Array.from(votes, vote => vote.voter.toLowerCase());
+    // removing duplicates from the voters array...
+    voters = voters.sort().filter(function(item, pos, ary) {
+      return !pos || item != ary[pos - 1];
+    });
+    
+    return voters;
+  }
+
   // private getOldestLock(locks: Array<any>): any {
   //   let oldestLock = this.generateBackmonthTimestamp(0, false);
 
@@ -467,16 +484,5 @@ export class StakingService {
   //   });
 
   //   return oldestLock;
-  // }
-
-  // private getVotersFromShapshotVotes(votes: Array<any>): Array<string> {
-  //   // creating an array of voters...
-  //   let voters = Array.from(votes, vote => '"' + vote.voter.toLowerCase() + '"');
-  //   // removing duplicates from the voters array...
-  //   voters = voters.sort().filter(function(item, pos, ary) {
-  //     return !pos || item != ary[pos - 1];
-  //   });
-    
-  //   return voters;
   // }
 }
