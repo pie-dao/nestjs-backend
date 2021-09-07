@@ -174,17 +174,13 @@ export class StakingService {
     return new Promise(async(resolve, reject) => {
       try {
         if(participations) {
-          //console.log("using participations", participations);
           let merkleTreeObj = new MerkleTree();
-          console.log("generate merkleTree");
           const merkleTree = merkleTreeObj.createParticipationTree(participations);
-          console.log("generate merkleTree", merkleTree);
           resolve(merkleTree);
         } else {
           reject('Sorry, you must pass a participations json as parameter');
         }
       } catch(error) {
-        console.log(error);
         reject(error);
       }
     });

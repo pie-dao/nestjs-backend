@@ -7,7 +7,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
 import { EpochEntity, EpochSchema } from '../../staking/entities/epoch.entity';
 import { MerkleTreeStub, HardcodedMerkleTreeStub } from './stubs/merkle-tree.stubs';
-import { VotesStub } from './stubs/votes.stubs';
 import { ParticipationsStub, HardcodedParticipationsStub } from './stubs/participations.stubs';
 
 describe('MerkleTree', () => {
@@ -31,23 +30,21 @@ describe('MerkleTree', () => {
   });
 
   it('should be defined', () => {
-    let merkleTreeObj = new MerkleTree();
-    expect(merkleTreeObj).toBeDefined();
+    expect(service).toBeDefined();
   });
 
-  describe('createParticipationTree with Mocks and check validity', () => {
-    describe('When createParticipationTree is called with a mock participations and votes', () => {  
+  describe('getMerkleTree with Mocks and check validity', () => {
+    describe('When getMerkleTree is called with a mock participations and votes', () => {  
       jest.setTimeout(15000);
       let merkleTree = null;
-      let merkleTreeObj = new MerkleTree();
 
       beforeEach(async () => {
-        jest.spyOn(merkleTreeObj, "createParticipationTree");
-        merkleTree = merkleTreeObj.createParticipationTree(HardcodedParticipationsStub());
+        jest.spyOn(service, "getMerkleTree");
+        merkleTree = await service.getMerkleTree(HardcodedParticipationsStub());
       });
 
-      test('then it should call merkleTree.createParticipationTree', () => {
-        expect(merkleTreeObj.createParticipationTree).toHaveBeenCalled();
+      test('then it should call service.getMerkleTree', () => {
+        expect(service.getMerkleTree).toHaveBeenCalled();
       });
 
       test('then it should return a correct MerkleTree', () => {
@@ -56,30 +53,25 @@ describe('MerkleTree', () => {
     });
   });  
 
-  describe('createParticipationTree with Mocks and check validity', () => {
-    describe('When createParticipationTree is called with a mock participations and votes', () => {  
+  describe('getMerkleTree with Mocks and check validity', () => {
+    describe('When getMerkleTree is called with a mock participations and votes', () => {  
       jest.setTimeout(15000);
-      let votes, participations, merkleTree = null;
-      let merkleTreeObj = new MerkleTree();
+      let participations, merkleTree = null;
 
       beforeEach(async () => {
-        // fetching all votes from snapshot in the last month...
-        votes = VotesStub();
-
-        // generating the participations by poviding the last-month votes...
         participations = ParticipationsStub();
 
-        jest.spyOn(merkleTreeObj, "createParticipationTree");
-        merkleTree = merkleTreeObj.createParticipationTree(participations);
+        jest.spyOn(service, "getMerkleTree");
+        merkleTree = await service.getMerkleTree(participations);
       });
 
-      test('then it should call merkleTree.createParticipationTree', () => {
-        expect(merkleTreeObj.createParticipationTree).toHaveBeenCalled();
+      test('then it should call service.getMerkleTree', () => {
+        expect(service.getMerkleTree).toHaveBeenCalled();
       });
 
       test('then it should return a correct MerkleTree', () => {
         expect(merkleTree).toMatchObject(MerkleTreeStub());
-      });    
+      });
     });
   });
 
@@ -88,27 +80,19 @@ describe('MerkleTree', () => {
       jest.setTimeout(15000);
       let merkleTreeObj = new MerkleTree();
       let merkleTree = null;
-      let root = null;
 
       beforeEach(async () => {
-        jest.spyOn(merkleTreeObj, "createParticipationTree");
-        merkleTree = merkleTreeObj.createParticipationTree();
-
-        jest.spyOn(merkleTreeObj, "getRoot");
-        root = merkleTreeObj.getRoot();
+        jest.spyOn(service, "getMerkleTree");
+        merkleTree = await service.getMerkleTree([]);
       });
 
-      test('then it should call merkleTree.createParticipationTree', () => {
-        expect(merkleTreeObj.createParticipationTree).toHaveBeenCalled();
+      test('then it should call service.getMerkleTree', () => {
+        expect(service.getMerkleTree).toHaveBeenCalled();
       });
 
       test('then it should return a MerkleTree', () => {
         expect(merkleTree).toMatchObject({"elements": [], "layers": [[""]], "leafs": []});
-      });
-
-      test('then it should call merkleTree.getRoot', () => {
-        expect(merkleTreeObj.createParticipationTree).toHaveBeenCalled();
-      });      
+      });   
     });
   });
   
@@ -128,17 +112,18 @@ describe('MerkleTree', () => {
     });
   });  
 
-  describe('getProof', () => {
-    describe('When getProof is called', () => {
+  describe('getProof / getRoot', () => {
+    describe('When getProof / getRoot is called', () => {
       jest.setTimeout(15000);
       let merkleTreeObj = new MerkleTree();
-      let proof = null;
-      let merkleTree = null;
-      let leaf = null;
+      let proof, root, merkleTree, leaf  = null;
 
       beforeEach(async () => {
         jest.spyOn(merkleTreeObj, "createParticipationTree");
         merkleTree = merkleTreeObj.createParticipationTree(participations);
+
+        jest.spyOn(merkleTreeObj, "getRoot");
+        root = merkleTreeObj.getRoot();        
 
         leaf = merkleTree.leafs.find(
           (item) => item.address.toLowerCase() === "0x1a1087bf077f74fb21fd838a8a25cf9fe0818450".toLowerCase(),
@@ -151,6 +136,10 @@ describe('MerkleTree', () => {
       test('then it should call merkleTree.getProof', () => {
         expect(merkleTreeObj.getProof).toHaveBeenCalledWith(leaf.leaf);
       });
+
+      test('then it should call merkleTree.getRoot', () => {
+        expect(merkleTreeObj.getRoot).toHaveBeenCalled();
+      });      
     });
 
     describe('When getProof is called on unexisting participant', () => {
