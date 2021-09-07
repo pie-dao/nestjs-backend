@@ -65,7 +65,15 @@ export const StakingService = jest.fn().mockReturnValue({
       } else {
         reject(new Error());        
       }
-
     });
-  })      
+  }),
+  getMerkleTree: jest.fn().mockImplementation((participations: any[]) => {
+    return new Promise((resolve, reject) => {
+      if(participations && participations.length > 0) {
+        resolve({});
+      } else {
+        reject(new Error());
+      }
+    });
+  })       
 });

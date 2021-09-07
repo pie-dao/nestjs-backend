@@ -124,4 +124,16 @@ describe('StakingController', () => {
       });       
     });
   });   
+
+  describe('getMerkleTree', () => {
+    describe('When getMerkleTree is called', () => {
+      let merkleTree = null;
+      
+      test('it should throw an error if no valid parameter is passed', async() => {
+        await expect(controller.getMerkleTree([]))
+        .rejects
+        .toThrow(NotFoundException);
+      });       
+    });
+  }); 
 });

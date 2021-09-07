@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EpochEntity, EpochSchema } from '../entities/epoch.entity';
 import { EpochsStub } from './stubs/epochs.stubs';
+import { NotFoundException } from '@nestjs/common';
 
 describe('StakingService', () => {
   let service: StakingService;
@@ -32,7 +33,7 @@ describe('StakingService', () => {
   describe('getEpochs', () => {
     describe('getEpochs with startDate as param', () => {
       describe('When getEpochs is called', () => {
-        jest.setTimeout(15000);
+        jest.setTimeout(50000);
         let epochs: EpochEntity[];
   
         beforeEach(async () => {
@@ -57,7 +58,7 @@ describe('StakingService', () => {
         test('it should throw an error if no records are found', async() => {
           await expect(service.getEpochs(Number(Date.now())))
           .rejects
-          .toEqual(new Error("Sorry, no epochs has been founded on our database."));
+          .toEqual(new NotFoundException("Sorry, no epochs has been founded on our database."))
         });       
       });
     });
@@ -80,6 +81,23 @@ describe('StakingService', () => {
           expect(typeof epochs).toBe('object');
         });
       });
+    });   
+    
+    describe('getEpochs with a future date, to trigger error', () => {
+      describe('When getEpochs is called', () => {
+        jest.setTimeout(15000);
+        let epochs: EpochEntity[];
+  
+        beforeEach(async () => {
+          jest.spyOn(service, "getEpochs");
+        });
+  
+        test('it should throw an error if no records are found', async() => {
+          await expect(service.getEpochs(2554412400000))
+          .rejects
+          .toEqual(new NotFoundException("Sorry, no epochs has been founded on our database."))
+        });
+      });
     });    
   });
 
@@ -91,11 +109,11 @@ describe('StakingService', () => {
   
         beforeEach(async () => {
           jest.spyOn(service, "getEpoch");
-          epoch = await service.getEpoch("612f7b555633c83b8a586b5e");
+          epoch = await service.getEpoch("6135d7fa85204887d11967b5");
         });
   
         test('then it should call stakingService.getEpoch', () => {
-          expect(service.getEpoch).toHaveBeenCalledWith("612f7b555633c83b8a586b5e");
+          expect(service.getEpoch).toHaveBeenCalledWith("6135d7fa85204887d11967b5");
         });
   
         test('then it should return an EpochEntity', () => {
@@ -105,9 +123,9 @@ describe('StakingService', () => {
         });
   
         test('it should throw an error if no records are found', async() => {
-          await expect(service.getEpoch("612f7b555633c83b8a586b5a"))
+          await expect(service.getEpoch("6135d7fa85204887d11967b4"))
           .rejects
-          .toEqual(new Error("Sorry, can't find any epoch with this id."));
+          .toEqual(new NotFoundException("Sorry, can't find any epoch with this id."))
         });       
       });
     });  
@@ -203,6 +221,23 @@ describe('StakingService', () => {
       });      
     });
   }); 
+
+  describe('getParticipations', () => {
+    describe('When getParticipations is called with an empty array', () => {
+      jest.setTimeout(15000);
+      let participations: any[];
+
+      beforeEach(async () => {
+        jest.spyOn(service, "getParticipations");
+      });   
+
+      test('it should throw an error if empty array is passed', async() => {
+        await expect(service.getParticipations([]))
+        .rejects
+        .toEqual(new NotFoundException("sorry, votes can't be an empty array"));
+      });      
+    });
+  });
 
   describe('generateEpoch', () => {
     describe('When generateEpoch is called', () => {

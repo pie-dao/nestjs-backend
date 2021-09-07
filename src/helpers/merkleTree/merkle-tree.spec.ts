@@ -8,6 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { EpochEntity, EpochSchema } from '../../staking/entities/epoch.entity';
 import { MerkleTreeStub, HardcodedMerkleTreeStub } from './stubs/merkle-tree.stubs';
 import { ParticipationsStub, HardcodedParticipationsStub } from './stubs/participations.stubs';
+import { NotFoundException } from '@nestjs/common';
 
 describe('MerkleTree', () => {
   let service: StakingService;
@@ -75,27 +76,39 @@ describe('MerkleTree', () => {
     });
   });
 
-  describe('createParticipationTree', () => {
-    describe('When createParticipationTree is called with empty participations', () => {  
+  describe('getMerkleTree', () => {
+    describe('When getMerkleTree is called with empty participations', () => {  
       jest.setTimeout(15000);
-      let merkleTreeObj = new MerkleTree();
       let merkleTree = null;
 
       beforeEach(async () => {
         jest.spyOn(service, "getMerkleTree");
-        merkleTree = await service.getMerkleTree([]);
       });
 
-      test('then it should call service.getMerkleTree', () => {
-        expect(service.getMerkleTree).toHaveBeenCalled();
-      });
-
-      test('then it should return a MerkleTree', () => {
-        expect(merkleTree).toMatchObject({"elements": [], "layers": [[""]], "leafs": []});
-      });   
+      test('it should throw an error if no records are found', async() => {
+        await expect(service.getMerkleTree([]))
+        .rejects
+        .toEqual(new NotFoundException("Sorry, you must pass a participations json as parameter, and it must be a valid array."));
+      });  
     });
   });
   
+  describe('getLayers', () => {
+    describe('When getLayers is called', () => {  
+      jest.setTimeout(15000);
+      let hash = null;
+
+      beforeEach(async () => {
+        jest.spyOn(MerkleTree, "getLayers");
+        hash = MerkleTree.getLayers([]);
+      });
+
+      test('then it should call merkleTree.getLayers', () => {
+        expect(MerkleTree.getLayers).toHaveBeenCalledWith([]);
+      });     
+    });
+  });  
+
   describe('combinedHash', () => {
     describe('When combinedHash is called', () => {  
       jest.setTimeout(15000);
@@ -110,7 +123,7 @@ describe('MerkleTree', () => {
         expect(MerkleTree.combinedHash).toHaveBeenCalledWith(null, participations[0]);
       });     
     });
-  });  
+  });
 
   describe('getProof / getRoot', () => {
     describe('When getProof / getRoot is called', () => {
@@ -120,7 +133,7 @@ describe('MerkleTree', () => {
 
       beforeEach(async () => {
         jest.spyOn(merkleTreeObj, "createParticipationTree");
-        merkleTree = merkleTreeObj.createParticipationTree(participations);
+        merkleTree = merkleTreeObj.createParticipationTree(JSON.stringify(participations));
 
         jest.spyOn(merkleTreeObj, "getRoot");
         root = merkleTreeObj.getRoot();        

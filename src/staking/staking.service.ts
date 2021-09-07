@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -55,7 +55,7 @@ export class StakingService {
         if(epochsDB.length) {
           resolve(epochsDB);
         } else {
-          throw new Error('Sorry, no epochs has been founded on our database.');
+          throw new NotFoundException('Sorry, no epochs has been founded on our database.');
         }
       } catch(error) {
         reject(error);
@@ -82,7 +82,7 @@ export class StakingService {
         if(epochDB) {
           resolve(epochDB);
         } else {
-          throw new Error("Sorry, can't find any epoch with this id.")
+          throw new NotFoundException("Sorry, can't find any epoch with this id.")
         }
       } catch(error) {
         reject(error);
@@ -140,6 +140,10 @@ export class StakingService {
   getParticipations(votes?: any[]): Promise<any[]> {
     return new Promise(async(resolve, reject) => {
       try {
+        if(votes && votes.length == 0) {
+          throw new NotFoundException("sorry, votes can't be an empty array");
+        }
+
         if(!votes) {
           // fetching all votes from snapshot in the last month...
           votes = await this.getSnapshotVotes(1);
@@ -173,12 +177,12 @@ export class StakingService {
   getMerkleTree(participations: any[]): Promise<Object> {
     return new Promise(async(resolve, reject) => {
       try {
-        if(participations) {
+        if(participations && participations.length > 0) {
           let merkleTreeObj = new MerkleTree();
           const merkleTree = merkleTreeObj.createParticipationTree(participations);
           resolve(merkleTree);
         } else {
-          reject('Sorry, you must pass a participations json as parameter');
+          throw new NotFoundException('Sorry, you must pass a participations json as parameter, and it must be a valid array.');
         }
       } catch(error) {
         reject(error);

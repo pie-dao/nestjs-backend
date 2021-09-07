@@ -78,40 +78,36 @@ export class PiesService {
         // calculating the underlyingAssets, populating it into the pieHistory
         // and summing the total value of usd for each token price...
         for(let i = 0; i < underlyingAssets.length; i++) {
-          try {
-            let underlyingContract = null;
+          let underlyingContract = null;
 
-            if(underlyingAssets[i].toLowerCase() !== '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2'.toLowerCase()) {
-              // instance of the underlying contract...
-              underlyingContract = new ethers.Contract(underlyingAssets[i], erc20, provider);
-            } else {
-              underlyingContract = new ethers.Contract(underlyingAssets[i], erc20byte32, provider);
-            }
-
-            // fetching decimals and calculating precision for the underlyingAsset...
-            let decimals = await underlyingContract.decimals();
-            let symbol = await underlyingContract.symbol();
-            let precision = new BigNumber(10).pow(decimals);
-
-            // calculating the value in usd for a given amount of underlyingAsset...
-            let usdPrice = prices[underlyingAssets[i].toLowerCase()].usd;
-            let marketCapUSD = new BigNumber(underylingTotals[i].toString()).times(usdPrice).div(precision);
-
-            // refilling the underlyingAssets of the History Entity...
-            history.underlyingAssets.push({
-              address: underlyingAssets[i], 
-              symbol: symbol, 
-              decimals: decimals,
-              amount: underylingTotals[i].toString(),
-              usdPrice: usdPrice.toString(),
-              marketCapUSD: marketCapUSD.toString()
-            });
-
-            // updating the global amount of usd for the main pie of this history entity...
-            pieMarketCapUSD = pieMarketCapUSD.plus(marketCapUSD);            
-          } catch(error) {
-            this.logger.error(pie.name, underlyingAssets[i], error.message);
+          if(underlyingAssets[i].toLowerCase() !== '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2'.toLowerCase()) {
+            // instance of the underlying contract...
+            underlyingContract = new ethers.Contract(underlyingAssets[i], erc20, provider);
+          } else {
+            underlyingContract = new ethers.Contract(underlyingAssets[i], erc20byte32, provider);
           }
+
+          // fetching decimals and calculating precision for the underlyingAsset...
+          let decimals = await underlyingContract.decimals();
+          let symbol = await underlyingContract.symbol();
+          let precision = new BigNumber(10).pow(decimals);
+
+          // calculating the value in usd for a given amount of underlyingAsset...
+          let usdPrice = prices[underlyingAssets[i].toLowerCase()].usd;
+          let marketCapUSD = new BigNumber(underylingTotals[i].toString()).times(usdPrice).div(precision);
+
+          // refilling the underlyingAssets of the History Entity...
+          history.underlyingAssets.push({
+            address: underlyingAssets[i], 
+            symbol: symbol, 
+            decimals: decimals,
+            amount: underylingTotals[i].toString(),
+            usdPrice: usdPrice.toString(),
+            marketCapUSD: marketCapUSD.toString()
+          });
+
+          // updating the global amount of usd for the main pie of this history entity...
+          pieMarketCapUSD = pieMarketCapUSD.plus(marketCapUSD);
         };
 
         // finally updating the total amount in usd...
@@ -238,7 +234,6 @@ export class PiesService {
       } else {
         reject("Sorry, can't find any Pie in our database which matches your query.");
       }
-      
     });
   }
 

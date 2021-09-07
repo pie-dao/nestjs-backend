@@ -13,7 +13,7 @@ export class MerkleTree {
     this.layers = MerkleTree.getLayers(this.elements);
   }
 
-  createParticipationTree(entries = []) {
+  createParticipationTree(entries: any) {
     if(typeof entries == "string") {
       entries = JSON.parse(entries);
     }
