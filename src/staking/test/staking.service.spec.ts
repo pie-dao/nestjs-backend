@@ -65,7 +65,7 @@ describe('StakingService', () => {
   
     describe('getEpochs without any param', () => {
       describe('When getEpochs is called', () => {
-        jest.setTimeout(15000);
+        jest.setTimeout(50000);
         let epochs: EpochEntity[];
   
         beforeEach(async () => {
@@ -85,7 +85,7 @@ describe('StakingService', () => {
     
     describe('getEpochs with a future date, to trigger error', () => {
       describe('When getEpochs is called', () => {
-        jest.setTimeout(15000);
+        jest.setTimeout(50000);
         let epochs: EpochEntity[];
   
         beforeEach(async () => {
@@ -104,7 +104,7 @@ describe('StakingService', () => {
   describe('getEpoch', () => {
     describe('getEpoch with id as param', () => {
       describe('When getEpoch is called', () => {
-        jest.setTimeout(15000);
+        jest.setTimeout(50000);
         let epoch: EpochEntity;
   
         beforeEach(async () => {
@@ -132,7 +132,7 @@ describe('StakingService', () => {
   
     describe('getEpoch without any param', () => {
       describe('When getEpoch is called', () => {
-        jest.setTimeout(15000);
+        jest.setTimeout(50000);
         let epoch: EpochEntity;
   
         beforeEach(async () => {
@@ -153,7 +153,7 @@ describe('StakingService', () => {
 
   describe('getLocks', () => {
     describe('When getLocks is called', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let locks: any[];
 
       beforeEach(async () => {
@@ -177,7 +177,7 @@ describe('StakingService', () => {
     });
 
     describe('When getLocks is called with params', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let locks: any[];
       let timestamp = Number(Date.now()).toString();
 
@@ -198,7 +198,7 @@ describe('StakingService', () => {
 
   describe('getStakers', () => {
     describe('When getStakers is called', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let stakers: any[];
 
       beforeEach(async () => {
@@ -224,7 +224,7 @@ describe('StakingService', () => {
 
   describe('getParticipations', () => {
     describe('When getParticipations is called with an empty array', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let participations: any[];
 
       beforeEach(async () => {

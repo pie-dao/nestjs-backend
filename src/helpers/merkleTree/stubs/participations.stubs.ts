@@ -3,16 +3,12 @@ const participations = [
     "address": "0x1a1087bf077f74fb21fd838a8a25cf9fe0818450",
     "participation": 0,
     "staker": {
-      "accountDepositTokenAllowance": "0",
-      "accountDepositTokenBalance": "10000000000000000000000",
       "accountLocks": [],
       "accountRewards": [],
       "accountVeTokenBalance": "0",
       "accountWithdrawableRewards": "0",
       "accountWithdrawnRewards": "0",
-      "id": "0x1a1087bf077f74fb21fd838a8a25cf9fe0818450",
-      "totalStaked": "1036647990898273800000000",
-      "veTokenTotalSupply": "955385125238189459666970"
+      "id": "0x1a1087bf077f74fb21fd838a8a25cf9fe0818450"
     },
     "votes": []
   },
@@ -20,16 +16,12 @@ const participations = [
     "address": "0x1fdca2162eefb7ad400ed3d6627ac9c63dad55a1",
     "participation": 0,
     "staker": {
-      "accountDepositTokenAllowance": "0",
-      "accountDepositTokenBalance": "1000000000000000000000000",
       "accountLocks": [],
       "accountRewards": [],
       "accountVeTokenBalance": "0",
       "accountWithdrawableRewards": "0",
       "accountWithdrawnRewards": "0",
-      "id": "0x1fdca2162eefb7ad400ed3d6627ac9c63dad55a1",
-      "totalStaked": "1036647990898273800000000",
-      "veTokenTotalSupply": "955385125238189459666970"
+      "id": "0x1fdca2162eefb7ad400ed3d6627ac9c63dad55a1"
     },
     "votes": []
   },
@@ -37,8 +29,6 @@ const participations = [
     "address": "0x3c341129dac2096b88945a8985f0ada799abf8c9",
     "participation": 0,
     "staker": {
-      "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564038457584007913129639935",
-      "accountDepositTokenBalance": "99000000000000000000000",
       "accountLocks": [
         {
           "amount": "1000000000000000000000",
@@ -72,9 +62,7 @@ const participations = [
       "accountVeTokenBalance": "1000000000000000000000",
       "accountWithdrawableRewards": "21245161841737910945328838654322",
       "accountWithdrawnRewards": "0",
-      "id": "0x3c341129dac2096b88945a8985f0ada799abf8c9",
-      "totalStaked": "1036647990898273800000000",
-      "veTokenTotalSupply": "955385125238189459666970"
+      "id": "0x3c341129dac2096b88945a8985f0ada799abf8c9"
     },
     "votes": []
   },
@@ -82,8 +70,6 @@ const participations = [
     "address": "0x42556f667dfc74704914f98d1e0c0ac4ea2f492e",
     "participation": 0,
     "staker": {
-      "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564039446584007913129639935",
-      "accountDepositTokenBalance": "947847000000000000000000",
       "accountLocks": [
         {
           "amount": "100000000000000000000",
@@ -529,9 +515,7 @@ const participations = [
       "accountVeTokenBalance": "2990135393520816800000",
       "accountWithdrawableRewards": "313290257507778003773062",
       "accountWithdrawnRewards": "62882137889106489243307952250329",
-      "id": "0x42556f667dfc74704914f98d1e0c0ac4ea2f492e",
-      "totalStaked": "1036647990898273800000000",
-      "veTokenTotalSupply": "955385125238189459666970"
+      "id": "0x42556f667dfc74704914f98d1e0c0ac4ea2f492e"
     },
     "votes": []
   },
@@ -539,16 +523,12 @@ const participations = [
     "address": "0x441658de8ebcb25d8d320bd5c1abb314b0ce195e",
     "participation": 0,
     "staker": {
-      "accountDepositTokenAllowance": "0",
-      "accountDepositTokenBalance": "1036647990898273800000000",
       "accountLocks": [],
       "accountRewards": [],
       "accountVeTokenBalance": "0",
       "accountWithdrawableRewards": "0",
       "accountWithdrawnRewards": "0",
-      "id": "0x441658de8ebcb25d8d320bd5c1abb314b0ce195e",
-      "totalStaked": "1036647990898273800000000",
-      "veTokenTotalSupply": "955385125238189459666970"
+      "id": "0x441658de8ebcb25d8d320bd5c1abb314b0ce195e"
     },
     "votes": []
   },
@@ -556,8 +536,6 @@ const participations = [
     "address": "0x64cb372c22dd76d1de5ee817fa49593617a164fa",
     "participation": 0,
     "staker": {
-      "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564038957584007913129639935",
-      "accountDepositTokenBalance": "500000000000000100000",
       "accountLocks": [
         {
           "amount": "500000000000000000000",
@@ -593,9 +571,7 @@ const participations = [
       "accountVeTokenBalance": "500000000000000000000",
       "accountWithdrawableRewards": "52387302960700687708928",
       "accountWithdrawnRewards": "0",
-      "id": "0x64cb372c22dd76d1de5ee817fa49593617a164fa",
-      "totalStaked": "1036647990898273800000000",
-      "veTokenTotalSupply": "955385125238189459666970"
+      "id": "0x64cb372c22dd76d1de5ee817fa49593617a164fa"
     },
     "votes": []
   },
@@ -603,16 +579,12 @@ const participations = [
     "address": "0x7884c447d5cd98e794c1a5c08e3107fbf29b2877",
     "participation": 0,
     "staker": {
-      "accountDepositTokenAllowance": "0",
-      "accountDepositTokenBalance": "10000000000000000000000",
       "accountLocks": [],
       "accountRewards": [],
       "accountVeTokenBalance": "0",
       "accountWithdrawableRewards": "0",
       "accountWithdrawnRewards": "0",
-      "id": "0x7884c447d5cd98e794c1a5c08e3107fbf29b2877",
-      "totalStaked": "1036647990898273800000000",
-      "veTokenTotalSupply": "955385125238189459666970"
+      "id": "0x7884c447d5cd98e794c1a5c08e3107fbf29b2877"
     },
     "votes": []
   },
@@ -620,8 +592,6 @@ const participations = [
     "address": "0xabf26352aadaaa1cabffb3a55e378bac6bf15791",
     "participation": 1,
     "staker": {
-      "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564038457584007913129639935",
-      "accountDepositTokenBalance": "0",
       "accountLocks": [
         {
           "amount": "10000000000000000000",
@@ -708,9 +678,7 @@ const participations = [
       "accountVeTokenBalance": "737120712867945000000",
       "accountWithdrawableRewards": "15660248843766128563987192692034",
       "accountWithdrawnRewards": "0",
-      "id": "0xabf26352aadaaa1cabffb3a55e378bac6bf15791",
-      "totalStaked": "1036647990898273800000000",
-      "veTokenTotalSupply": "955385125238189459666970"
+      "id": "0xabf26352aadaaa1cabffb3a55e378bac6bf15791"
     },
     "votes": [
       {
@@ -762,8 +730,6 @@ const participations = [
     "address": "0xc96265c36f6d77747f9c259946a1ef55fce946b7",
     "participation": 1,
     "staker": {
-      "accountDepositTokenAllowance": "0",
-      "accountDepositTokenBalance": "5943687009101726200000000",
       "accountLocks": [
         {
           "amount": "10000000000000000000000",
@@ -870,9 +836,7 @@ const participations = [
       "accountVeTokenBalance": "18371197526438069166970",
       "accountWithdrawableRewards": "1924834981136772422865138",
       "accountWithdrawnRewards": "0",
-      "id": "0xc96265c36f6d77747f9c259946a1ef55fce946b7",
-      "totalStaked": "1036647990898273800000000",
-      "veTokenTotalSupply": "955385125238189459666970"
+      "id": "0xc96265c36f6d77747f9c259946a1ef55fce946b7"
     },
     "votes": [
       {
@@ -905,8 +869,6 @@ const participations = [
     "address": "0xd18a54f89603fe4301b29ef6a8ab11b9ba24f139",
     "participation": 0,
     "staker": {
-      "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640563036900584007913129639935",
-      "accountDepositTokenBalance": "109071000000000000000000",
       "accountLocks": [
         {
           "amount": "5000000000000000000",
@@ -1148,9 +1110,7 @@ const participations = [
       "accountVeTokenBalance": "931785671605362628700000",
       "accountWithdrawableRewards": "97627476545660184715637355",
       "accountWithdrawnRewards": "191206455656948438416906548070",
-      "id": "0xd18a54f89603fe4301b29ef6a8ab11b9ba24f139",
-      "totalStaked": "1036647990898273800000000",
-      "veTokenTotalSupply": "955385125238189459666970"
+      "id": "0xd18a54f89603fe4301b29ef6a8ab11b9ba24f139"
     },
     "votes": []
   },
@@ -1158,8 +1118,6 @@ const participations = [
     "address": "0xe0bdc50a72b46d51c5572fb878f62314667778bb",
     "participation": 0,
     "staker": {
-      "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564039456584007913129639935",
-      "accountDepositTokenBalance": "9999999999000000000000000000",
       "accountLocks": [
         {
           "amount": "1000000000000000000",
@@ -1176,9 +1134,7 @@ const participations = [
       "accountVeTokenBalance": "1000000000000000000",
       "accountWithdrawableRewards": "21245161844435543523279880759",
       "accountWithdrawnRewards": "0",
-      "id": "0xe0bdc50a72b46d51c5572fb878f62314667778bb",
-      "totalStaked": "1036647990898273800000000",
-      "veTokenTotalSupply": "955385125238189459666970"
+      "id": "0xe0bdc50a72b46d51c5572fb878f62314667778bb"
     },
     "votes": []
   }

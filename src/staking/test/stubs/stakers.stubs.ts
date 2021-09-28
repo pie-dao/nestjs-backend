@@ -1,30 +1,20 @@
 const stakers = [
   {
-    "accountDepositTokenAllowance": "0",
-    "accountDepositTokenBalance": "10000000000000000000000",
     "accountLocks": [],
     "accountRewards": [],
     "accountVeTokenBalance": "0",
     "accountWithdrawableRewards": "0",
     "accountWithdrawnRewards": "0",
-    "id": "0x1a1087bf077f74fb21fd838a8a25cf9fe0818450",
-    "totalStaked": "1036127990898273800000000",
-    "veTokenTotalSupply": "954882541904856126966970"
+    "id": "0x1a1087bf077f74fb21fd838a8a25cf9fe0818450"
   },
   {
-    "accountDepositTokenAllowance": "0",
-    "accountDepositTokenBalance": "1000000000000000000000000",
     "accountLocks": [],
     "accountRewards": [],
     "accountVeTokenBalance": "0",
     "accountWithdrawableRewards": "0",
     "accountWithdrawnRewards": "0",
-    "id": "0x1fdca2162eefb7ad400ed3d6627ac9c63dad55a1",
-    "totalStaked": "1036147990898273800000000",
-    "veTokenTotalSupply": "954885125238189459666970"
+    "id": "0x1fdca2162eefb7ad400ed3d6627ac9c63dad55a1"
   }, {
-    "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564038457584007913129639935",
-    "accountDepositTokenBalance": "99000000000000000000000",
     "accountLocks": [
       {
         "amount": "1000000000000000000000",
@@ -58,13 +48,9 @@ const stakers = [
     "accountVeTokenBalance": "1000000000000000000000",
     "accountWithdrawableRewards": "21245161736963305023927463236464",
     "accountWithdrawnRewards": "0",
-    "id": "0x3c341129dac2096b88945a8985f0ada799abf8c9",
-    "totalStaked": "4979000000000000000000",
-    "veTokenTotalSupply": "4706954046201278000000"
+    "id": "0x3c341129dac2096b88945a8985f0ada799abf8c9"
   },
   {
-    "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564038457584007913129639935",
-    "accountDepositTokenBalance": "99000000000000000000000",
     "accountLocks": [
       {
         "amount": "1000000000000000000000",
@@ -98,13 +84,9 @@ const stakers = [
     "accountVeTokenBalance": "1000000000000000000000",
     "accountWithdrawableRewards": "21245161736963305023927463236464",
     "accountWithdrawnRewards": "0",
-    "id": "0x3c341129dac2096b88945a8985f0ada799abf8c9",
-    "totalStaked": "4979000000000000000000",
-    "veTokenTotalSupply": "4706954046201278000000"
+    "id": "0x3c341129dac2096b88945a8985f0ada799abf8c9"
   },
   {
-    "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564039446584007913129639935",
-    "accountDepositTokenBalance": "957847000000000000000000",
     "accountLocks": [
       {
         "amount": "100000000000000000000",
@@ -550,37 +532,25 @@ const stakers = [
     "accountVeTokenBalance": "2990135393520816800000",
     "accountWithdrawableRewards": "0",
     "accountWithdrawnRewards": "62882137889106489243307952250329",
-    "id": "0x42556f667dfc74704914f98d1e0c0ac4ea2f492e",
-    "totalStaked": "1036127990898273800000000",
-    "veTokenTotalSupply": "954882541904856126966970"
+    "id": "0x42556f667dfc74704914f98d1e0c0ac4ea2f492e"
   },
   {
-    "accountDepositTokenAllowance": "0",
-    "accountDepositTokenBalance": "1036147990898273800000000",
     "accountLocks": [],
     "accountRewards": [],
     "accountVeTokenBalance": "0",
     "accountWithdrawableRewards": "0",
     "accountWithdrawnRewards": "0",
-    "id": "0x441658de8ebcb25d8d320bd5c1abb314b0ce195e",
-    "totalStaked": "1036147990898273800000000",
-    "veTokenTotalSupply": "954885125238189459666970"
+    "id": "0x441658de8ebcb25d8d320bd5c1abb314b0ce195e"
   },
   {
-    "accountDepositTokenAllowance": "0",
-    "accountDepositTokenBalance": "10000000000000000000000",
     "accountLocks": [],
     "accountRewards": [],
     "accountVeTokenBalance": "0",
     "accountWithdrawableRewards": "0",
     "accountWithdrawnRewards": "0",
-    "id": "0x7884c447d5cd98e794c1a5c08e3107fbf29b2877",
-    "totalStaked": "1005207000000000000000000",
-    "veTokenTotalSupply": "935196208984897241000000"
+    "id": "0x7884c447d5cd98e794c1a5c08e3107fbf29b2877"
   },
   {
-    "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564038457584007913129639935",
-    "accountDepositTokenBalance": "0",
     "accountLocks": [
       {
         "amount": "10000000000000000000",
@@ -667,13 +637,9 @@ const stakers = [
     "accountVeTokenBalance": "737120712867945000000",
     "accountWithdrawableRewards": "15660248766534596356745799469793",
     "accountWithdrawnRewards": "0",
-    "id": "0xabf26352aadaaa1cabffb3a55e378bac6bf15791",
-    "totalStaked": "4979000000000000000000",
-    "veTokenTotalSupply": "4706954046201278000000"
+    "id": "0xabf26352aadaaa1cabffb3a55e378bac6bf15791"
   },
   {
-    "accountDepositTokenAllowance": "0",
-    "accountDepositTokenBalance": "6943687009101726200000000",
     "accountLocks": [
       {
         "amount": "10000000000000000000000",
@@ -780,13 +746,9 @@ const stakers = [
     "accountVeTokenBalance": "18371197526438069166970",
     "accountWithdrawableRewards": "0",
     "accountWithdrawnRewards": "0",
-    "id": "0xc96265c36f6d77747f9c259946a1ef55fce946b7",
-    "totalStaked": "1036116990898273800000000",
-    "veTokenTotalSupply": "954880292832761601666970"
+    "id": "0xc96265c36f6d77747f9c259946a1ef55fce946b7"
   },
   {
-    "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640563036900584007913129639935",
-    "accountDepositTokenBalance": "109071000000000000000000",
     "accountLocks": [
       {
         "amount": "5000000000000000000",
@@ -1028,13 +990,9 @@ const stakers = [
     "accountVeTokenBalance": "931785671605362628700000",
     "accountWithdrawableRewards": "0",
     "accountWithdrawnRewards": "191206455656948438416906548070",
-    "id": "0xd18a54f89603fe4301b29ef6a8ab11b9ba24f139",
-    "totalStaked": "1036147990898273800000000",
-    "veTokenTotalSupply": "954885125238189459666970"
+    "id": "0xd18a54f89603fe4301b29ef6a8ab11b9ba24f139"
   },
   {
-    "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564039456584007913129639935",
-    "accountDepositTokenBalance": "9999999999000000000000000000",
     "accountLocks": [
       {
         "amount": "1000000000000000000",
@@ -1051,9 +1009,7 @@ const stakers = [
     "accountVeTokenBalance": "1000000000000000000",
     "accountWithdrawableRewards": "21245161739660937601878505341",
     "accountWithdrawnRewards": "0",
-    "id": "0xe0bdc50a72b46d51c5572fb878f62314667778bb",
-    "totalStaked": "4979000000000000000000",
-    "veTokenTotalSupply": "4706954046201278000000"
+    "id": "0xe0bdc50a72b46d51c5572fb878f62314667778bb"
   }
 ];
 

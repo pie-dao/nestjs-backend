@@ -301,13 +301,9 @@ export class StakingService {
               withdrawn
               staker {
                 id
-                totalStaked
-                veTokenTotalSupply
                 accountVeTokenBalance
                 accountWithdrawableRewards
                 accountWithdrawnRewards
-                accountDepositTokenBalance
-                accountDepositTokenAllowance
               }
             }
           }`;
@@ -322,13 +318,9 @@ export class StakingService {
               withdrawn
               staker {
                 id
-                totalStaked
-                veTokenTotalSupply
                 accountVeTokenBalance
                 accountWithdrawableRewards
                 accountWithdrawnRewards
-                accountDepositTokenBalance
-                accountDepositTokenAllowance
               }
             }
           }`;
@@ -361,13 +353,9 @@ export class StakingService {
           query = `{
             stakers(first: ${blocks}, where: {id_gt: "${lastID}", ${condition}: [${ids}]}) {
               id
-              totalStaked
-              veTokenTotalSupply
               accountVeTokenBalance
               accountWithdrawableRewards
               accountWithdrawnRewards
-              accountDepositTokenBalance
-              accountDepositTokenAllowance
               accountLocks {
                 id
                 lockId
@@ -390,13 +378,9 @@ export class StakingService {
           query = `{
             stakers(first: ${blocks}, where: {id_gt: "${lastID}"}) {
               id
-              totalStaked
-              veTokenTotalSupply
               accountVeTokenBalance
               accountWithdrawableRewards
               accountWithdrawnRewards
-              accountDepositTokenBalance
-              accountDepositTokenAllowance
               accountLocks {
                 id
                 lockId
