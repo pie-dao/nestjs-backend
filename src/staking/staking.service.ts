@@ -90,18 +90,18 @@ export class StakingService {
     });
   }
 
-  getStakers(ids?: Array<string>): Promise<any[]> {
+  getStakers(ids?: Array<string>, condition?: string): Promise<any[]> {
     return new Promise(async (resolve, reject) => {
       try {
         let lastID = "";
         let blocks = 1000;
         let stakers = [];
 
-        let holders = await this.fetchStakers(blocks, lastID, ids);
+        let holders = await this.fetchStakers(blocks, lastID, ids, condition);
 
         while(holders.length > 0) {
           stakers = stakers.concat(holders);
-          holders = await this.fetchStakers(blocks, holders[holders.length - 1].id, ids);
+          holders = await this.fetchStakers(blocks, holders[holders.length - 1].id, ids, condition);
         }
 
         resolve(stakers);
@@ -190,6 +190,38 @@ export class StakingService {
     });
   }
 
+  getFreeRiders(): Promise<any> {
+    return new Promise(async(resolve, reject) => {
+      try {
+        // fetching all votes from snapshot in the last 3 months...
+        let votes = await this.getSnapshotVotes(3);
+        // getting all voters addresses from snapshot's votes...
+        let voters = this.getVotersFromShapshotVotes(votes);
+
+        // fetching all the stakers which have NOT voted in the last 3 months...
+        let stakersIds = voters.map(id => '"' + id + '"');
+        let stakers = await this.getStakers(stakersIds, 'id_not_in');
+
+        // creating the freeRiders dataStruct...
+        let votedTimeRange = this.generateBackmonthTimestamp(3, false);
+        let freeRiders = {};
+
+        stakers.forEach(staker => {
+          let oldestLock = this.getOldestLock(staker.accountLocks);
+          freeRiders[staker.id] = {
+            isFreeRider: oldestLock && oldestLock.lockedAt < votedTimeRange ? true: false, 
+            oldestLock: oldestLock,
+            stakingData: staker
+          };
+        });
+
+        resolve(freeRiders);        
+      } catch(error) {
+        reject(error);
+      }
+    });
+  }
+
   @Cron('0 0 1 * *')
   // Use this every 10 seconds cron setup, for testing purposes.
   // 10 * * * * *
@@ -269,13 +301,9 @@ export class StakingService {
               withdrawn
               staker {
                 id
-                totalStaked
-                veTokenTotalSupply
                 accountVeTokenBalance
                 accountWithdrawableRewards
                 accountWithdrawnRewards
-                accountDepositTokenBalance
-                accountDepositTokenAllowance
               }
             }
           }`;
@@ -290,13 +318,9 @@ export class StakingService {
               withdrawn
               staker {
                 id
-                totalStaked
-                veTokenTotalSupply
                 accountVeTokenBalance
                 accountWithdrawableRewards
                 accountWithdrawnRewards
-                accountDepositTokenBalance
-                accountDepositTokenAllowance
               }
             }
           }`;
@@ -316,22 +340,22 @@ export class StakingService {
     })
   }
 
-  private fetchStakers(blocks: number, lastID: string, ids?: Array<string>): Promise<any[]> {
+  private fetchStakers(blocks: number, lastID: string, ids?: Array<string>, condition?: string): Promise<any[]> {
     return new Promise(async(resolve, reject) => {
       try {
         let query = null;
 
+        if(!condition) {
+          condition = 'id_in';
+        }
+
         if(ids) {
           query = `{
-            stakers(first: ${blocks}, where: {id_gt: "${lastID}", id_in: [${ids}]}) {
+            stakers(first: ${blocks}, where: {id_gt: "${lastID}", ${condition}: [${ids}]}) {
               id
-              totalStaked
-              veTokenTotalSupply
               accountVeTokenBalance
               accountWithdrawableRewards
               accountWithdrawnRewards
-              accountDepositTokenBalance
-              accountDepositTokenAllowance
               accountLocks {
                 id
                 lockId
@@ -354,13 +378,9 @@ export class StakingService {
           query = `{
             stakers(first: ${blocks}, where: {id_gt: "${lastID}"}) {
               id
-              totalStaked
-              veTokenTotalSupply
               accountVeTokenBalance
               accountWithdrawableRewards
               accountWithdrawnRewards
-              accountDepositTokenBalance
-              accountDepositTokenAllowance
               accountLocks {
                 id
                 lockId
@@ -494,15 +514,17 @@ export class StakingService {
     return voters;
   }
 
-  // private getOldestLock(locks: Array<any>): any {
-  //   let oldestLock = this.generateBackmonthTimestamp(0, false);
+  private getOldestLock(locks: Array<any>): any {
+    let oldestTimestamp = this.generateBackmonthTimestamp(0, false);
+    let oldestLock = null;
 
-  //   locks.forEach(lock => {
-  //     if(lock.lockedAt < oldestLock) {
-  //       oldestLock = lock;
-  //     }
-  //   });
+    locks.forEach(lock => {
+      if(lock.lockedAt < oldestTimestamp) {
+        oldestTimestamp = lock.lockedAt;
+        oldestLock = lock;
+      }
+    });
 
-  //   return oldestLock;
-  // }
+    return oldestLock;
+  }
 }

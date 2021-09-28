@@ -52,16 +52,12 @@ const merkleTree = {
       "address": "0x1a1087bf077f74fb21fd838a8a25cf9fe0818450",
       "participation": 0,
       "staker": {
-        "accountDepositTokenAllowance": "0",
-        "accountDepositTokenBalance": "10000000000000000000000",
         "accountLocks": [],
         "accountRewards": [],
         "accountVeTokenBalance": "0",
         "accountWithdrawableRewards": "0",
         "accountWithdrawnRewards": "0",
-        "id": "0x1a1087bf077f74fb21fd838a8a25cf9fe0818450",
-        "totalStaked": "1036647990898273800000000",
-        "veTokenTotalSupply": "955385125238189459666970"
+        "id": "0x1a1087bf077f74fb21fd838a8a25cf9fe0818450"
       },
       "votes": [],
       "leaf": "0xf473f2a6acb3cd16b6bf5643eb4277aa174029f95ccfa0b623d084e32b0b3083"
@@ -70,16 +66,12 @@ const merkleTree = {
       "address": "0x1fdca2162eefb7ad400ed3d6627ac9c63dad55a1",
       "participation": 0,
       "staker": {
-        "accountDepositTokenAllowance": "0",
-        "accountDepositTokenBalance": "1000000000000000000000000",
         "accountLocks": [],
         "accountRewards": [],
         "accountVeTokenBalance": "0",
         "accountWithdrawableRewards": "0",
         "accountWithdrawnRewards": "0",
-        "id": "0x1fdca2162eefb7ad400ed3d6627ac9c63dad55a1",
-        "totalStaked": "1036647990898273800000000",
-        "veTokenTotalSupply": "955385125238189459666970"
+        "id": "0x1fdca2162eefb7ad400ed3d6627ac9c63dad55a1"
       },
       "votes": [],
       "leaf": "0x5bb4976c8976653c37f1b60d85707a27390fa243a83148cf7f70fb5b7e3fd48e"
@@ -88,8 +80,6 @@ const merkleTree = {
       "address": "0x3c341129dac2096b88945a8985f0ada799abf8c9",
       "participation": 0,
       "staker": {
-        "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564038457584007913129639935",
-        "accountDepositTokenBalance": "99000000000000000000000",
         "accountLocks": [
           {
             "amount": "1000000000000000000000",
@@ -123,9 +113,7 @@ const merkleTree = {
         "accountVeTokenBalance": "1000000000000000000000",
         "accountWithdrawableRewards": "21245161841737910945328838654322",
         "accountWithdrawnRewards": "0",
-        "id": "0x3c341129dac2096b88945a8985f0ada799abf8c9",
-        "totalStaked": "1036647990898273800000000",
-        "veTokenTotalSupply": "955385125238189459666970"
+        "id": "0x3c341129dac2096b88945a8985f0ada799abf8c9"
       },
       "votes": [],
       "leaf": "0xb5170bac6827ca2b82934888d528533829568933fddbc3f02b0345b9378839ab"
@@ -134,8 +122,6 @@ const merkleTree = {
       "address": "0x42556f667dfc74704914f98d1e0c0ac4ea2f492e",
       "participation": 0,
       "staker": {
-        "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564039446584007913129639935",
-        "accountDepositTokenBalance": "947847000000000000000000",
         "accountLocks": [
           {
             "amount": "100000000000000000000",
@@ -581,9 +567,7 @@ const merkleTree = {
         "accountVeTokenBalance": "2990135393520816800000",
         "accountWithdrawableRewards": "313290257507778003773062",
         "accountWithdrawnRewards": "62882137889106489243307952250329",
-        "id": "0x42556f667dfc74704914f98d1e0c0ac4ea2f492e",
-        "totalStaked": "1036647990898273800000000",
-        "veTokenTotalSupply": "955385125238189459666970"
+        "id": "0x42556f667dfc74704914f98d1e0c0ac4ea2f492e"
       },
       "votes": [],
       "leaf": "0x30fa2548da7765171a31929b719b6eaa41ee82302e721bea779be4a377be3a2a"
@@ -592,16 +576,12 @@ const merkleTree = {
       "address": "0x441658de8ebcb25d8d320bd5c1abb314b0ce195e",
       "participation": 0,
       "staker": {
-        "accountDepositTokenAllowance": "0",
-        "accountDepositTokenBalance": "1036647990898273800000000",
         "accountLocks": [],
         "accountRewards": [],
         "accountVeTokenBalance": "0",
         "accountWithdrawableRewards": "0",
         "accountWithdrawnRewards": "0",
-        "id": "0x441658de8ebcb25d8d320bd5c1abb314b0ce195e",
-        "totalStaked": "1036647990898273800000000",
-        "veTokenTotalSupply": "955385125238189459666970"
+        "id": "0x441658de8ebcb25d8d320bd5c1abb314b0ce195e"
       },
       "votes": [],
       "leaf": "0xf6a10d9b9339d775308947c539173b11cf25368931eb8e4139a90f9c0fddf471"
@@ -610,8 +590,6 @@ const merkleTree = {
       "address": "0x64cb372c22dd76d1de5ee817fa49593617a164fa",
       "participation": 0,
       "staker": {
-        "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564038957584007913129639935",
-        "accountDepositTokenBalance": "500000000000000100000",
         "accountLocks": [
           {
             "amount": "500000000000000000000",
@@ -647,9 +625,7 @@ const merkleTree = {
         "accountVeTokenBalance": "500000000000000000000",
         "accountWithdrawableRewards": "52387302960700687708928",
         "accountWithdrawnRewards": "0",
-        "id": "0x64cb372c22dd76d1de5ee817fa49593617a164fa",
-        "totalStaked": "1036647990898273800000000",
-        "veTokenTotalSupply": "955385125238189459666970"
+        "id": "0x64cb372c22dd76d1de5ee817fa49593617a164fa"
       },
       "votes": [],
       "leaf": "0xccf4345208a217faccca6d9132effa531cbb9cce16ab196395b8d9d1da4ff7a6"
@@ -658,16 +634,12 @@ const merkleTree = {
       "address": "0x7884c447d5cd98e794c1a5c08e3107fbf29b2877",
       "participation": 0,
       "staker": {
-        "accountDepositTokenAllowance": "0",
-        "accountDepositTokenBalance": "10000000000000000000000",
         "accountLocks": [],
         "accountRewards": [],
         "accountVeTokenBalance": "0",
         "accountWithdrawableRewards": "0",
         "accountWithdrawnRewards": "0",
-        "id": "0x7884c447d5cd98e794c1a5c08e3107fbf29b2877",
-        "totalStaked": "1036647990898273800000000",
-        "veTokenTotalSupply": "955385125238189459666970"
+        "id": "0x7884c447d5cd98e794c1a5c08e3107fbf29b2877"
       },
       "votes": [],
       "leaf": "0x96cacbfd1c62bbb30092901328c816991f38fdfd46bc6c9543c37e4ac5d662f3"
@@ -676,8 +648,6 @@ const merkleTree = {
       "address": "0xabf26352aadaaa1cabffb3a55e378bac6bf15791",
       "participation": 1,
       "staker": {
-        "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564038457584007913129639935",
-        "accountDepositTokenBalance": "0",
         "accountLocks": [
           {
             "amount": "10000000000000000000",
@@ -764,9 +734,7 @@ const merkleTree = {
         "accountVeTokenBalance": "737120712867945000000",
         "accountWithdrawableRewards": "15660248843766128563987192692034",
         "accountWithdrawnRewards": "0",
-        "id": "0xabf26352aadaaa1cabffb3a55e378bac6bf15791",
-        "totalStaked": "1036647990898273800000000",
-        "veTokenTotalSupply": "955385125238189459666970"
+        "id": "0xabf26352aadaaa1cabffb3a55e378bac6bf15791"
       },
       "votes": [
         {
@@ -819,8 +787,6 @@ const merkleTree = {
       "address": "0xc96265c36f6d77747f9c259946a1ef55fce946b7",
       "participation": 1,
       "staker": {
-        "accountDepositTokenAllowance": "0",
-        "accountDepositTokenBalance": "5943687009101726200000000",
         "accountLocks": [
           {
             "amount": "10000000000000000000000",
@@ -927,9 +893,7 @@ const merkleTree = {
         "accountVeTokenBalance": "18371197526438069166970",
         "accountWithdrawableRewards": "1924834981136772422865138",
         "accountWithdrawnRewards": "0",
-        "id": "0xc96265c36f6d77747f9c259946a1ef55fce946b7",
-        "totalStaked": "1036647990898273800000000",
-        "veTokenTotalSupply": "955385125238189459666970"
+        "id": "0xc96265c36f6d77747f9c259946a1ef55fce946b7"
       },
       "votes": [
         {
@@ -963,8 +927,6 @@ const merkleTree = {
       "address": "0xd18a54f89603fe4301b29ef6a8ab11b9ba24f139",
       "participation": 0,
       "staker": {
-        "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640563036900584007913129639935",
-        "accountDepositTokenBalance": "109071000000000000000000",
         "accountLocks": [
           {
             "amount": "5000000000000000000",
@@ -1206,9 +1168,7 @@ const merkleTree = {
         "accountVeTokenBalance": "931785671605362628700000",
         "accountWithdrawableRewards": "97627476545660184715637355",
         "accountWithdrawnRewards": "191206455656948438416906548070",
-        "id": "0xd18a54f89603fe4301b29ef6a8ab11b9ba24f139",
-        "totalStaked": "1036647990898273800000000",
-        "veTokenTotalSupply": "955385125238189459666970"
+        "id": "0xd18a54f89603fe4301b29ef6a8ab11b9ba24f139"
       },
       "votes": [],
       "leaf": "0x63aa17553ed27b5535759d550ebe046268ca2579bce2cebd85ad3adf9f01270b"
@@ -1217,8 +1177,6 @@ const merkleTree = {
       "address": "0xe0bdc50a72b46d51c5572fb878f62314667778bb",
       "participation": 0,
       "staker": {
-        "accountDepositTokenAllowance": "115792089237316195423570985008687907853269984665640564039456584007913129639935",
-        "accountDepositTokenBalance": "9999999999000000000000000000",
         "accountLocks": [
           {
             "amount": "1000000000000000000",
@@ -1235,9 +1193,7 @@ const merkleTree = {
         "accountVeTokenBalance": "1000000000000000000",
         "accountWithdrawableRewards": "21245161844435543523279880759",
         "accountWithdrawnRewards": "0",
-        "id": "0xe0bdc50a72b46d51c5572fb878f62314667778bb",
-        "totalStaked": "1036647990898273800000000",
-        "veTokenTotalSupply": "955385125238189459666970"
+        "id": "0xe0bdc50a72b46d51c5572fb878f62314667778bb"
       },
       "votes": [],
       "leaf": "0x9d1165196932daa7779a0a3d5a0aea21400d58ba34ccec30a3a2117140111a25"

@@ -36,7 +36,7 @@ describe('MerkleTree', () => {
 
   describe('getMerkleTree with Mocks and check validity', () => {
     describe('When getMerkleTree is called with a mock participations and votes', () => {  
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let merkleTree = null;
 
       beforeEach(async () => {
@@ -56,7 +56,7 @@ describe('MerkleTree', () => {
 
   describe('getMerkleTree with Mocks and check validity', () => {
     describe('When getMerkleTree is called with a mock participations and votes', () => {  
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let participations, merkleTree = null;
 
       beforeEach(async () => {
@@ -78,7 +78,7 @@ describe('MerkleTree', () => {
 
   describe('getMerkleTree', () => {
     describe('When getMerkleTree is called with empty participations', () => {  
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let merkleTree = null;
 
       beforeEach(async () => {
@@ -95,7 +95,7 @@ describe('MerkleTree', () => {
   
   describe('getLayers', () => {
     describe('When getLayers is called', () => {  
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let hash = null;
 
       beforeEach(async () => {
@@ -111,7 +111,7 @@ describe('MerkleTree', () => {
 
   describe('combinedHash', () => {
     describe('When combinedHash is called', () => {  
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let hash = null;
 
       beforeEach(async () => {
@@ -127,7 +127,7 @@ describe('MerkleTree', () => {
 
   describe('getProof / getRoot', () => {
     describe('When getProof / getRoot is called', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let merkleTreeObj = new MerkleTree();
       let proof, root, merkleTree, leaf  = null;
 
@@ -139,7 +139,7 @@ describe('MerkleTree', () => {
         root = merkleTreeObj.getRoot();        
 
         leaf = merkleTree.leafs.find(
-          (item) => item.address.toLowerCase() === "0x1a1087bf077f74fb21fd838a8a25cf9fe0818450".toLowerCase(),
+          (item) => item.address.toLowerCase() === "0xabf26352aadaaa1cabffb3a55e378bac6bf15791".toLowerCase(),
         );
 
         jest.spyOn(merkleTreeObj, "getProof");        
@@ -156,7 +156,7 @@ describe('MerkleTree', () => {
     });
 
     describe('When getProof is called on unexisting participant', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let merkleTreeObj = new MerkleTree();
       let merkleTree = null;
 

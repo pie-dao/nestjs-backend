@@ -73,6 +73,18 @@ export class StakingController {
     }
   };
 
+  @ApiOkResponse({type: Object, isArray: false})
+  @ApiNotFoundResponse()
+  @ApiBadRequestResponse()
+  @Get('free-riders')
+  async getFreeRiders(): Promise<any> {
+    try {
+      return await this.stakingService.getFreeRiders();
+    } catch(error) {
+      throw new NotFoundException(error);
+    }
+  };
+
   @ApiOkResponse({type: Object})
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()

@@ -35,7 +35,7 @@ describe('PiesService', () => {
 
   describe('reset DB and re-initiate it', () => {
     describe('When DB is empty, all pies should be initiated', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let piesDB: PieEntity[];
 
       beforeAll(async () => {
@@ -58,7 +58,7 @@ describe('PiesService', () => {
 
   describe('getPies', () => {
     describe('When getPies is called', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let pies: PieEntity[];
 
       beforeEach(async () => {
@@ -103,7 +103,7 @@ describe('PiesService', () => {
 
   describe('getPies by Name', () => {
     describe('When getPies is called with a name param', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let pies: PieEntity[];
 
       beforeEach(async () => {
@@ -127,7 +127,7 @@ describe('PiesService', () => {
 
   describe('getPies by Address', () => {
     describe('When getPies is called with an address param', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let pies: PieEntity[];
 
       beforeEach(async () => {
@@ -151,7 +151,7 @@ describe('PiesService', () => {
 
   describe('getPieByAddress', () => {
     describe('When getPieByAddress is called', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let pie: PieEntity;
 
       beforeEach(async () => {
@@ -171,7 +171,7 @@ describe('PiesService', () => {
 
   describe('getPieByName', () => {
     describe('When getPieByName is called', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let pie: PieEntity;
 
       beforeEach(async () => {
@@ -191,7 +191,7 @@ describe('PiesService', () => {
 
   describe('getPieHistory', () => {
     describe('When getPieHistory is called with an address param', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let pieHistory: PieHistoryEntity[];
 
       beforeEach(async () => {
@@ -218,7 +218,7 @@ describe('PiesService', () => {
       let pieHistory: PieHistoryEntity[];
 
       beforeEach(async () => {
-        jest.setTimeout(15000);
+        jest.setTimeout(50000);
         jest.spyOn(service, "getPieHistory");
         pieHistory = await service.getPieHistory(PieStub().name, undefined);
       });
@@ -242,7 +242,7 @@ describe('PiesService', () => {
       let pieHistory: PieHistoryEntity[];
 
       beforeEach(async () => {
-        jest.setTimeout(15000);
+        jest.setTimeout(50000);
         jest.spyOn(service, "getPieHistory");
       });
 
@@ -256,7 +256,7 @@ describe('PiesService', () => {
     describe('When getPieHistory is called on a token without history', () => {
 
       beforeEach(async () => {
-        jest.setTimeout(15000);
+        jest.setTimeout(50000);
         jest.spyOn(service, "getPieHistoryDetails");
       });
 
@@ -270,7 +270,7 @@ describe('PiesService', () => {
   
   describe('createPie', () => {
     describe('When createPie is called', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let pie: PieDto = {name: "foobar", address: "foobar", history: []};
       let pieDB: PieEntity;
 
@@ -298,7 +298,7 @@ describe('PiesService', () => {
   
   describe('deletePie', () => {
     describe('When deletePie is called', () => {
-      jest.setTimeout(15000);
+      jest.setTimeout(50000);
       let pieDB: PieEntity;
       let response: PieEntity;
 
