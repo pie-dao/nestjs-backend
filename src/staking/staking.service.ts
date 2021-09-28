@@ -11,7 +11,7 @@ import { Cron } from '@nestjs/schedule';
 @Injectable()
 export class StakingService {
   // TODO: change this url into the subgraph mainnet one, once deployed...
-  private graphUrl = 'https://api.thegraph.com/subgraphs/name/chiptuttofuso/piedaosubgraphdevelop';
+  private graphUrl = process.env.GRAPH_URL;
   private snapshotUrl = 'https://hub.snapshot.org/graphql';
   private ethProvider = process.env.INFURA_RPC;
 
