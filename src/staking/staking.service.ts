@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ethers } from 'ethers';
+import { ethers, logger, BigNumber } from 'ethers';
 import * as ethDater from 'ethereum-block-by-date';
 import { EpochDocument, EpochEntity } from './entities/epoch.entity';
 import { MerkleTree } from '../helpers/merkleTree/merkle-tree';
@@ -14,6 +14,7 @@ export class StakingService {
   private graphUrl = process.env.GRAPH_URL;
   private snapshotUrl = 'https://hub.snapshot.org/graphql';
   private ethProvider = process.env.INFURA_RPC;
+  private GRAPH_MAX_PAGE_LENGTH = 1000;
 
   constructor(
     private httpService: HttpService,
