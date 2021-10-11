@@ -199,8 +199,7 @@ export class StakingService {
         let voters = this.getVotersFromShapshotVotes(votes);
 
         // fetching all the stakers which have NOT voted in the last 3 months...
-        let stakersIds = voters.map(id => '"' + id + '"');
-        let stakers = await this.getStakers(stakersIds, 'id_not_in');
+        let stakers = await this.getStakers(voters, 'id_not_in');
 
         // creating the freeRiders dataStruct...
         let votedTimeRange = this.generateBackmonthTimestamp(3, false);
@@ -449,7 +448,7 @@ export class StakingService {
                 first: ${blocks},
                 skip: ${skip},
                 where: {
-                  space: "piedao"
+                  space: "piedao.eth"
                   created_gt: ${range}
                 }
               ) {
@@ -507,9 +506,7 @@ export class StakingService {
     // creating an array of voters...
     let voters = Array.from(votes, vote => vote.voter.toLowerCase());
     // removing duplicates from the voters array...
-    voters = voters.sort().filter(function(item, pos, ary) {
-      return !pos || item != ary[pos - 1];
-    });
+    voters = Array.from(new Set(voters)).sort();
     
     return voters;
   }
