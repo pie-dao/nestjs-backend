@@ -46,6 +46,18 @@ $ npm run start:prod
 ```
 
 ## Test
+In order to be able to quickly test the whole project, we strongly recommend you to use a local mongoDB on a docker.
+Supposing you have docker already installed, all you need to do is
+
+```bash
+# install the mongoDB docker, and initialize it as follows
+docker run --name mongodb -d -e MONGO_INITDB_ROOT_USERNAME=piedao -e MONGO_INITDB_ROOT_PASSWORD=piedao -e MONGO_INITDB_DATABASE=PieDAOTesting -p 27017:27017 mongo
+
+# add this to your local .env file
+MONGO_DB_TEST=mongodb://piedao:piedao@localhost:27017/admin
+```
+
+Once this setup is done, you can then run the tests
 
 ```bash
 # unit tests
