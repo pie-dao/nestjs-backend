@@ -17,6 +17,7 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
+    jest.setTimeout(50000);
     it('should return "Hello from PieDAO!"', () => {
       expect(appController.getHello()).toBe('Hello from PieDAO!');
     });
