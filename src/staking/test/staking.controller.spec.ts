@@ -130,7 +130,7 @@ describe('StakingController', () => {
       let freeRiders: any;
 
       beforeEach(async() => {
-        freeRiders = await service.getFreeRiders(); 
+        freeRiders = await controller.getFreeRiders(); 
       });
 
       test('it should call stakingService.getFreeRiders()', () => {

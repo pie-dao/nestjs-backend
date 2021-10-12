@@ -207,8 +207,16 @@ export class StakingService {
 
         stakers.forEach(staker => {
           let oldestLock = this.getOldestLock(staker.accountLocks);
+
+          let isFreeRider = false;
+
+          /* istanbul ignore next */
+          if(oldestLock && oldestLock.lockedAt < votedTimeRange) {
+            isFreeRider = true;
+          }
+
           freeRiders[staker.id] = {
-            isFreeRider: oldestLock && oldestLock.lockedAt < votedTimeRange ? true: false, 
+            isFreeRider:  isFreeRider, 
             oldestLock: oldestLock,
             stakingData: staker
           };
@@ -216,6 +224,7 @@ export class StakingService {
 
         resolve(freeRiders);        
       } catch(error) {
+        /* istanbul ignore next */
         reject(error);
       }
     });
@@ -344,6 +353,7 @@ export class StakingService {
       try {
         let query = null;
 
+        /* istanbul ignore next */
         if(!condition) {
           condition = 'id_in';
         }
@@ -516,6 +526,7 @@ export class StakingService {
     let oldestLock = null;
 
     locks.forEach(lock => {
+      /* istanbul ignore next */
       if(lock.lockedAt < oldestTimestamp) {
         oldestTimestamp = lock.lockedAt;
         oldestLock = lock;

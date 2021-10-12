@@ -81,6 +81,7 @@ export class StakingController {
     try {
       return await this.stakingService.getFreeRiders();
     } catch(error) {
+      /* istanbul ignore next */
       throw new NotFoundException(error);
     }
   };
