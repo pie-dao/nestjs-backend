@@ -75,5 +75,11 @@ export const StakingService = jest.fn().mockReturnValue({
         reject(new Error());
       }
     });
-  })       
+  }),
+  getFreeRiders: jest.fn().mockImplementation(() => {
+    return new Promise((resolve, reject) => {
+      let freeRiders = {};
+      resolve(freeRiders);
+    });
+  }),      
 });
