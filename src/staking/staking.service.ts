@@ -10,7 +10,7 @@ import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class StakingService {
-  // TODO: change this url into the subgraph mainnet one, once deployed...
+  private snapshotSpaceID = process.env.SNAPSHOT_SPACE_ID;
   private graphUrl = process.env.GRAPH_URL;
   private snapshotUrl = 'https://hub.snapshot.org/graphql';
   private ethProvider = process.env.INFURA_RPC;
@@ -448,7 +448,7 @@ export class StakingService {
                 first: ${blocks},
                 skip: ${skip},
                 where: {
-                  space: "piedao.eth"
+                  space: "${this.snapshotSpaceID}"
                   created_gt: ${range}
                 }
               ) {

@@ -139,7 +139,7 @@ describe('MerkleTree', () => {
         root = merkleTreeObj.getRoot();        
 
         leaf = merkleTree.leafs.find(
-          (item) => item.address.toLowerCase() === "0xabf26352aadaaa1cabffb3a55e378bac6bf15791".toLowerCase(),
+          (item) => item.address.toLowerCase() === "0xac60913f8e9821e9006507b05e1956f5a82749c1".toLowerCase(),
         );
 
         jest.spyOn(merkleTreeObj, "getProof");        
