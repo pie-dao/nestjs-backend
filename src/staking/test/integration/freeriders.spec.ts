@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { StakingService } from '../staking.service';
+import { StakingService } from '../../staking.service';
 import { ConfigModule } from '@nestjs/config';
 import { VotesStub } from './stubs/snapshot.stubs';
 import { StakersStub } from './stubs/stakers.stubs';
 import { HttpModule } from '@nestjs/axios';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
-import { EpochEntity, EpochSchema } from '../entities/epoch.entity';
+import { EpochEntity, EpochSchema } from '../../entities/epoch.entity';
 import MockDate from 'mockdate';
 
 // test cases are taken from:
