@@ -8,6 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EpochEntity, EpochSchema } from '../../entities/epoch.entity';
 import MockDate from 'mockdate';
+import { resolve } from 'path/posix';
 
 // test cases are taken from:
 // https://docs.google.com/spreadsheets/d/1Xb5ZtztpcPD3eW2KcQ_B-Hnes1aN_jLfxG1V-HVmhfU/edit#gid=1065509479
@@ -15,7 +16,17 @@ import MockDate from 'mockdate';
 describe('FreeRiders integration tests', () => {
   let module: TestingModule;
   let votes = VotesStub();
-  let stakers = StakersStub();
+  let { stakers, accounts } = StakersStub();
+
+  function filterStakers(stakers, ids) {
+    return new Promise((resolve) => {
+      let filteredStakers = stakers.filter((s) => {
+        return !ids.includes(s.id);
+      });
+
+      resolve(filteredStakers);
+    });
+  }
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
@@ -37,13 +48,7 @@ describe('FreeRiders integration tests', () => {
     );
 
     getStakersHandle.mockImplementation((ids: Array<string>, _) => {
-      return new Promise((resolve) => {
-        let filteredStakers = stakers.filter((s) => {
-          return !ids.includes(s.id);
-        });
-
-        resolve(filteredStakers);
-      });
+      return filterStakers(stakers, ids);
     });
   });
 
@@ -81,7 +86,7 @@ describe('FreeRiders integration tests', () => {
     jest.setTimeout(50000);
 
     beforeAll(() => {
-        MockDate.set(new Date('2021-05-01'));
+      MockDate.set(new Date('2021-05-01'));
     });
 
     beforeEach(async () => {
@@ -99,7 +104,7 @@ describe('FreeRiders integration tests', () => {
 
     it('should return alice as freerider', async () => {
       let freeRiders = await service.getFreeRiders();
-      expect(Object.keys(freeRiders)).toContain('0x3c341129dac2096b88945a8985f0ada799abf8c9');
+      expect(Object.keys(freeRiders)).toContain(accounts.alice);
     });
 
     afterAll(() => {
@@ -165,6 +170,7 @@ describe('FreeRiders integration tests', () => {
 
   describe('getFreeRiders, on seventh month (month 6)', () => {
     let service: StakingService;
+    let stakersWithoutAlice = stakers.filter((x) => x.id != accounts.alice);
 
     jest.setTimeout(50000);
 
@@ -182,6 +188,15 @@ describe('FreeRiders integration tests', () => {
         return new Promise((resolve) => resolve(votes[6]));
       });
 
+      const getStakersHandle = jest.spyOn(
+        StakingService.prototype as any,
+        'getStakers',
+      );
+  
+      getStakersHandle.mockImplementation((ids: Array<string>, _) => {
+        return filterStakers(stakersWithoutAlice, ids);
+      });
+
       service = module.get<StakingService>(StakingService);
     });
 
@@ -193,6 +208,7 @@ describe('FreeRiders integration tests', () => {
 
   describe('getFreeRiders, on eighth month (month 7)', () => {
     let service: StakingService;
+    let stakersWithoutAlice = stakers.filter((x) => x.id != accounts.alice);
 
     jest.setTimeout(50000);
 
@@ -205,10 +221,19 @@ describe('FreeRiders integration tests', () => {
         StakingService.prototype as any,
         'getSnapshotVotes',
       );
-
+      
       getSnapshotHandle.mockImplementation(() => {
         return new Promise((resolve) => resolve(votes[7]));
       });
+
+      const getStakersHandle = jest.spyOn(
+        StakingService.prototype as any,
+        'getStakers',
+      );
+  
+      getStakersHandle.mockImplementation((ids: Array<string>, _) => {
+        return filterStakers(stakersWithoutAlice, ids);
+      });  
 
       service = module.get<StakingService>(StakingService);
     });
