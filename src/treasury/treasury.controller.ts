@@ -14,7 +14,7 @@ export class TreasuryController {
   @Get()
   async getTreasury(): Promise<void> {
     try {
-      return await this.treasuryService.getTreasury();
+      return await this.treasuryService.fetchTreasuryRecord();
     } catch(error) {
       throw new NotFoundException(error);
     }
