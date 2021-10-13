@@ -1,4 +1,4 @@
-import { Get, NotFoundException } from '@nestjs/common';
+import { Get, NotFoundException, Post } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 import { TreasuryService } from './treasury.service';
 import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
@@ -18,5 +18,5 @@ export class TreasuryController {
     } catch(error) {
       throw new NotFoundException(error);
     }
-  };
+  }
 }
