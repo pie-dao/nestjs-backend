@@ -10,6 +10,7 @@ import { NotFoundException } from '@nestjs/common';
 
 describe('StakingService', () => {
   let service: StakingService;
+  let generatedEpoch = null;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,6 +30,72 @@ describe('StakingService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  describe('generateEpoch', () => {
+    describe('When generateEpoch is called', () => {
+      jest.setTimeout(50000);
+      let epoch: EpochEntity;
+
+      beforeEach(async () => {
+        jest.spyOn(service, "generateEpoch");
+        generatedEpoch = await service.generateEpoch();
+      });
+
+      test('then it should call stakingService.generateEpoch', () => {
+        expect(service.generateEpoch).toHaveBeenCalled();
+      });
+
+      test('then it should return an EpochEntity', () => {
+        expect(typeof generatedEpoch).toEqual("object");
+      });     
+    });
+
+    describe('When generateEpoch is called using wrong snapshot url', () => {
+      jest.setTimeout(50000);
+
+      beforeEach(async () => {
+        jest.spyOn(service, "generateEpoch");
+
+        jest.spyOn(service, "setSnapshotUrl");
+        service.setSnapshotUrl("wrong_url");
+      });      
+      
+      test('then it should call stakingService.setSnapshotUrl', () => {
+        expect(service.setSnapshotUrl).toHaveBeenCalledWith("wrong_url");
+      });      
+
+      test('then new snapshotUrl should be set', () => {
+        let snapshotUrl = service.getSnapshotUrl();
+        expect(snapshotUrl).toEqual("wrong_url");
+      });
+    });   
+    
+    describe('When generateEpoch is called using wrong eth provider', () => {
+      jest.setTimeout(50000);
+
+      beforeEach(async () => {
+        jest.spyOn(service, "generateEpoch");
+
+        jest.spyOn(service, "setEthProvider");
+        service.setEthProvider("wrong_provider");
+      });
+
+      test('then it should call stakingService.setEthProvider', () => {
+        expect(service.setEthProvider).toHaveBeenCalledWith("wrong_provider");
+      }); 
+
+      test('then new snapshotUrl should be set', () => {
+        let ethProvider = service.getEthProvider();
+        expect(ethProvider).toEqual("wrong_provider");
+      });   
+
+      test('it should throw an error if something went wrong', async() => {
+        await expect(service.generateEpoch())
+        .rejects
+        .toThrow(Error);
+      });     
+    });     
+  });   
 
   describe('getEpochs', () => {
     describe('getEpochs with startDate as param', () => {
@@ -50,7 +117,7 @@ describe('StakingService', () => {
   
           expect(epochs).toEqual(
             expect.arrayContaining([
-              expect.objectContaining({startDate: epochsMock[0].startDate, endDate: epochsMock[0].endDate})
+              expect.objectContaining({_id: generatedEpoch._id})
             ])
           );
         });
@@ -109,17 +176,16 @@ describe('StakingService', () => {
   
         beforeEach(async () => {
           jest.spyOn(service, "getEpoch");
-          epoch = await service.getEpoch("6135d7fa85204887d11967b5");
+          epoch = await service.getEpoch(generatedEpoch._id);
         });
   
         test('then it should call stakingService.getEpoch', () => {
-          expect(service.getEpoch).toHaveBeenCalledWith("6135d7fa85204887d11967b5");
+          expect(service.getEpoch).toHaveBeenCalledWith(generatedEpoch._id);
         });
   
         test('then it should return an EpochEntity', () => {
-          let epochsMock = <any>EpochsStub()[0];
           let epochObj = <any>epoch;
-          expect(JSON.stringify(epochObj._id)).toEqual(JSON.stringify(epochsMock._id));
+          expect(JSON.stringify(epochObj._id)).toEqual(JSON.stringify(generatedEpoch._id));
         });
   
         test('it should throw an error if no records are found', async() => {
@@ -239,75 +305,23 @@ describe('StakingService', () => {
     });
   });
 
-  describe('generateEpoch', () => {
-    describe('When generateEpoch is called', () => {
+  describe('getFreeRiders', () => {
+    describe('When getFreeRiders is called', () => {
       jest.setTimeout(50000);
-      let epoch: EpochEntity;
+      let freeRiders: any; 
 
       beforeEach(async () => {
-        jest.spyOn(service, "generateEpoch");
-        epoch = await service.generateEpoch();
-      });
-
-      test('then it should call stakingService.generateEpoch', () => {
-        expect(service.generateEpoch).toHaveBeenCalled();
-      });
-
-      test('then it should return an EpochEntity', () => {
-        expect(typeof epoch).toEqual("object");
-      });     
-    });
-
-    describe('When generateEpoch is called using wrong snapshot url', () => {
-      jest.setTimeout(50000);
-
-      beforeEach(async () => {
-        jest.spyOn(service, "generateEpoch");
-
-        jest.spyOn(service, "setSnapshotUrl");
-        service.setSnapshotUrl("wrong_url");
-      });      
-      
-      test('then it should call stakingService.setSnapshotUrl', () => {
-        expect(service.setSnapshotUrl).toHaveBeenCalledWith("wrong_url");
-      });      
-
-      test('then new snapshotUrl should be set', () => {
-        let snapshotUrl = service.getSnapshotUrl();
-        expect(snapshotUrl).toEqual("wrong_url");
-      });     
-
-      test('it should throw an error if something went wrong', async() => {
-        await expect(service.generateEpoch())
-        .rejects
-        .toThrow(Error);
-      });     
-    });   
-    
-    describe('When generateEpoch is called using wrong eth provider', () => {
-      jest.setTimeout(50000);
-
-      beforeEach(async () => {
-        jest.spyOn(service, "generateEpoch");
-
-        jest.spyOn(service, "setEthProvider");
-        service.setEthProvider("wrong_provider");
-      });
-
-      test('then it should call stakingService.setEthProvider', () => {
-        expect(service.setEthProvider).toHaveBeenCalledWith("wrong_provider");
-      }); 
-
-      test('then new snapshotUrl should be set', () => {
-        let ethProvider = service.getEthProvider();
-        expect(ethProvider).toEqual("wrong_provider");
+        jest.spyOn(service, 'getFreeRiders');
+        freeRiders = service.getFreeRiders();
       });   
 
-      test('it should throw an error if something went wrong', async() => {
-        await expect(service.generateEpoch())
-        .rejects
-        .toThrow(Error);
-      });     
-    });     
-  }); 
+      test('then it should call stakingService.getFreeRiders', () => {
+        expect(service.getFreeRiders).toHaveBeenCalled();
+      });
+
+      test('then it should return an array of FreeRiders', () => {
+        expect(typeof freeRiders).toEqual("object");
+      });      
+    });
+  });
 });

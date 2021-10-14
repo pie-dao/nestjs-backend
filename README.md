@@ -33,6 +33,21 @@ $ npm install
 ```
 
 ## Running the app
+Create a .env file inside the root of the project, with this content
+(remember to change "YOUR_INFURA_KEY_HERE" with your actual Infura's Key, and follow the steps described in the Test section regarding the setup for the docker-mongoDB on your local environment)
+
+```bash
+NODE_ENV=development
+NPM_CONFIG_PRODUCTION=false
+MONGO_DB=mongodb://piedao:piedao@localhost:27017/admin
+MONGO_DB_TEST=mongodb://piedao:piedao@localhost:27017/admin
+INFURA_RPC=https://mainnet.infura.io/v3/YOUR_INFURA_KEY_HERE
+PIE_GETTER_CONTRACT=0xeDF74D4c543b6c32e9ee9E8bD5fd9e6d5Bd4F546
+GRAPH_URL=https://api.thegraph.com/subgraphs/name/pie-dao/vedough
+SNAPSHOT_SPACE_ID=piedao
+```
+
+Once done, you'll be able to run the project locally by doing
 
 ```bash
 # development
@@ -46,6 +61,18 @@ $ npm run start:prod
 ```
 
 ## Test
+In order to be able to quickly test the whole project, we strongly recommend you to use a local mongoDB on a docker.
+Supposing you have docker already installed, all you need to do is
+
+```bash
+# install the mongoDB docker, and initialize it as follows
+docker run --name mongodb -d -e MONGO_INITDB_ROOT_USERNAME=piedao -e MONGO_INITDB_ROOT_PASSWORD=piedao -e MONGO_INITDB_DATABASE=PieDAOTesting -p 27017:27017 mongo
+
+# add this to your local .env file
+MONGO_DB_TEST=mongodb://piedao:piedao@localhost:27017/admin
+```
+
+Once this setup is done, you can then run the tests
 
 ```bash
 # unit tests

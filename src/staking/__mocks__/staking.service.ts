@@ -75,5 +75,16 @@ export const StakingService = jest.fn().mockReturnValue({
         reject(new Error());
       }
     });
-  })       
+  }),
+  getFreeRiders: jest.fn().mockImplementation(() => { // this is just a call mock, we don't need real values
+    return new Promise((resolve, reject) => {
+      let freeRiders = {};
+
+      if(freeRiders) {
+        resolve(freeRiders)
+      } else {
+        reject(new Error());
+      }
+    });
+  })
 });

@@ -125,6 +125,20 @@ describe('StakingController', () => {
     });
   });   
 
+  describe('getFreeRiders', () => {
+    describe('When getFreeRiders is called', () => {
+      let freeRiders: any;
+
+      beforeEach(async() => {
+        freeRiders = await controller.getFreeRiders(); 
+      });
+
+      test('it should call stakingService.getFreeRiders()', () => {
+        expect(service.getFreeRiders).toHaveBeenCalled();
+      })
+    });
+  });
+
   describe('getMerkleTree', () => {
     describe('When getMerkleTree is called', () => {
       let merkleTree = null;

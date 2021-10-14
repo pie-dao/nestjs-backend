@@ -10,7 +10,7 @@ import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class StakingService {
-  // TODO: change this url into the subgraph mainnet one, once deployed...
+  private snapshotSpaceID = process.env.SNAPSHOT_SPACE_ID;
   private graphUrl = process.env.GRAPH_URL;
   private snapshotUrl = 'https://hub.snapshot.org/graphql';
   private ethProvider = process.env.INFURA_RPC;
@@ -199,8 +199,7 @@ export class StakingService {
         let voters = this.getVotersFromShapshotVotes(votes);
 
         // fetching all the stakers which have NOT voted in the last 3 months...
-        let stakersIds = voters.map(id => '"' + id + '"');
-        let stakers = await this.getStakers(stakersIds, 'id_not_in');
+        let stakers = await this.getStakers(voters, 'id_not_in');
 
         // creating the freeRiders dataStruct...
         let votedTimeRange = this.generateBackmonthTimestamp(3, false);
@@ -208,8 +207,16 @@ export class StakingService {
 
         stakers.forEach(staker => {
           let oldestLock = this.getOldestLock(staker.accountLocks);
+
+          let isFreeRider = false;
+
+          /* istanbul ignore next */
+          if(oldestLock && oldestLock.lockedAt < votedTimeRange) {
+            isFreeRider = true;
+          }
+
           freeRiders[staker.id] = {
-            isFreeRider: oldestLock && oldestLock.lockedAt < votedTimeRange ? true: false, 
+            isFreeRider:  isFreeRider, 
             oldestLock: oldestLock,
             stakingData: staker
           };
@@ -217,6 +224,7 @@ export class StakingService {
 
         resolve(freeRiders);        
       } catch(error) {
+        /* istanbul ignore next */
         reject(error);
       }
     });
@@ -345,6 +353,7 @@ export class StakingService {
       try {
         let query = null;
 
+        /* istanbul ignore next */
         if(!condition) {
           condition = 'id_in';
         }
@@ -433,6 +442,7 @@ export class StakingService {
 
         resolve(snapshotVotes);
       } catch (error) {
+        /* istanbul ignore next */
         reject(error);
       }
     });
@@ -449,7 +459,7 @@ export class StakingService {
                 first: ${blocks},
                 skip: ${skip},
                 where: {
-                  space: "piedao"
+                  space: "${this.snapshotSpaceID}"
                   created_gt: ${range}
                 }
               ) {
@@ -470,6 +480,7 @@ export class StakingService {
 
         resolve(response.data.data.votes);
       } catch (error) {
+        /* istanbul ignore next */
         reject(error);
       }
     });
@@ -507,9 +518,7 @@ export class StakingService {
     // creating an array of voters...
     let voters = Array.from(votes, vote => vote.voter.toLowerCase());
     // removing duplicates from the voters array...
-    voters = voters.sort().filter(function(item, pos, ary) {
-      return !pos || item != ary[pos - 1];
-    });
+    voters = Array.from(new Set(voters)).sort();
     
     return voters;
   }
@@ -519,6 +528,7 @@ export class StakingService {
     let oldestLock = null;
 
     locks.forEach(lock => {
+      /* istanbul ignore next */
       if(lock.lockedAt < oldestTimestamp) {
         oldestTimestamp = lock.lockedAt;
         oldestLock = lock;
