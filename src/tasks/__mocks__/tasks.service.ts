@@ -10,7 +10,7 @@ export const TasksService = jest.fn().mockReturnValue({
       if(blockNumber == TESTING_BLOCK) {
         resolve(airdrop);
       } else {
-        reject(airdrop);
+        reject(new Error());
       }
     });
   }),
