@@ -16,6 +16,7 @@ export class TasksController {
     try {
       return await this.tasksService.getKpiAirdrop(blockNumber);
     } catch(error) {
+      /* istanbul ignore next */
       throw new NotFoundException(error);
     }
   }

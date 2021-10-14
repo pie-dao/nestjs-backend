@@ -12,59 +12,22 @@ export class TasksService {
 
   getKpiAirdrop(blockNumber: number): Promise<any> {    
     return new Promise(async(resolve, reject) => {
-      try {
-        let { counter } = await this.fetchStakersCounter(blockNumber);
-        let veBalances : any[];
-        
-        if(counter <= this.GRAPH_MAX_PAGE_LENGTH) {
-          veBalances = await this.fetchVeDoughBalances(counter, "", blockNumber);
-        } else {
-          let pagesNumber = Math.ceil( counter / this.GRAPH_MAX_PAGE_LENGTH);
-          let accumulator = counter;
+      try {      
+        let veBalances : any[] = [];
+        let balances : any[];
 
-          veBalances = await this.fetchVeDoughBalances(this.GRAPH_MAX_PAGE_LENGTH, "", blockNumber);
-          accumulator -= this.GRAPH_MAX_PAGE_LENGTH;
-          
-          for(let i = 0; i < pagesNumber; i++) {
-            let tempBalances : any[];
-            let lastID = veBalances[veBalances.length - 1].id
-            
-            if(accumulator > this.GRAPH_MAX_PAGE_LENGTH) {
-              tempBalances = await this.fetchVeDoughBalances(this.GRAPH_MAX_PAGE_LENGTH, lastID, blockNumber);
-              accumulator -= this.GRAPH_MAX_PAGE_LENGTH;
-            } else { // this is last cycle
-              tempBalances = await this.fetchVeDoughBalances(accumulator, lastID, blockNumber);
-            }
+        balances = await this.fetchVeDoughBalances(this.GRAPH_MAX_PAGE_LENGTH, "", blockNumber);
 
-            veBalances.concat(tempBalances);
-          }
+        while(balances.length > 0) {
+          veBalances = veBalances.concat(balances);
+          balances = await this.fetchVeDoughBalances(this.GRAPH_MAX_PAGE_LENGTH, veBalances[veBalances.length - 1].id, blockNumber);
         }
 
         let response = this.getAirdropResponse(veBalances);
 
         resolve(response);
       } catch(error) {
-        reject(error);
-      }
-    });
-  }
-
-  private fetchStakersCounter(blockNumber: number): Promise<any> {
-    return new Promise(async(resolve, reject) => {
-      try {
-        let response = await this.httpService.post(
-          this.graphUrl,
-          {
-            query: `{
-              stakersTrackers(first: 1, block: { number: ${blockNumber} }) {
-                counter
-              }
-            }`
-          }
-        ).toPromise();
-
-        resolve(response.data.data.stakersTrackers[0]);
-      } catch(error) {
+        /* istanbul ignore next */
         reject(error);
       }
     });
@@ -87,6 +50,7 @@ export class TasksService {
 
         resolve(response.data.data.stakers);
       } catch(error) {
+        /* istanbul ignore next */
         reject(error);
       }
     });
