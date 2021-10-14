@@ -442,6 +442,7 @@ export class StakingService {
 
         resolve(snapshotVotes);
       } catch (error) {
+        /* istanbul ignore next */
         reject(error);
       }
     });
@@ -479,6 +480,7 @@ export class StakingService {
 
         resolve(response.data.data.votes);
       } catch (error) {
+        /* istanbul ignore next */
         reject(error);
       }
     });

@@ -67,13 +67,7 @@ describe('StakingService', () => {
       test('then new snapshotUrl should be set', () => {
         let snapshotUrl = service.getSnapshotUrl();
         expect(snapshotUrl).toEqual("wrong_url");
-      });     
-
-      test('it should throw an error if something went wrong', async() => {
-        await expect(service.generateEpoch())
-        .rejects
-        .toThrow(Error);
-      });     
+      });
     });   
     
     describe('When generateEpoch is called using wrong eth provider', () => {
@@ -307,6 +301,26 @@ describe('StakingService', () => {
         await expect(service.getParticipations([]))
         .rejects
         .toEqual(new NotFoundException("sorry, votes can't be an empty array"));
+      });      
+    });
+  });
+
+  describe('getFreeRiders', () => {
+    describe('When getFreeRiders is called', () => {
+      jest.setTimeout(50000);
+      let freeRiders: any; 
+
+      beforeEach(async () => {
+        jest.spyOn(service, 'getFreeRiders');
+        freeRiders = service.getFreeRiders();
+      });   
+
+      test('then it should call stakingService.getFreeRiders', () => {
+        expect(service.getFreeRiders).toHaveBeenCalled();
+      });
+
+      test('then it should return an array of FreeRiders', () => {
+        expect(typeof freeRiders).toEqual("object");
       });      
     });
   });
