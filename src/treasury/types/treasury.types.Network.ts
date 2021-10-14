@@ -1,21 +1,16 @@
 export interface SupportedNetwork {
-    network: string;
-    apps: App[];
+  network: string;
+  apps: App[];
 }
 
 interface App {
-    appId: string;
-    meta: Meta;
+  appId: string;
+  meta: Meta;
 }
 
 interface Meta {
-    label: string;
-    img: string;
-    tags: string[];
-    supportedActions: SupportedAction[];
-}
-
-enum SupportedAction {
-    Transact = "transact",
-    View = "view",
+  label: string;
+  img: string;
+  tags: string[];
+  supportedActions: string[];
 }
