@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { StakingModule } from './staking/staking.module';
+import { TreasuryModule } from './treasury/treasury.module';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { StakingModule } from './staking/staking.module';
     ConfigModule.forRoot(),
     ScheduleModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_DB),
-    StakingModule
+    StakingModule,
+    TreasuryModule,    
   ],
   controllers: [AppController],
   providers: [AppService],
