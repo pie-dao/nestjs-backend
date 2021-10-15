@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TasksService } from '../tasks.service';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
-import { NotFoundException } from '@nestjs/common';
 import { AirdropStub } from './stubs/airdrop.stubs';
+import { AirdropResponse } from '../types/tasks.types.AirdropResponse';
 
 describe('TasksService', () => {
   let service: TasksService;
@@ -29,17 +29,18 @@ describe('TasksService', () => {
     describe('getKpiAirdrop', () => {
       describe('When getKpiAirdrop is called', () => {
         jest.setTimeout(50000);
-        let airdrop: any;
+        let airdrop: AirdropResponse;
   
         beforeEach(async () => {
           jest.spyOn(service, "getKpiAirdrop");
+          jest.spyOn(service as any, "fetchVeDoughBalances");
           airdrop = await service.getKpiAirdrop(TESTING_BLOCK);
         });
   
         test('then it should call stakingService.getEpochs', () => {
           expect(service.getKpiAirdrop).toHaveBeenCalledWith(TESTING_BLOCK);
         });
-  
+
         test('then it should return an object for the airdrop', () => {
           let airdropStub = AirdropStub();
   

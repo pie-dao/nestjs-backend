@@ -7,6 +7,10 @@ import * as ethDater from 'ethereum-block-by-date';
 import { EpochDocument, EpochEntity } from './entities/epoch.entity';
 import { MerkleTree } from '../helpers/merkleTree/merkle-tree';
 import { Cron } from '@nestjs/schedule';
+import { Staker, Lock } from './types/staking.types.Staker';
+import { Vote } from './types/staking.types.Vote';
+import { FreeRider } from './types/staking.types.FreeRider';
+import { Participation } from './types/staking.types.Participation';
 
 @Injectable()
 export class StakingService {
@@ -90,7 +94,7 @@ export class StakingService {
     });
   }
 
-  getStakers(ids?: Array<string>, condition?: string): Promise<any[]> {
+  getStakers(ids?: Array<string>, condition?: string): Promise<Staker[]> {
     return new Promise(async (resolve, reject) => {
       try {
         let lastID = "";
@@ -111,7 +115,7 @@ export class StakingService {
     });
   }
 
-  getLocks(lockedAt?: string, ids?: Array<string>): Promise<any[]> {
+  getLocks(lockedAt?: string, ids?: Array<string>): Promise<Lock[]> {
     return new Promise(async (resolve, reject) => {
       try {
         let lastID = "";
@@ -137,7 +141,7 @@ export class StakingService {
     });
   }  
 
-  getParticipations(votes?: any[]): Promise<any[]> {
+  getParticipations(votes?: Vote[]): Promise<Participation[]> {
     return new Promise(async(resolve, reject) => {
       try {
         if(votes && votes.length == 0) {
@@ -156,7 +160,7 @@ export class StakingService {
         const participations = [];
 
         stakers.forEach(staker => {
-          let stakerVotes = votes.filter(vote => vote.voter.toLowerCase() == staker.id);
+          let stakerVotes : Vote[] = votes.filter(vote => vote.voter.toLowerCase() == staker.id);
           let participation = stakerVotes.length ? 1 : 0;
 
           participations.push({
@@ -174,7 +178,7 @@ export class StakingService {
     });
   }  
 
-  getMerkleTree(participations: any[]): Promise<Object> {
+  getMerkleTree(participations: Participation[]): Promise<Object> {
     return new Promise(async(resolve, reject) => {
       try {
         if(participations && participations.length > 0) {
@@ -190,7 +194,7 @@ export class StakingService {
     });
   }
 
-  getFreeRiders(): Promise<any> {
+  getFreeRiders(): Promise<FreeRider[]> {
     return new Promise(async(resolve, reject) => {
       try {
         // fetching all votes from snapshot in the last 3 months...
@@ -203,7 +207,7 @@ export class StakingService {
 
         // creating the freeRiders dataStruct...
         let votedTimeRange = this.generateBackmonthTimestamp(3, false);
-        let freeRiders = {};
+        let freeRiders = [];
 
         stakers.forEach(staker => {
           let oldestLock = this.getOldestLock(staker.accountLocks);
@@ -215,11 +219,14 @@ export class StakingService {
             isFreeRider = true;
           }
 
-          freeRiders[staker.id] = {
-            isFreeRider:  isFreeRider, 
+          let freeRider = {
+            id: staker.id,
+            isFreeRider: isFreeRider,
             oldestLock: oldestLock,
             stakingData: staker
-          };
+          } as FreeRider
+
+          freeRiders.push(freeRider);
         });
 
         resolve(freeRiders);        
@@ -239,10 +246,10 @@ export class StakingService {
     return new Promise(async(resolve, reject) => {
       try {
         // fetching all votes from snapshot in the last month...
-        let votes = await this.getSnapshotVotes(1);
+        let votes : Vote[] = await this.getSnapshotVotes(1);
 
         // generating the participations...
-        let participations = await this.getParticipations(votes);
+        let participations : Participation[] = await this.getParticipations(votes);
 
         let merkleTreeObj = new MerkleTree();
         const merkleTree = merkleTreeObj.createParticipationTree(participations);
@@ -255,7 +262,7 @@ export class StakingService {
     });
   }
 
-  private saveEpoch(participations: Array<any>, merkleTree: any, votes: any[], rewards: string): Promise<EpochEntity> {
+  private saveEpoch(participations: Array<Participation>, merkleTree: Object, votes: Vote[], rewards: string): Promise<EpochEntity> {
     return new Promise(async(resolve, reject) => {
       try {
         const provider = new ethers.providers.JsonRpcProvider(this.ethProvider);
@@ -293,7 +300,7 @@ export class StakingService {
     });    
   }
 
-  private fetchLocks(blocks: number, lastID: string, lockedAt?: string, ids?: Array<string>): Promise<any[]> {
+  private fetchLocks(blocks: number, lastID: string, lockedAt?: string, ids?: Array<string>): Promise<Lock[]> {
     return new Promise(async(resolve, reject) => {
       try {
         let query = null;
@@ -348,7 +355,7 @@ export class StakingService {
     })
   }
 
-  private fetchStakers(blocks: number, lastID: string, ids?: Array<string>, condition?: string): Promise<any[]> {
+  private fetchStakers(blocks: number, lastID: string, ids?: Array<string>, condition?: string): Promise<Staker[]> {
     return new Promise(async(resolve, reject) => {
       try {
         let query = null;
@@ -424,7 +431,7 @@ export class StakingService {
     })
   }
 
-  private getSnapshotVotes(months: number): Promise<any[]> {
+  private getSnapshotVotes(months: number): Promise<Vote[]> {
     return new Promise(async (resolve, reject) => {
       try {
         let validRange = this.generateBackmonthTimestamp(months, false);
@@ -448,7 +455,7 @@ export class StakingService {
     });
   }
 
-  private fetchSnapshotVotes(range, blocks, skip): Promise<any[]> {
+  private fetchSnapshotVotes(range, blocks, skip): Promise<Vote[]> {
     return new Promise(async (resolve, reject) => {
       try {        
         let response = await this.httpService.post(
