@@ -8,7 +8,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EpochEntity, EpochSchema } from '../../entities/epoch.entity';
 import MockDate from 'mockdate';
-import { resolve } from 'path/posix';
 
 // test cases are taken from:
 // https://docs.google.com/spreadsheets/d/1Xb5ZtztpcPD3eW2KcQ_B-Hnes1aN_jLfxG1V-HVmhfU/edit#gid=1065509479
@@ -76,7 +75,7 @@ describe('FreeRiders integration tests', () => {
 
     it('No one should be a freerider', async () => {
       let freeRiders = await service.getFreeRiders();
-      expect(freeRiders).toStrictEqual({});
+      expect(freeRiders).toStrictEqual([]);
     });
   });
 
@@ -104,7 +103,9 @@ describe('FreeRiders integration tests', () => {
 
     it('should return alice as freerider', async () => {
       let freeRiders = await service.getFreeRiders();
-      expect(Object.keys(freeRiders)).toContain(accounts.alice);
+      let ids = freeRiders.map(( {id: id} ) => id);
+
+      expect(ids).toContain(accounts.alice);
     });
 
     afterAll(() => {
@@ -136,7 +137,7 @@ describe('FreeRiders integration tests', () => {
 
     it('No one should be a freerider', async () => {
       let freeRiders = await service.getFreeRiders();
-      expect(freeRiders).toStrictEqual({});
+      expect(freeRiders).toStrictEqual([]);
     });
   });
 
@@ -164,7 +165,7 @@ describe('FreeRiders integration tests', () => {
 
     it('No one should be a freerider', async () => {
       let freeRiders = await service.getFreeRiders();
-      expect(freeRiders).toStrictEqual({});
+      expect(freeRiders).toStrictEqual([]);
     });
   });
 
@@ -202,7 +203,7 @@ describe('FreeRiders integration tests', () => {
 
     it('No one should be a freerider', async () => {
       let freeRiders = await service.getFreeRiders();
-      expect(freeRiders).toStrictEqual({});
+      expect(freeRiders).toStrictEqual([]);
     });
   });
 
@@ -240,7 +241,7 @@ describe('FreeRiders integration tests', () => {
 
     it('No one should be a freerider', async () => {
       let freeRiders = await service.getFreeRiders();
-      expect(freeRiders).toStrictEqual({});
+      expect(freeRiders).toStrictEqual([]);
     });
   });
 });
