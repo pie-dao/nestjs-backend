@@ -13,21 +13,19 @@ export class MerkleTree {
     this.layers = MerkleTree.getLayers(this.elements);
   }
 
-  createParticipationTree(entries: any) {
-    if(typeof entries == "string") {
-      entries = JSON.parse(entries);
-    }
+  createParticipationTree(inputEntries: string | Object[]) {
+    let entries = (typeof inputEntries == "string") ? JSON.parse(inputEntries) : inputEntries;
 
-    const entriesWithLeafs = entries.map((item) => {
+    const entriesWithLeafs = entries.map((entry) => {
       const entryWithLeaf = {
-        ...item,
-        leaf: hashEntry(item),
+        ...entry,
+        leaf: hashEntry(entry),
       };
   
       return entryWithLeaf;
     });
 
-    this.generateTree(entriesWithLeafs.map((item) => item.leaf));
+    this.generateTree(entriesWithLeafs.map((entry) => entry.leaf));
 
     return {
       elements: this.elements, 
