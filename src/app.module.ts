@@ -15,7 +15,7 @@ import { TreasuryModule } from './treasury/treasury.module';
     ScheduleModule.forRoot(),
     MongooseModule.forRoot(process.env.MONGO_DB),
     StakingModule,
-    TreasuryModule,    
+    TreasuryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

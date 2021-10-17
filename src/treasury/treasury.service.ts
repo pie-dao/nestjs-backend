@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
 import { SupportedNetwork } from './types/treasury.types.Network';
 import { Balances, Meta, MetaLabel } from './types/treasury.types.Balance';
 
-const CRON_TIMINGS = '*/1 * * * *';
+const TREASURY_CRON_FREQUENCY = '0 0 * * *';
 @Injectable()
 export class TreasuryService {
   private readonly logger = new Logger(TreasuryService.name);
@@ -26,19 +26,31 @@ export class TreasuryService {
     public treasuryModel: Model<TreasuryDocument>,
   ) {}
 
-  @Cron(CRON_TIMINGS)
-  public async fetchTreasuryRecord(test?: boolean): Promise<void> {
+  public async getTreasury(days: number = 7): Promise<TreasuryEntity[]> {
+    /**
+     * Fetch treasury records for the last X days
+     */
+    const sinceDate = this.daysAgo(days);
+    return this.treasuryModel.find({ createdAt: { $gte: sinceDate } });
+  }
+
+  public daysAgo(days: number): Date {
+    /**
+     * Helper method to return a Date object X days ago
+     */
+    const d = new Date();
+    d.setDate(d.getDate() - days);
+    return d;
+  }
+
+  @Cron(TREASURY_CRON_FREQUENCY)
+  public async createTreasuryRecord(): Promise<void> {
     /**
      * Executes on an interval to call the Zapper API and log the results to MongoDB
      */
-    this.logger.log(`Treasury Service is running at ${CRON_TIMINGS}`);
+    this.logger.log(`Treasury service executed at ${TREASURY_CRON_FREQUENCY}`);
     try {
       await this.loadTreasury();
-      const latest = await this.treasuryModel
-        .find()
-        .limit(5)
-        .sort({ createdAt: -1 });
-      console.debug(latest);
     } catch (err) {
       console.error(
         'There was an error fetching data from the Zapper API',
