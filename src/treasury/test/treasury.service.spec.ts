@@ -41,11 +41,7 @@ describe('Testing the treasury service', () => {
       imports: [
         HttpModule,
         ConfigModule.forRoot(),
-        MongooseModule.forRoot(
-          // does not connect unless dbName passed as param
-          process.env.MONGO_DB_ROOT,
-          { dbName: process.env.MONGO_DB_TEST_DATABASE },
-        ),
+        MongooseModule.forRoot(process.env.MONGO_DB_TEST),
         MongooseModule.forFeature([
           { name: TreasuryEntity.name, schema: TreasurySchema },
         ]),
@@ -54,6 +50,7 @@ describe('Testing the treasury service', () => {
     }).compile();
 
     service = module.get<TreasuryService>(TreasuryService);
+    await service.treasuryModel.deleteMany({});
   });
 
   afterAll(async () => {
@@ -216,11 +213,13 @@ describe('Testing the treasury service', () => {
     });
 
     it('should return values from get treasury', async () => {
+      await service.loadDB(recordMockValue);
       const res = await service.getTreasury();
       expect(res.length).toEqual(1);
     });
 
     it('should return no values from get treasury if days=0', async () => {
+      await service.loadDB(recordMockValue);
       const res = await service.getTreasury(0);
       expect(res.length).toEqual(0);
     });
