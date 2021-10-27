@@ -237,7 +237,7 @@ export class StakingService {
     });
   }
 
-  @Cron('*/5 * * * *')
+  @Cron('0 0 1 * *')
   // Use this every 10 seconds cron setup, for testing purposes.
   // 10 * * * * *
   // USe this every first day of the month, for production releases.
