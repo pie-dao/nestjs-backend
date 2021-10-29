@@ -41,17 +41,23 @@ export class StakingService {
 
         // let's fetch all the locks which are NOT ejected yet...
         this.getLocks(null, null, false).then(locks => {
+          let toBeEjected = [];
+
           locks.forEach(lock => {
             let lockedAt = moment.unix(Number(lock.lockedAt));
             let lockMonths = Number(lock.lockDuration) / this.AVG_SECONDS_MONTH;
             let expiresAt = moment(lockedAt).add(lockMonths, 'M');
 
             if(block.timestamp >= expiresAt.unix()) {
-              this.logger.debug("should eject");
-            } else {
-              this.logger.debug("not expired yet");
+              toBeEjected.push(lock);
             }
-          })
+          });
+
+          if(toBeEjected.length > 0) {
+            this.logger.debug("toBeEjected is redy to be shooted");
+          } else {
+            this.logger.debug("no locks to eject so far, see you next time...");
+          }
         });
       });
     });    
