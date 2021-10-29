@@ -12,6 +12,7 @@ import { Vote } from './types/staking.types.Vote';
 import { FreeRider } from './types/staking.types.FreeRider';
 import { Participation } from './types/staking.types.Participation';
 import { Delegate } from './types/staking.types.Delegate';
+import * as stakingABI from './abis/stakingABI.json';
 import * as moment from 'moment';
 
 @Injectable()
@@ -32,6 +33,7 @@ export class StakingService {
 
   observeLocksToBeEjected() {
     const provider = new ethers.providers.JsonRpcProvider(this.ethProvider);
+    const contract = new ethers.Contract(process.env.STAKING_CONTRACT, stakingABI, provider);
 
     provider.on("block", (blockNumber) => {
       provider.getBlock(blockNumber).then(block => {
