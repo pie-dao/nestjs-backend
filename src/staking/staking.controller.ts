@@ -73,6 +73,18 @@ export class StakingController {
     }
   };
 
+  // @ApiOkResponse({type: EpochEntity})
+  // @ApiNotFoundResponse()
+  // @ApiBadRequestResponse()
+  // @Get('generate-epoch')
+  // async generateEpoch(): Promise<EpochEntity> {
+  //   try {
+  //     return await this.stakingService.generateEpoch();
+  //   } catch(error) {
+  //     throw new NotFoundException(error);
+  //   }
+  // };
+
   @ApiOkResponse({type: Object, isArray: false})
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()

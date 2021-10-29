@@ -11,6 +11,7 @@ import { Staker, Lock } from './types/staking.types.Staker';
 import { Vote } from './types/staking.types.Vote';
 import { FreeRider } from './types/staking.types.FreeRider';
 import { Participation } from './types/staking.types.Participation';
+import { Delegate } from './types/staking.types.Delegate';
 
 @Injectable()
 export class StakingService {
@@ -141,6 +142,27 @@ export class StakingService {
     });
   }  
 
+  getDelegates(): Promise<Delegate[]> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let lastID = "";
+        let blocks = 1000;
+        let delegates = [];
+
+        let delegatesArray = await this.fetchDelegates(blocks, lastID);
+
+        while(delegatesArray.length > 0) {
+          delegates = delegates.concat(delegatesArray);
+          delegatesArray = await this.fetchDelegates(blocks, delegatesArray[delegatesArray.length - 1].id);
+        }
+
+        resolve(delegates);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  } 
+
   getParticipations(votes?: Vote[]): Promise<Participation[]> {
     return new Promise(async(resolve, reject) => {
       try {
@@ -163,12 +185,15 @@ export class StakingService {
           let stakerVotes : Vote[] = votes.filter(vote => vote.voter.toLowerCase() == staker.id);
           let participation = stakerVotes.length ? 1 : 0;
 
-          participations.push({
+          let element : Participation = {
             address: staker.id,
             participation: participation,
             staker: staker,
-            votes: stakerVotes
-          });
+            votes: stakerVotes,
+            delegatedTo: undefined
+          };
+
+          participations.push(element);
         });
         
         resolve(participations);
@@ -183,7 +208,8 @@ export class StakingService {
       try {
         if(participations && participations.length > 0) {
           let merkleTreeObj = new MerkleTree();
-          const merkleTree = merkleTreeObj.createParticipationTree(participations);
+          let delegates : Delegate[] = await this.getDelegates();
+          const merkleTree = merkleTreeObj.createParticipationTree(participations, delegates);
           resolve(merkleTree);
         } else {
           throw new NotFoundException('Sorry, you must pass a participations json as parameter, and it must be a valid array.');
@@ -250,10 +276,11 @@ export class StakingService {
 
         // generating the participations...
         let participations : Participation[] = await this.getParticipations(votes);
+        let delegates : Delegate[] = await this.getDelegates();
 
         let merkleTreeObj = new MerkleTree();
-        const merkleTree = merkleTreeObj.createParticipationTree(participations);
-        
+        const merkleTree = merkleTreeObj.createParticipationTree(participations, delegates);
+
         let epoch = await this.saveEpoch(participations, merkleTree, votes, 'rewards has to be implemented');
         resolve(epoch);
       } catch(error) {
@@ -298,6 +325,31 @@ export class StakingService {
         reject(error);
       }
     });    
+  }
+
+  private fetchDelegates(blocks: number, lastID: string): Promise<Delegate[]> {
+    return new Promise(async(resolve, reject) => {
+      try {
+        let query = `{
+          delegates(first: ${blocks}, where: {id_gt: "${lastID}"}) {
+            id
+            delegator
+            delegate
+          }
+        }`;
+
+        let response = await this.httpService.post(
+          this.graphUrl,
+          {
+            query: query
+          }
+        ).toPromise();
+
+        resolve(response.data.data.delegates);
+      } catch(error) {
+        reject(error);
+      }
+    })
   }
 
   private fetchLocks(blocks: number, lastID: string, lockedAt?: string, ids?: Array<string>): Promise<Lock[]> {

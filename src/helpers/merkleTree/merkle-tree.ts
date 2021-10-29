@@ -1,4 +1,6 @@
 import { ethers } from 'ethers';
+import { Delegate } from 'src/staking/types/staking.types.Delegate';
+import { Participation } from 'src/staking/types/staking.types.Participation';
 
 export class MerkleTree {
   private elements = [];
@@ -13,8 +15,28 @@ export class MerkleTree {
     this.layers = MerkleTree.getLayers(this.elements);
   }
 
-  createParticipationTree(inputEntries: string | Object[]) {
+  createParticipationTree(inputEntries: string | Participation[], delegates: Delegate[]) {
     let entries = (typeof inputEntries == "string") ? JSON.parse(inputEntries) : inputEntries;
+
+    let mappedDelegates = {};
+    delegates.forEach(entry => {
+      mappedDelegates[entry.delegate] = entry.delegator;
+    });
+
+    let mappedEntries = {};
+    entries.forEach(entry => {
+      mappedEntries[entry.address] = entry;
+    });
+
+    Object.keys(mappedDelegates).forEach(delegate_address => {
+      if(mappedEntries[delegate_address].participation == 1) {
+        mappedEntries[mappedDelegates[delegate_address]].participation = 1;
+        mappedEntries[mappedDelegates[delegate_address]].delegatedTo = delegate_address;
+        mappedEntries[mappedDelegates[delegate_address]].votes = mappedEntries[delegate_address].votes;
+      }
+    });
+
+    entries = Object.keys(mappedEntries).map(key => mappedEntries[key]);
 
     const entriesWithLeafs = entries.map((entry) => {
       const entryWithLeaf = {
