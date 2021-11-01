@@ -226,7 +226,7 @@ export class StakingService {
         // fetching all votes from snapshot in the last 3 months...
         let votes = await this.getSnapshotVotes(3);
         // getting all voters addresses from snapshot's votes...
-        let voters = this.getVotersFromShapshotVotes(votes);
+        let voters = await this.getVotersFromShapshotVotes(votes);
 
         // fetching all the stakers which have NOT voted in the last 3 months...
         let stakers = await this.getStakers(voters, 'id_not_in');
@@ -315,7 +315,7 @@ export class StakingService {
         epochModel.endBlock = endBlock.block;
         epochModel.merkleTree = merkleTree;
         epochModel.rewards = rewards;
-        epochModel.participants = this.getVotersFromShapshotVotes(votes);
+        epochModel.participants = await this.getVotersFromShapshotVotes(votes);
         epochModel.proposals = this.getProposalsFromParticipations(participations);
 
         let epochDB = await epochModel.save();
@@ -575,12 +575,20 @@ export class StakingService {
     return proposals;
   }
 
-  private getVotersFromShapshotVotes(votes: Array<any>): Array<string> {
+  private async getVotersFromShapshotVotes(votes: Array<any>): Promise<Array<string>> {
     // creating an array of voters...
     let voters = Array.from(votes, vote => vote.voter.toLowerCase());
     // removing duplicates from the voters array...
     voters = Array.from(new Set(voters)).sort();
-    
+    // retrieving the delegations...
+    let delegations = await this.getDelegates();
+    // adding the delegator into the participants...
+    delegations.forEach(delegation => {
+      if(voters.includes(delegation.delegate)) {
+        voters.push(delegation.delegator);
+      }
+     });    
+
     return voters;
   }
 
