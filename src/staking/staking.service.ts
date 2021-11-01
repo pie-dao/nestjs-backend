@@ -527,6 +527,7 @@ export class StakingService {
                 created
                 proposal {
                   id
+                  created
                 }
                 choice
                 space {
@@ -537,7 +538,8 @@ export class StakingService {
           }
         ).toPromise();
 
-        resolve(response.data.data.votes);
+        var startingStakingDate = (new Date("2021-10-22")).getTime() / 1000;
+        resolve(response.data.data.votes.filter(vote => vote.proposal.created >= startingStakingDate));
       } catch (error) {
         /* istanbul ignore next */
         reject(error);
