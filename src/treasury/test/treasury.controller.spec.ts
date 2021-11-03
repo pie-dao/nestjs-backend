@@ -1,6 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TreasuryEntity } from '../entities/treasury.entity';
 import { TreasuryController } from '../treasury.controller';
 import { TreasuryService } from '../treasury.service';
 

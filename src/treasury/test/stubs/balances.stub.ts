@@ -1,5 +1,4 @@
 import { Balances } from 'src/treasury/types/treasury.types.Balance';
-
 export const balancesStub: Balances = {
   '0x3bcf3db69897125aa61496fc8a8b55a5e3f245d5': {
     products: [

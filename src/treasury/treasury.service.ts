@@ -5,8 +5,9 @@ import { Model } from 'mongoose';
 import { HttpService } from '@nestjs/axios';
 import {
   TreasuryDocument,
+  AssetEntity,
+  AssetValues,
   TreasuryEntity,
-  TreasuryValues,
 } from './entities/treasury.entity';
 import { firstValueFrom } from 'rxjs';
 import { SupportedNetwork } from './types/treasury.types.Network';
@@ -26,7 +27,7 @@ export class TreasuryService {
     public treasuryModel: Model<TreasuryDocument>,
   ) {}
 
-  public async getTreasury(days: number = 7): Promise<TreasuryEntity[]> {
+  public async getTreasury(days = 7): Promise<TreasuryEntity[]> {
     /**
      * Fetch treasury records for the last X days
      */
@@ -65,7 +66,10 @@ export class TreasuryService {
      * to load relevant data to the db
      */
     const networks = await this.getSupportedNetworks();
-    networks.forEach((network) => this.getBalancesAndLoad(network));
+    const balances = await this.getNetworkBalances(networks);
+    const underlyingAssets = this.getUnderlyingAssetsArray(balances);
+    const total = this.getTotal(underlyingAssets);
+    await this.loadDB(total);
   }
 
   async getSupportedNetworks(): Promise<SupportedNetwork[]> {
@@ -78,16 +82,55 @@ export class TreasuryService {
     return this.apiCall<SupportedNetwork[]>(url);
   }
 
-  async getBalancesAndLoad(network: SupportedNetwork): Promise<void> {
+  getUnderlyingAssetsArray(balances: Array<AssetEntity[] | []>): AssetEntity[] {
+    /**
+     * @param assets is an array of arrays of balances across all networks
+     * @returns a flattened array with empty arrays (networks with no balances) removed
+     */
+    return this.flatten(balances.filter(({ length }) => length > 0));
+  }
+
+  getTotal(assets: AssetEntity[]): TreasuryEntity {
+    /**
+     * Computes the total treasury value from the `total` field on each balance
+     * @returns an object containing the final total, with the original assets attached
+     */
+    const treasury = assets.reduce(
+      (total, balance: AssetEntity) => total + balance.total,
+      0,
+    );
+    return {
+      underlying_assets: assets,
+      treasury,
+    };
+  }
+
+  async getNetworkBalances(
+    networks: SupportedNetwork[],
+  ): Promise<Array<AssetEntity[] | []>> {
+    /**
+     * As we need to make serveral network requests to get the various balances
+     * from the different protocols, this awaits all of them.
+     * @returns a promise containing an array of arrays
+     */
+    return Promise.all(
+      networks.map((network) => this.getNetworkBalance(network)),
+    );
+  }
+
+  async getNetworkBalance(
+    network: SupportedNetwork,
+  ): Promise<AssetEntity[] | []> {
     /**
      * Fetches a list of debts, assets and total USD values from the API, for a given
      * Network (Ethereum, Polygon etc). Then loads to MongoDB if there is useful data
      * In the record
      */
-    const balances = await this.getBalances(network);
-    balances.forEach((record) => {
-      if (this.recordHasUsefulData(record)) this.loadDB(record);
-    });
+    const balances = await this.getBalanceSummary(network);
+    const records = balances.filter((record) =>
+      this.recordHasUsefulData(record),
+    );
+    return records;
   }
 
   async loadDB(record: TreasuryEntity) {
@@ -95,9 +138,9 @@ export class TreasuryService {
     await model.save();
   }
 
-  async getBalances(
+  async getBalanceSummary(
     supported: SupportedNetwork,
-  ): Promise<TreasuryEntity[] | undefined> {
+  ): Promise<AssetEntity[] | undefined> {
     /**
      * For a given network, iterates through all the protocols where PieDAO has positions,
      * and extract the USD value of Assets, Debt and Total
@@ -108,7 +151,7 @@ export class TreasuryService {
     const { network } = supported;
 
     const records = supported.apps.map(
-      async (protocol): Promise<TreasuryEntity> => {
+      async (protocol): Promise<AssetEntity> => {
         let url = '';
         url += `${zapperApiUrl}/protocols/${protocol.appId}/balances`;
         url += `?addresses%5B%5D=${treasury}&network=${network}&api_key=${zapperApiKey}`;
@@ -128,7 +171,7 @@ export class TreasuryService {
     return Promise.all(records);
   }
 
-  extractTreasuryValues(balance: Balances): TreasuryValues | undefined {
+  extractTreasuryValues(balance: Balances): AssetValues | undefined {
     /**
      * Retrieves the USD values of 'Assets', 'Debt', and 'Total' from the summary Meta of each protocol
      *
@@ -157,7 +200,7 @@ export class TreasuryService {
     return { [label.toLowerCase()]: value };
   }
 
-  recordHasUsefulData(record: TreasuryEntity | undefined): boolean {
+  recordHasUsefulData(record: AssetEntity | undefined): boolean {
     /**
      * API can return summaries where the assets and debt position is equal to zero,
      * or that there is no information provided in the Meta array.
@@ -174,5 +217,14 @@ export class TreasuryService {
     const fetchSupported = this.httpService.get(url);
     const res = await firstValueFrom(fetchSupported);
     return res.data;
+  }
+
+  flatten<T extends any[]>(arr: Array<T>): T {
+    /**
+     * For non es2019 TS targets without Array.prototype.flat
+     * Take an array of arrays (1 level deep)
+     * @returns an array of values
+     */
+    return [].concat.apply([], arr);
   }
 }

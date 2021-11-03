@@ -1,6 +1,6 @@
-import { TreasuryEntity } from 'src/treasury/entities/treasury.entity';
+import { AssetEntity } from 'src/treasury/entities/treasury.entity';
 
-export const notUsefulDataStub: TreasuryEntity[] = [
+export const notUsefulDataStub: AssetEntity[] = [
   {
     network: 'ethereum',
     protocol: 'ribbon',
