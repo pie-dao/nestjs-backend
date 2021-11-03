@@ -45,6 +45,8 @@ INFURA_RPC=https://mainnet.infura.io/v3/YOUR_INFURA_KEY_HERE
 PIE_GETTER_CONTRACT=0xeDF74D4c543b6c32e9ee9E8bD5fd9e6d5Bd4F546
 GRAPH_URL=https://api.thegraph.com/subgraphs/name/pie-dao/vedough
 SNAPSHOT_SPACE_ID=piedao
+TREASURY_ADDRESS=0x3bcf3db69897125aa61496fc8a8b55a5e3f245d5
+ZAPPER_API_KEY=YOUR_ZAPPER_KEY_HERE
 ```
 
 Once done, you'll be able to run the project locally by doing
