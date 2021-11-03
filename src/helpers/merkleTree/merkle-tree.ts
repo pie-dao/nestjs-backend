@@ -38,7 +38,7 @@ export class MerkleTree {
 
     entries = Object.keys(mappedEntries).map(key => mappedEntries[key]);
 
-    const entriesWithLeafs = entries.map((entry) => {
+    let entriesWithLeafs = entries.map((entry) => {
       const entryWithLeaf = {
         ...entry,
         leaf: hashEntry(entry),
@@ -48,6 +48,15 @@ export class MerkleTree {
     });
 
     this.generateTree(entriesWithLeafs.map((entry) => entry.leaf));
+
+    entriesWithLeafs = entriesWithLeafs.map((entry) => {
+      const entryWithLeaf = {
+        ...entry,
+        proof: this.getProof(entry.leaf),
+      };
+  
+      return entryWithLeaf;
+    });
 
     return {
       elements: this.elements, 
