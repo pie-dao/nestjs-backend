@@ -16,54 +16,62 @@ export class MerkleTree {
   }
 
   createParticipationTree(inputEntries: string | Participation[], delegates: Delegate[]) {
-    let entries = (typeof inputEntries == "string") ? JSON.parse(inputEntries) : inputEntries;
+    try {
+      let entries = (typeof inputEntries == "string") ? JSON.parse(inputEntries) : inputEntries;
 
-    let mappedDelegates = {};
-    delegates.forEach(entry => {
-      mappedDelegates[entry.delegate] = entry.delegator;
-    });
-
-    let mappedEntries = {};
-    entries.forEach(entry => {
-      mappedEntries[entry.address] = entry;
-    });
-
-    Object.keys(mappedDelegates).forEach(delegate_address => {
-      if(mappedEntries[delegate_address].participation == 1) {
-        mappedEntries[mappedDelegates[delegate_address]].participation = 1;
-        mappedEntries[mappedDelegates[delegate_address]].delegatedTo = delegate_address;
-        mappedEntries[mappedDelegates[delegate_address]].votes = mappedEntries[delegate_address].votes;
-      }
-    });
-
-    entries = Object.keys(mappedEntries).map(key => mappedEntries[key]);
-
-    let entriesWithLeafs = entries.map((entry) => {
-      const entryWithLeaf = {
-        ...entry,
-        leaf: hashEntry(entry),
-      };
+      entries.forEach(entry => {
+        entry.address = ethers.utils.getAddress(entry.address);
+      });
   
-      return entryWithLeaf;
-    });
-
-    this.generateTree(entriesWithLeafs.map((entry) => entry.leaf));
-
-    entriesWithLeafs = entriesWithLeafs.map((entry) => {
-      const entryWithLeaf = {
-        ...entry,
-        proof: this.getProof(entry.leaf),
-      };
+      let mappedDelegates = {};
+      delegates.forEach(entry => {
+        mappedDelegates[ethers.utils.getAddress(entry.delegate)] = ethers.utils.getAddress(entry.delegator);
+      });
   
-      return entryWithLeaf;
-    });
-
-    return {
-      elements: this.elements, 
-      layers: this.layers,
-      leafs: entriesWithLeafs,
-      root: this.getRoot()
-    };
+      let mappedEntries = {};
+      entries.forEach(entry => {
+        mappedEntries[entry.address] = entry;
+      });
+  
+      Object.keys(mappedDelegates).forEach(delegate_address => {
+        if(mappedEntries[delegate_address].participation == 1) {
+          mappedEntries[mappedDelegates[delegate_address]].participation = 1;
+          mappedEntries[mappedDelegates[delegate_address]].delegatedTo = delegate_address;
+          mappedEntries[mappedDelegates[delegate_address]].votes = mappedEntries[delegate_address].votes;
+        }
+      });
+  
+      entries = Object.keys(mappedEntries).map(key => mappedEntries[key]);
+  
+      let entriesWithLeafs = entries.map((entry) => {
+        const entryWithLeaf = {
+          ...entry,
+          leaf: hashEntry(entry),
+        };
+    
+        return entryWithLeaf;
+      });
+  
+      this.generateTree(entriesWithLeafs.map((entry) => entry.leaf));
+  
+      entriesWithLeafs = entriesWithLeafs.map((entry) => {
+        const entryWithLeaf = {
+          ...entry,
+          proof: this.getProof(entry.leaf),
+        };
+    
+        return entryWithLeaf;
+      });
+  
+      return {
+        elements: this.elements, 
+        layers: this.layers,
+        leafs: entriesWithLeafs,
+        root: this.getRoot()
+      };      
+    } catch(error) {
+      console.log(error);      
+    }
   };  
 
   static getLayers(elements) {
