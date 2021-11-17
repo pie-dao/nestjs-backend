@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -12,6 +12,7 @@ import { Vote } from './types/staking.types.Vote';
 import { FreeRider } from './types/staking.types.FreeRider';
 import { Participation } from './types/staking.types.Participation';
 import { Delegate } from './types/staking.types.Delegate';
+import * as moment from 'moment';
 
 @Injectable()
 export class StakingService {
@@ -19,11 +20,46 @@ export class StakingService {
   private graphUrl = process.env.GRAPH_URL;
   private snapshotUrl = 'https://hub.snapshot.org/graphql';
   private ethProvider = process.env.INFURA_RPC;
+  private readonly logger = new Logger(StakingService.name);
+  private readonly AVG_SECONDS_MONTH = 2628000;
 
   constructor(
     private httpService: HttpService,
     @InjectModel(EpochEntity.name) private epochModel: Model<EpochDocument>,
-  ) { }
+  ) {
+    this.observeLocksToBeEjected();
+  }
+
+  observeLocksToBeEjected() {
+    const provider = new ethers.providers.JsonRpcProvider(this.ethProvider);
+
+    provider.on("block", (blockNumber) => {
+      provider.getBlock(blockNumber).then(block => {
+        this.logger.debug(`new block arrived: ${blockNumber}`);
+
+        // let's fetch all the locks which are NOT ejected yet...
+        this.getLocks(null, null, false).then(locks => {
+          let toBeEjected = [];
+
+          locks.forEach(lock => {
+            let lockedAt = moment.unix(Number(lock.lockedAt));
+            let lockMonths = Number(lock.lockDuration) / this.AVG_SECONDS_MONTH;
+            let expiresAt = moment(lockedAt).add(lockMonths, 'M');
+
+            if(block.timestamp >= expiresAt.unix()) {
+              toBeEjected.push(lock);
+            }
+          });
+
+          if(toBeEjected.length > 0) {
+            this.logger.debug("toBeEjected is redy to be shooted");
+          } else {
+            this.logger.debug("no locks to eject so far, see you next time...");
+          }
+        });
+      });
+    });    
+  }
 
   setEthProvider(provider: string): void {
     this.ethProvider = provider;
@@ -116,7 +152,7 @@ export class StakingService {
     });
   }
 
-  getLocks(lockedAt?: string, ids?: Array<string>): Promise<Lock[]> {
+  getLocks(lockedAt?: string, ids?: Array<string>, ejected?: Boolean): Promise<Lock[]> {
     return new Promise(async (resolve, reject) => {
       try {
         let lastID = "";
@@ -128,11 +164,11 @@ export class StakingService {
           lockedAt = Math.floor(Number(date) / 1000).toString();
         }
 
-        let stakersLocks = await this.fetchLocks(blocks, lastID, lockedAt, ids);
+        let stakersLocks = await this.fetchLocks(blocks, lastID, lockedAt, ids, ejected);
 
         while(stakersLocks.length > 0) {
           locks = locks.concat(stakersLocks);
-          stakersLocks = await this.fetchLocks(blocks, stakersLocks[stakersLocks.length - 1].id, lockedAt, ids);
+          stakersLocks = await this.fetchLocks(blocks, stakersLocks[stakersLocks.length - 1].id, lockedAt, ids, ejected);
         }
 
         resolve(locks);
@@ -229,7 +265,7 @@ export class StakingService {
         let voters = await this.getVotersFromShapshotVotes(votes);
 
         // fetching all the stakers which have NOT voted in the last 3 months...
-        let stakers = await this.getStakers(voters, 'id_not_in');
+        let stakers = await this.getStakers(voters.map(id => '"' + id + '"'), 'id_not_in');
 
         // creating the freeRiders dataStruct...
         let votedTimeRange = this.generateBackmonthTimestamp(3, false);
@@ -250,7 +286,7 @@ export class StakingService {
             isFreeRider: isFreeRider,
             oldestLock: oldestLock,
             stakingData: staker
-          } as FreeRider
+          } as FreeRider;
 
           freeRiders.push(freeRider);
         });
@@ -352,46 +388,43 @@ export class StakingService {
     })
   }
 
-  private fetchLocks(blocks: number, lastID: string, lockedAt?: string, ids?: Array<string>): Promise<Lock[]> {
+  private fetchLocks(blocks: number, lastID: string, lockedAt?: string, ids?: Array<string>, ejected?: Boolean): Promise<Lock[]> {
     return new Promise(async(resolve, reject) => {
       try {
-        let query = null;
-        
+        let conditions = `where: {id_gt: "${lastID}"`;
+
+        if(lockedAt) {
+          conditions += `, lockedAt_lt: ${lockedAt}`;
+        }
+
+        if(ejected) {
+          conditions += `, ejected: ${ejected}`;
+        }
+
         if(ids) {
-          query = `{
-            locks(first: ${blocks}, where: {id_gt: "${lastID}", lockedAt_lt: ${lockedAt}, staker_in: [${ids}]}) {
+          conditions += `, staker_in: [${ids}]`;
+        }
+
+        conditions += `}`;
+        
+        let query = `{
+          locks(first: ${blocks}, ${conditions}) {
+            id
+            lockDuration
+            lockedAt
+            amount
+            lockId
+            withdrawn
+            ejected
+            boosted
+            staker {
               id
-              lockDuration
-              lockedAt
-              amount
-              lockId
-              withdrawn
-              staker {
-                id
-                accountVeTokenBalance
-                accountWithdrawableRewards
-                accountWithdrawnRewards
-              }
+              accountVeTokenBalance
+              accountWithdrawableRewards
+              accountWithdrawnRewards
             }
-          }`;
-        } else {
-          query = `{
-            locks(first: ${blocks}, where: {id_gt: "${lastID}", lockedAt_lt: ${lockedAt}}) {
-              id
-              lockDuration
-              lockedAt
-              amount
-              lockId
-              withdrawn
-              staker {
-                id
-                accountVeTokenBalance
-                accountWithdrawableRewards
-                accountWithdrawnRewards
-              }
-            }
-          }`;
-        } 
+          }
+        }`;
 
         let response = await this.httpService.post(
           this.graphUrl,
