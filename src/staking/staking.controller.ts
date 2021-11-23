@@ -2,7 +2,7 @@ import { Controller, Get, InternalServerErrorException, NotFoundException, Query
 import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { EpochEntity } from './entities/epoch.entity';
 import { StakingService } from './staking.service';
-import { Claims } from './types/staking.types.Claims';
+import { FreeRider } from './types/staking.types.FreeRider';
 
 @ApiTags('Staking')
 @Controller('staking')
@@ -89,13 +89,13 @@ export class StakingController {
     @Query('windowIndex') windowIndex?: number,
     @Query('blockNumber') blockNumber?: number,
     @Query('proposals') proposals?: string
-  ): Promise<Claims> {
+  ): Promise<EpochEntity> {
     try {
       if(!month || !distributedRewards || !windowIndex || !proposals || !blockNumber) {
         throw new InternalServerErrorException({error: "month / distributed_rewards / window_index / blockNumber / proposals are mandatory params."}, null);
       }
 
-      let proposalsIds = proposals.split(",").map(id => '"' + id + '"');      
+      let proposalsIds = proposals.split(",").map(id => '"' + id + '"');
       return await this.stakingService.generateEpoch(month, distributedRewards, windowIndex, blockNumber, proposalsIds);
     } catch(error) {
       throw new NotFoundException(error);
@@ -113,7 +113,7 @@ export class StakingController {
     @Query('month') month?: number,
     @Query('blockNumber') blockNumber?: number,
     @Query('proposals') proposals?: string    
-  ): Promise<any> {
+  ): Promise<FreeRider[]> {
     try {
       if(!month || !proposals || !blockNumber) {
         throw new InternalServerErrorException({error: "month / blockNumber / proposals are mandatory params."}, null);

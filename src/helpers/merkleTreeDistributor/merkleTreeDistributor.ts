@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import { Claims } from 'src/staking/types/staking.types.Claims';
 import { Participation } from 'src/staking/types/staking.types.Participation';
 import * as MerkleDistributorHelper from "@uma/merkle-distributor";
+import { MerkleTree } from 'src/staking/types/staking.types.MerkleTree';
 import { Decimal } from 'decimal.js';
 
 export class MerkleTreeDistributor {
@@ -30,10 +31,34 @@ export class MerkleTreeDistributor {
     return { proRata: proRata, totalVeDoughSupply: totalVeDoughSupply };
   }
 
-  generateMerkleTree(totalRewardsDistributed: string, windowIndex: number, participations: Participation[]): Claims {
+  generateMerkleTree(totalRewardsDistributed: string, windowIndex: number, participations: Participation[]): MerkleTree {
     let claims = this.generateClaims(totalRewardsDistributed, windowIndex, participations);
-    // MerkleTreeDistributor shall be called here...
-    return claims;
+
+    const recipientsWithIndex: { [key: string]: any } = {};
+    Object.keys(claims.recipients).forEach((address: string, index: number) => {
+      recipientsWithIndex[address] = { 
+        amount: claims.recipients[address].amount.toString(),
+        metaData: claims.recipients[address].metaData,
+        accountIndex: index 
+      };
+    });
+  
+    const { recipientsDataWithProof, merkleRoot } = MerkleDistributorHelper.createMerkleDistributionProofs(
+      recipientsWithIndex,
+      claims.windowIndex
+    );
+  
+    const outputData: MerkleTree = {
+      chainId: claims.chainId,
+      stats: claims.stats,
+      rewardToken: claims.rewardToken,
+      windowIndex: claims.windowIndex,
+      totalRewardsDistributed: claims.totalRewardsDistributed,
+      merkleRoot: merkleRoot,
+      claims: recipientsDataWithProof,
+    };
+
+    return outputData;
   }
 
   generateClaims(totalRewardsDistributed: string, windowIndex: number, participations: Participation[]): Claims {

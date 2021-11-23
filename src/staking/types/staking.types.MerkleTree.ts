@@ -1,10 +1,11 @@
 import { Claimer } from "./staking.types.Claimer";
 
-export interface Claims {
+export interface MerkleTree {
     chainId: number;
     rewardToken: string;
     windowIndex: number;
     totalRewardsDistributed: string;
-    recipients: { [key: string]: Claimer }
+    merkleRoot: string;
+    claims: {},
     stats: {}
 }

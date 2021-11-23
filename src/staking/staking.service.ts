@@ -7,13 +7,12 @@ import * as moment from 'moment';
 import * as ethDater from 'ethereum-block-by-date';
 import { EpochDocument, EpochEntity } from './entities/epoch.entity';
 import { MerkleTreeDistributor } from '../helpers/merkleTreeDistributor/merkleTreeDistributor';
-// import { Cron } from '@nestjs/schedule';
 import { Staker, Lock } from './types/staking.types.Staker';
 import { Vote } from './types/staking.types.Vote';
 import { FreeRider } from './types/staking.types.FreeRider';
 import { Participation } from './types/staking.types.Participation';
 import { Delegate } from './types/staking.types.Delegate';
-import { Claims } from './types/staking.types.Claims';
+// import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class StakingService {
@@ -257,27 +256,25 @@ export class StakingService {
   // 0 0 1 * * 
   generateEpoch(
     month: number, 
-    distributedRewards: string, 
+    distributedRewards: string,
     windowIndex: number, 
     blockNumber: number,
     proposalsIds: Array<string>
-  ): Promise<Claims> {
+  ): Promise<EpochEntity> {
     return new Promise(async(resolve, reject) => {
       try {
         // fetching all votes from snapshot in the last month...
         let from = moment({ year: moment().year(), month: month - 1, day: 1});
         let to = from.clone().endOf('month');
         let votes : Vote[] = await this.getSnapshotVotes(from.unix(), to.unix(), proposalsIds);
-
         // generating the participations...
         let participations : Participation[] = await this.getParticipations(votes, blockNumber);
-
         // generating the merkleTreeDistribution...
         let merkleTreeDistributor = new MerkleTreeDistributor();
         const merkleTree = merkleTreeDistributor.generateMerkleTree(distributedRewards, windowIndex, participations);
-        resolve(merkleTree);
-        // let epoch = await this.saveEpoch(participations, merkleTree, votes, 'rewards has to be implemented', from.unix(), to.unix());
-        // resolve(epoch);
+
+        let epoch = await this.saveEpoch(participations, merkleTree, votes, 'rewards has to be implemented', from.unix(), to.unix());
+        resolve(epoch);
       } catch(error) {
         reject(error);
       }
@@ -298,12 +295,12 @@ export class StakingService {
         const ethDaterHelper = new ethDater(provider);
         
         let startBlock = await ethDaterHelper.getDate(
-          startDate,
+          startDate * 1000,
           true
         );
 
         let endBlock = await ethDaterHelper.getDate(
-          endDate,
+          endDate * 1000,
           true
         );
 
