@@ -1,7 +1,8 @@
-import { Controller, Get, NotFoundException, Query } from '@nestjs/common';
+import { Controller, Get, InternalServerErrorException, NotFoundException, Query } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { EpochEntity } from './entities/epoch.entity';
 import { StakingService } from './staking.service';
+import { Claims } from './types/staking.types.Claims';
 
 @ApiTags('Staking')
 @Controller('staking')
@@ -76,10 +77,26 @@ export class StakingController {
   @ApiOkResponse({type: EpochEntity})
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
+  @ApiQuery({name: 'month', required: true})
+  @ApiQuery({name: 'distributedRewards', required: true})
+  @ApiQuery({name: 'windowIndex', required: true})
+  @ApiQuery({name: 'blockNumber', required: true})
+  @ApiQuery({name: 'proposals', required: true, isArray: true})
   @Get('generate-epoch')
-  async generateEpoch(): Promise<EpochEntity> {
+  async generateEpoch(
+    @Query('month') month?: number, 
+    @Query('distributedRewards') distributedRewards?: string,
+    @Query('windowIndex') windowIndex?: number,
+    @Query('blockNumber') blockNumber?: number,
+    @Query('proposals') proposals?: string
+  ): Promise<Claims> {
     try {
-      return await this.stakingService.generateEpoch();
+      if(!month || !distributedRewards || !windowIndex || !proposals || !blockNumber) {
+        throw new InternalServerErrorException({error: "month / distributed_rewards / window_index / blockNumber / proposals are mandatory params."}, null);
+      }
+
+      let proposalsIds = proposals.split(",").map(id => '"' + id + '"');      
+      return await this.stakingService.generateEpoch(month, distributedRewards, windowIndex, blockNumber, proposalsIds);
     } catch(error) {
       throw new NotFoundException(error);
     }
@@ -88,25 +105,25 @@ export class StakingController {
   @ApiOkResponse({type: Object, isArray: false})
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
+  @ApiQuery({name: 'month', required: true})
+  @ApiQuery({name: 'blockNumber', required: true})
+  @ApiQuery({name: 'proposals', required: true, isArray: true})
   @Get('free-riders')
-  async getFreeRiders(): Promise<any> {
+  async getFreeRiders(
+    @Query('month') month?: number,
+    @Query('blockNumber') blockNumber?: number,
+    @Query('proposals') proposals?: string    
+  ): Promise<any> {
     try {
-      return await this.stakingService.getFreeRiders();
+      if(!month || !proposals || !blockNumber) {
+        throw new InternalServerErrorException({error: "month / blockNumber / proposals are mandatory params."}, null);
+      }
+
+      let proposalsIds = proposals.split(",").map(id => '"' + id + '"');  
+
+      return await this.stakingService.getFreeRiders(month, blockNumber, proposalsIds);
     } catch(error) {
       /* istanbul ignore next */
-      throw new NotFoundException(error);
-    }
-  };
-
-  @ApiOkResponse({type: Object})
-  @ApiNotFoundResponse()
-  @ApiBadRequestResponse()
-  @ApiQuery({name: 'participations', required: false})
-  @Get('merkle-tree')
-  async getMerkleTree(@Query('participations') participations?: any[]): Promise<Object> {
-    try {
-      return await this.stakingService.getMerkleTree(participations);
-    } catch(error) {
       throw new NotFoundException(error);
     }
   };

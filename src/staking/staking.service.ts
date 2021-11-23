@@ -3,15 +3,17 @@ import { HttpService } from '@nestjs/axios';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ethers } from 'ethers';
+import * as moment from 'moment';
 import * as ethDater from 'ethereum-block-by-date';
 import { EpochDocument, EpochEntity } from './entities/epoch.entity';
-import { MerkleTree } from '../helpers/merkleTree/merkle-tree';
-import { Cron } from '@nestjs/schedule';
+import { MerkleTreeDistributor } from '../helpers/merkleTreeDistributor/merkleTreeDistributor';
+// import { Cron } from '@nestjs/schedule';
 import { Staker, Lock } from './types/staking.types.Staker';
 import { Vote } from './types/staking.types.Vote';
 import { FreeRider } from './types/staking.types.FreeRider';
 import { Participation } from './types/staking.types.Participation';
 import { Delegate } from './types/staking.types.Delegate';
+import { Claims } from './types/staking.types.Claims';
 
 @Injectable()
 export class StakingService {
@@ -95,18 +97,18 @@ export class StakingService {
     });
   }
 
-  getStakers(ids?: Array<string>, condition?: string): Promise<Staker[]> {
+  getStakers(ids?: Array<string>, blockNumber?: number, condition?: string): Promise<Staker[]> {
     return new Promise(async (resolve, reject) => {
       try {
         let lastID = "";
         let blocks = 1000;
         let stakers = [];
 
-        let holders = await this.fetchStakers(blocks, lastID, ids, condition);
+        let holders = await this.fetchStakers(blocks, lastID, ids, condition, blockNumber);
 
         while(holders.length > 0) {
           stakers = stakers.concat(holders);
-          holders = await this.fetchStakers(blocks, holders[holders.length - 1].id, ids, condition);
+          holders = await this.fetchStakers(blocks, holders[holders.length - 1].id, ids, condition, blockNumber);
         }
 
         resolve(stakers);
@@ -163,20 +165,15 @@ export class StakingService {
     });
   } 
 
-  getParticipations(votes?: Vote[]): Promise<Participation[]> {
+  getParticipations(votes: Vote[], blockNumber: number): Promise<Participation[]> {
     return new Promise(async(resolve, reject) => {
       try {
         if(votes && votes.length == 0) {
           throw new NotFoundException("sorry, votes can't be an empty array");
         }
 
-        if(!votes) {
-          // fetching all votes from snapshot in the last month...
-          votes = await this.getSnapshotVotes(1);
-        }
-
         // retrieving the stakers from our subgraph...
-        let stakers = await this.getStakers();
+        let stakers = await this.getStakers(null, blockNumber, null);
         
         // generating the participations...
         const participations = [];
@@ -196,40 +193,30 @@ export class StakingService {
           participations.push(element);
         });
         
-        resolve(participations);
-      } catch(error) {
-        reject(error);
-      }
-    });
-  }  
-
-  getMerkleTree(participations: Participation[]): Promise<Object> {
-    return new Promise(async(resolve, reject) => {
-      try {
-        if(participations && participations.length > 0) {
-          let merkleTreeObj = new MerkleTree();
-          let delegates : Delegate[] = await this.getDelegates();
-          const merkleTree = merkleTreeObj.createParticipationTree(participations, delegates);
-          resolve(merkleTree);
-        } else {
-          throw new NotFoundException('Sorry, you must pass a participations json as parameter, and it must be a valid array.');
-        }
+        // retrieving the delegators...
+        let delegates : Delegate[] = await this.getDelegates();     
+        // including the delegtors into participations...
+        let participationsIncludesDelegates = this.includeDelegates(participations, delegates);   
+        resolve(participationsIncludesDelegates);
       } catch(error) {
         reject(error);
       }
     });
   }
 
-  getFreeRiders(): Promise<FreeRider[]> {
+  getFreeRiders(month: number, blockNumber: number, proposalsIds: Array<string>): Promise<FreeRider[]> {
     return new Promise(async(resolve, reject) => {
       try {
         // fetching all votes from snapshot in the last 3 months...
-        let votes = await this.getSnapshotVotes(3);
+        let from = moment({ year: moment().year(), month: month - 4, day: 1});
+        let to = moment({ year: moment().year(), month: month - 1, day: 1}).endOf('month');
+      
+        let votes = await this.getSnapshotVotes(from.unix(), to.unix(), proposalsIds);
         // getting all voters addresses from snapshot's votes...
         let voters = await this.getVotersFromShapshotVotes(votes);
 
         // fetching all the stakers which have NOT voted in the last 3 months...
-        let stakers = await this.getStakers(voters, 'id_not_in');
+        let stakers = await this.getStakers(voters, blockNumber, 'id_not_in');
 
         // creating the freeRiders dataStruct...
         let votedTimeRange = this.generateBackmonthTimestamp(3, false);
@@ -263,40 +250,52 @@ export class StakingService {
     });
   }
 
-  @Cron('0 0 1 * *')
+  // @Cron('0 0 1 * *')
   // Use this every 10 seconds cron setup, for testing purposes.
   // 10 * * * * *
   // USe this every first day of the month, for production releases.
   // 0 0 1 * * 
-  generateEpoch(): Promise<EpochEntity> {
+  generateEpoch(
+    month: number, 
+    distributedRewards: string, 
+    windowIndex: number, 
+    blockNumber: number,
+    proposalsIds: Array<string>
+  ): Promise<Claims> {
     return new Promise(async(resolve, reject) => {
       try {
         // fetching all votes from snapshot in the last month...
-        let votes : Vote[] = await this.getSnapshotVotes(1);
+        let from = moment({ year: moment().year(), month: month - 1, day: 1});
+        let to = from.clone().endOf('month');
+        let votes : Vote[] = await this.getSnapshotVotes(from.unix(), to.unix(), proposalsIds);
 
         // generating the participations...
-        let participations : Participation[] = await this.getParticipations(votes);
-        let delegates : Delegate[] = await this.getDelegates();
+        let participations : Participation[] = await this.getParticipations(votes, blockNumber);
 
-        let merkleTreeObj = new MerkleTree();
-        const merkleTree = merkleTreeObj.createParticipationTree(participations, delegates);
-
-        let epoch = await this.saveEpoch(participations, merkleTree, votes, 'rewards has to be implemented');
-        resolve(epoch);
+        // generating the merkleTreeDistribution...
+        let merkleTreeDistributor = new MerkleTreeDistributor();
+        const merkleTree = merkleTreeDistributor.generateMerkleTree(distributedRewards, windowIndex, participations);
+        resolve(merkleTree);
+        // let epoch = await this.saveEpoch(participations, merkleTree, votes, 'rewards has to be implemented', from.unix(), to.unix());
+        // resolve(epoch);
       } catch(error) {
         reject(error);
       }
     });
   }
 
-  private saveEpoch(participations: Array<Participation>, merkleTree: Object, votes: Vote[], rewards: string): Promise<EpochEntity> {
+  private saveEpoch(
+    participations: Array<Participation>,
+    merkleTree: Object, 
+    votes: Vote[], 
+    rewards: string,
+    startDate: number,
+    endDate: number
+  ): Promise<EpochEntity> {
     return new Promise(async(resolve, reject) => {
       try {
         const provider = new ethers.providers.JsonRpcProvider(this.ethProvider);
         const ethDaterHelper = new ethDater(provider);
-
-        let startDate = this.generateBackmonthTimestamp(1, true);
-        let endDate = this.generateBackmonthTimestamp(0, true);
         
         let startBlock = await ethDaterHelper.getDate(
           startDate,
@@ -325,6 +324,33 @@ export class StakingService {
         reject(error);
       }
     });    
+  }
+
+  private includeDelegates(entries: Participation[], delegates: Delegate[]): Participation[] {
+    entries.forEach(entry => {
+      entry.address = ethers.utils.getAddress(entry.address);
+    });
+
+    let mappedDelegates = {};
+    delegates.forEach(entry => {
+      mappedDelegates[ethers.utils.getAddress(entry.delegate)] = ethers.utils.getAddress(entry.delegator);
+    });
+
+    let mappedEntries = {};
+    entries.forEach(entry => {
+      mappedEntries[entry.address] = entry;
+    });
+
+    Object.keys(mappedDelegates).forEach(delegate_address => {
+      if(mappedEntries[delegate_address].participation == 1) {
+        mappedEntries[mappedDelegates[delegate_address]].participation = 1;
+        mappedEntries[mappedDelegates[delegate_address]].delegatedTo = delegate_address;
+        mappedEntries[mappedDelegates[delegate_address]].votes = mappedEntries[delegate_address].votes;
+      }
+    });
+
+    entries = Object.keys(mappedEntries).map(key => mappedEntries[key]);  
+    return entries;  
   }
 
   private fetchDelegates(blocks: number, lastID: string): Promise<Delegate[]> {
@@ -407,67 +433,50 @@ export class StakingService {
     })
   }
 
-  private fetchStakers(blocks: number, lastID: string, ids?: Array<string>, condition?: string): Promise<Staker[]> {
+  private fetchStakers(blocks: number, lastID: string, ids?: Array<string>, condition?: string, blockNumber?: number): Promise<Staker[]> {
     return new Promise(async(resolve, reject) => {
       try {
-        let query = null;
-
         /* istanbul ignore next */
         if(!condition) {
           condition = 'id_in';
         }
 
-        if(ids) {
-          query = `{
-            stakers(first: ${blocks}, where: {id_gt: "${lastID}", ${condition}: [${ids}]}) {
-              id
-              accountVeTokenBalance
-              accountWithdrawableRewards
-              accountWithdrawnRewards
-              accountLocks {
-                id
-                lockId
-                lockDuration
-                lockedAt
-                amount
-                withdrawn
-                ejected
-                boosted
-              }
-              accountRewards {
-                id
-                timestamp
-                amount
-                type
-              }
-            }
-          }`
-        } else {
-          query = `{
-            stakers(first: ${blocks}, where: {id_gt: "${lastID}"}) {
-              id
-              accountVeTokenBalance
-              accountWithdrawableRewards
-              accountWithdrawnRewards
-              accountLocks {
-                id
-                lockId
-                lockDuration
-                lockedAt
-                amount
-                withdrawn
-                ejected
-                boosted
-              }
-              accountRewards {
-                id
-                timestamp
-                amount
-                type
-              }
-            }
-          }`          
+        let query = `{
+          stakers(first: ${blocks}, `;
+
+        if(blockNumber) {
+          query += `, block: {number: ${blockNumber}}`;
         }
+
+        query += `, where: {id_gt: "${lastID}"`;
+
+        if(ids) {
+          query += `, ${condition}: [${ids}]`;
+        }
+
+        query += `}) {
+            id
+            accountVeTokenBalance
+            accountWithdrawableRewards
+            accountWithdrawnRewards
+            accountLocks {
+              id
+              lockId
+              lockDuration
+              lockedAt
+              amount
+              withdrawn
+              ejected
+              boosted
+            }
+            accountRewards {
+              id
+              timestamp
+              amount
+              type
+            }
+          }
+        }`;
 
         let response = await this.httpService.post(
           this.graphUrl,
@@ -478,25 +487,25 @@ export class StakingService {
 
         resolve(response.data.data.stakers);
       } catch(error) {
+        console.log(error);
         reject(error);
       }
     })
   }
 
-  private getSnapshotVotes(months: number): Promise<Vote[]> {
+  private getSnapshotVotes(from: number, to: number, proposalsIds: Array<string>): Promise<Vote[]> {
     return new Promise(async (resolve, reject) => {
       try {
-        let validRange = this.generateBackmonthTimestamp(months, false);
         let blocks = 1000;
         let skip = 0;
         let snapshotVotes = [];
 
-        let votes = await this.fetchSnapshotVotes(validRange, blocks, skip);
+        let votes = await this.fetchSnapshotVotes(from, to, blocks, skip, proposalsIds);
 
         while(votes.length > 0) {
           snapshotVotes = snapshotVotes.concat(votes);
           skip += blocks;
-          votes = await this.fetchSnapshotVotes(validRange, blocks, skip);
+          votes = await this.fetchSnapshotVotes(from, to, blocks, skip, proposalsIds);
         }
 
         resolve(snapshotVotes);
@@ -507,9 +516,9 @@ export class StakingService {
     });
   }
 
-  private fetchSnapshotVotes(range, blocks, skip): Promise<Vote[]> {
+  private fetchSnapshotVotes(from, to, blocks, skip, proposalsIds): Promise<Vote[]> {
     return new Promise(async (resolve, reject) => {
-      try {        
+      try {
         let response = await this.httpService.post(
           this.snapshotUrl,
           {
@@ -519,7 +528,9 @@ export class StakingService {
                 skip: ${skip},
                 where: {
                   space: "${this.snapshotSpaceID}"
-                  created_gt: ${range}
+                  created_gte: ${from}
+                  created_lte: ${to}
+                  proposal_in: [${proposalsIds.join(",")}]
                 }
               ) {
                 id
