@@ -12,6 +12,16 @@ describe('StakingService', () => {
   let service: StakingService;
   let generatedEpoch = null;
 
+  let blockNumber = 13527858;
+  let month = 10;
+  let distributedRewards = "1350000";
+  let windowIndex = 0;
+  let proposals = [
+    "QmRkF9A2NigXcBBFfASnM7akNvAo6c9jgNxpt1faX6hvjK",
+    "QmebDo3uTVJ5bHWgYhf7CvcK7by1da1WUX4jw5uX6M7EUW",
+    "QmRakdstZdU1Mx1vYhjon8tYnv5o1dkir8v3HDBmmnCGUc"
+  ];
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [StakingService],
@@ -38,7 +48,9 @@ describe('StakingService', () => {
 
       beforeEach(async () => {
         jest.spyOn(service, "generateEpoch");
-        generatedEpoch = await service.generateEpoch();
+        generatedEpoch = await service.generateEpoch(
+          month, distributedRewards, windowIndex, blockNumber, proposals
+        );
       });
 
       test('then it should call stakingService.generateEpoch', () => {
@@ -90,7 +102,9 @@ describe('StakingService', () => {
       });   
 
       test('it should throw an error if something went wrong', async() => {
-        await expect(service.generateEpoch())
+        await expect(service.generateEpoch(
+          month, distributedRewards, windowIndex, blockNumber, proposals
+        ))
         .rejects
         .toThrow(Error);
       });     
@@ -298,7 +312,7 @@ describe('StakingService', () => {
       });   
 
       test('it should throw an error if empty array is passed', async() => {
-        await expect(service.getParticipations([]))
+        await expect(service.getParticipations([], blockNumber))
         .rejects
         .toEqual(new NotFoundException("sorry, votes can't be an empty array"));
       });      
@@ -312,7 +326,7 @@ describe('StakingService', () => {
 
       beforeEach(async () => {
         jest.spyOn(service, 'getFreeRiders');
-        freeRiders = service.getFreeRiders();
+        freeRiders = service.getFreeRiders(month, blockNumber, proposals);
       });   
 
       test('then it should call stakingService.getFreeRiders', () => {
