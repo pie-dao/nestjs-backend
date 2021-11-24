@@ -54,7 +54,7 @@ export class PiesService {
       const pie = new this.pieModel(pies[k]);
 
       try {
-        let pieContract = new ethers.Contract(pie.address, erc20, provider);;
+        let pieContract = new ethers.Contract(pie.address, erc20, provider);
         
         let pieSupply = await pieContract.totalSupply();
         let pieDecimals = await pieContract.decimals();
