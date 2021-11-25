@@ -17,9 +17,9 @@ describe('StakingService', () => {
   let distributedRewards = "1350000";
   let windowIndex = 0;
   let proposals = [
-    "QmRkF9A2NigXcBBFfASnM7akNvAo6c9jgNxpt1faX6hvjK",
-    "QmebDo3uTVJ5bHWgYhf7CvcK7by1da1WUX4jw5uX6M7EUW",
-    "QmRakdstZdU1Mx1vYhjon8tYnv5o1dkir8v3HDBmmnCGUc"
+    '\"QmRkF9A2NigXcBBFfASnM7akNvAo6c9jgNxpt1faX6hvjK\"',
+    '\"QmebDo3uTVJ5bHWgYhf7CvcK7by1da1WUX4jw5uX6M7EUW\"',
+    '\"QmRakdstZdU1Mx1vYhjon8tYnv5o1dkir8v3HDBmmnCGUc\"'
   ];
 
   beforeEach(async () => {
@@ -119,16 +119,14 @@ describe('StakingService', () => {
   
         beforeEach(async () => {
           jest.spyOn(service, "getEpochs");
-          epochs = await service.getEpochs(1627823293212);
+          epochs = await service.getEpochs(1627823293);
         });
   
         test('then it should call stakingService.getEpochs', () => {
-          expect(service.getEpochs).toHaveBeenCalledWith(1627823293212);
+          expect(service.getEpochs).toHaveBeenCalledWith(1627823293);
         });
   
         test('then it should return an array of EpochEntity', () => {
-          let epochsMock = EpochsStub();
-  
           expect(epochs).toEqual(
             expect.arrayContaining([
               expect.objectContaining({_id: generatedEpoch._id})
@@ -182,54 +180,54 @@ describe('StakingService', () => {
     });    
   });
 
-  describe('getEpoch', () => {
-    describe('getEpoch with id as param', () => {
-      describe('When getEpoch is called', () => {
-        jest.setTimeout(50000);
-        let epoch: EpochEntity;
+  // describe('getEpoch', () => {
+  //   describe('getEpoch with id as param', () => {
+  //     describe('When getEpoch is called', () => {
+  //       jest.setTimeout(50000);
+  //       let epoch: EpochEntity;
   
-        beforeEach(async () => {
-          jest.spyOn(service, "getEpoch");
-          epoch = await service.getEpoch(generatedEpoch._id);
-        });
+  //       beforeEach(async () => {
+  //         jest.spyOn(service, "getEpoch");
+  //         epoch = await service.getEpoch(generatedEpoch._id);
+  //       });
   
-        test('then it should call stakingService.getEpoch', () => {
-          expect(service.getEpoch).toHaveBeenCalledWith(generatedEpoch._id);
-        });
+  //       test('then it should call stakingService.getEpoch', () => {
+  //         expect(service.getEpoch).toHaveBeenCalledWith(generatedEpoch._id);
+  //       });
   
-        test('then it should return an EpochEntity', () => {
-          let epochObj = <any>epoch;
-          expect(JSON.stringify(epochObj._id)).toEqual(JSON.stringify(generatedEpoch._id));
-        });
+  //       test('then it should return an EpochEntity', () => {
+  //         let epochObj = <any>epoch;
+  //         expect(JSON.stringify(epochObj._id)).toEqual(JSON.stringify(generatedEpoch._id));
+  //       });
   
-        test('it should throw an error if no records are found', async() => {
-          await expect(service.getEpoch("6135d7fa85204887d11967b4"))
-          .rejects
-          .toEqual(new NotFoundException("Sorry, can't find any epoch with this id."))
-        });       
-      });
-    });  
+  //       test('it should throw an error if no records are found', async() => {
+  //         await expect(service.getEpoch("6135d7fa85204887d11967b4"))
+  //         .rejects
+  //         .toEqual(new NotFoundException("Sorry, can't find any epoch with this id."))
+  //       });       
+  //     });
+  //   });  
   
-    describe('getEpoch without any param', () => {
-      describe('When getEpoch is called', () => {
-        jest.setTimeout(50000);
-        let epoch: EpochEntity;
+  //   describe('getEpoch without any param', () => {
+  //     describe('When getEpoch is called', () => {
+  //       jest.setTimeout(50000);
+  //       let epoch: EpochEntity;
   
-        beforeEach(async () => {
-          jest.spyOn(service, "getEpoch");
-          epoch = await service.getEpoch();
-        });
+  //       beforeEach(async () => {
+  //         jest.spyOn(service, "getEpoch");
+  //         epoch = await service.getEpoch();
+  //       });
   
-        test('then it should call stakingService.getEpoch', () => {
-          expect(service.getEpoch).toHaveBeenCalled();
-        });
+  //       test('then it should call stakingService.getEpoch', () => {
+  //         expect(service.getEpoch).toHaveBeenCalled();
+  //       });
   
-        test('then it should return an EpochEntity', () => {
-          expect(typeof epoch).toBe("object");
-        });
-      });
-    });     
-  });
+  //       test('then it should return an EpochEntity', () => {
+  //         expect(typeof epoch).toBe("object");
+  //       });
+  //     });
+  //   });     
+  // });
 
   describe('getLocks', () => {
     describe('When getLocks is called', () => {

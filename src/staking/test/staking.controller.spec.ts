@@ -18,10 +18,10 @@ describe('StakingController', () => {
   let distributedRewards = "1350000";
   let windowIndex = 0;
   let proposals = [
-    "QmRkF9A2NigXcBBFfASnM7akNvAo6c9jgNxpt1faX6hvjK",
-    "QmebDo3uTVJ5bHWgYhf7CvcK7by1da1WUX4jw5uX6M7EUW",
-    "QmRakdstZdU1Mx1vYhjon8tYnv5o1dkir8v3HDBmmnCGUc"
-  ];  
+    '\"QmRkF9A2NigXcBBFfASnM7akNvAo6c9jgNxpt1faX6hvjK\"',
+    '\"QmebDo3uTVJ5bHWgYhf7CvcK7by1da1WUX4jw5uX6M7EUW\"',
+    '\"QmRakdstZdU1Mx1vYhjon8tYnv5o1dkir8v3HDBmmnCGUc\"'
+  ];
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
