@@ -91,11 +91,11 @@ export class StakingController {
     @Query('proposals') proposals?: string
   ): Promise<EpochEntity> {
     try {
-      if(!month || !distributedRewards || !windowIndex || !proposals || !blockNumber) {
-        throw new InternalServerErrorException({error: "month / distributed_rewards / window_index / blockNumber / proposals are mandatory params."}, null);
+      if(!month || !distributedRewards || !windowIndex || !blockNumber) {
+        throw new InternalServerErrorException({error: "month / distributed_rewards / window_index / blockNumber are mandatory params."}, null);
       }
 
-      let proposalsIds = proposals.split(",").map(id => '"' + id + '"');
+      let proposalsIds = proposals ? proposals.split(",").map(id => '"' + id + '"'): null;
       return await this.stakingService.generateEpoch(month, distributedRewards, windowIndex, blockNumber, proposalsIds);
     } catch(error) {
       throw new NotFoundException(error);
@@ -115,8 +115,8 @@ export class StakingController {
     @Query('proposals') proposals?: string    
   ): Promise<FreeRider[]> {
     try {
-      if(!month || !proposals || !blockNumber) {
-        throw new InternalServerErrorException({error: "month / blockNumber / proposals are mandatory params."}, null);
+      if(!month || !blockNumber) {
+        throw new InternalServerErrorException({error: "month / blockNumber are mandatory params."}, null);
       }
 
       let proposalsIds = proposals.split(",").map(id => '"' + id + '"');  

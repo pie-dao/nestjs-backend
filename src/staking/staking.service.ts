@@ -527,7 +527,7 @@ export class StakingService {
                   space: "${this.snapshotSpaceID}"
                   created_gte: ${from}
                   created_lte: ${to}
-                  proposal_in: [${proposalsIds.join(",")}]
+                  proposal_in: [${proposalsIds ? proposalsIds.join(",") : ''}]
                 }
               ) {
                 id
