@@ -159,6 +159,7 @@ export class StakingService {
 
         resolve(delegates);
       } catch (error) {
+        /* istanbul ignore next */
         reject(error);
       }
     });
@@ -339,6 +340,7 @@ export class StakingService {
     });
 
     Object.keys(mappedDelegates).forEach(delegate_address => {
+      /* istanbul ignore next */
       if(mappedEntries[delegate_address].participation == 1) {
         mappedEntries[mappedDelegates[delegate_address]].participation = 1;
         mappedEntries[mappedDelegates[delegate_address]].delegatedTo = delegate_address;
@@ -370,6 +372,7 @@ export class StakingService {
 
         resolve(response.data.data.delegates);
       } catch(error) {
+        /* istanbul ignore next */
         reject(error);
       }
     })
@@ -484,7 +487,6 @@ export class StakingService {
 
         resolve(response.data.data.stakers);
       } catch(error) {
-        console.log(error);
         reject(error);
       }
     })
@@ -516,6 +518,9 @@ export class StakingService {
   private fetchSnapshotVotes(from, to, blocks, skip, proposalsIds): Promise<Vote[]> {
     return new Promise(async (resolve, reject) => {
       try {
+        /* istanbul ignore next */
+        let proposalsIdsString = proposalsIds ? proposalsIds.join(",") : '';
+        
         let response = await this.httpService.post(
           this.snapshotUrl,
           {
@@ -527,7 +532,7 @@ export class StakingService {
                   space: "${this.snapshotSpaceID}"
                   created_gte: ${from}
                   created_lte: ${to}
-                  proposal_in: [${proposalsIds ? proposalsIds.join(",") : ''}]
+                  proposal_in: [${proposalsIdsString}]
                 }
               ) {
                 id
@@ -559,6 +564,7 @@ export class StakingService {
     let date = new Date();
     date.setMonth(date.getMonth() - months);
 
+    /* istanbul ignore next */
     if(milliseconds) {
       return Number(date);
     } else {

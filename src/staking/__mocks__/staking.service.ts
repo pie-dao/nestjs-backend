@@ -76,7 +76,7 @@ export const StakingService = jest.fn().mockReturnValue({
       }
     });
   }),
-  getFreeRiders: jest.fn().mockImplementation(() => { // this is just a call mock, we don't need real values
+  getFreeRiders: jest.fn().mockImplementation(() => {
     return new Promise((resolve, reject) => {
       let freeRiders = {};
 
@@ -86,5 +86,22 @@ export const StakingService = jest.fn().mockReturnValue({
         reject(new Error());
       }
     });
-  })
+  }),
+  generateEpoch: jest.fn().mockImplementation((
+    month: number, 
+    distributedRewards: string, 
+    windowIndex: number, 
+    blockNumber: number, 
+    proposals: string) => {
+    return new Promise((resolve, reject) => {
+      console.log("PROPOSALS", proposals);
+      if(proposals.length == 1 && proposals[0] == '"invalid_id"') {
+        console.log("going to reject");
+        reject(new Error());
+      } else {
+        let epochs = EpochsStub();
+        resolve(epochs[epochs.length - 1]);
+      }
+    });
+  })  
 });

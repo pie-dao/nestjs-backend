@@ -180,54 +180,54 @@ describe('StakingService', () => {
     });    
   });
 
-  // describe('getEpoch', () => {
-  //   describe('getEpoch with id as param', () => {
-  //     describe('When getEpoch is called', () => {
-  //       jest.setTimeout(50000);
-  //       let epoch: EpochEntity;
+  describe('getEpoch', () => {
+    describe('getEpoch with id as param', () => {
+      describe('When getEpoch is called', () => {
+        jest.setTimeout(50000);
+        let epoch: EpochEntity;
   
-  //       beforeEach(async () => {
-  //         jest.spyOn(service, "getEpoch");
-  //         epoch = await service.getEpoch(generatedEpoch._id);
-  //       });
+        beforeEach(async () => {
+          jest.spyOn(service, "getEpoch");
+          epoch = await service.getEpoch(generatedEpoch._id);
+        });
   
-  //       test('then it should call stakingService.getEpoch', () => {
-  //         expect(service.getEpoch).toHaveBeenCalledWith(generatedEpoch._id);
-  //       });
+        test('then it should call stakingService.getEpoch', () => {
+          expect(service.getEpoch).toHaveBeenCalledWith(generatedEpoch._id);
+        });
   
-  //       test('then it should return an EpochEntity', () => {
-  //         let epochObj = <any>epoch;
-  //         expect(JSON.stringify(epochObj._id)).toEqual(JSON.stringify(generatedEpoch._id));
-  //       });
+        test('then it should return an EpochEntity', () => {
+          let epochObj = <any>epoch;
+          expect(JSON.stringify(epochObj._id)).toEqual(JSON.stringify(generatedEpoch._id));
+        });
   
-  //       test('it should throw an error if no records are found', async() => {
-  //         await expect(service.getEpoch("6135d7fa85204887d11967b4"))
-  //         .rejects
-  //         .toEqual(new NotFoundException("Sorry, can't find any epoch with this id."))
-  //       });       
-  //     });
-  //   });  
+        test('it should throw an error if no records are found', async() => {
+          await expect(service.getEpoch("6135d7fa85204887d11967b4"))
+          .rejects
+          .toEqual(new NotFoundException("Sorry, can't find any epoch with this id."))
+        });       
+      });
+    });  
   
-  //   describe('getEpoch without any param', () => {
-  //     describe('When getEpoch is called', () => {
-  //       jest.setTimeout(50000);
-  //       let epoch: EpochEntity;
+    describe('getEpoch without any param', () => {
+      describe('When getEpoch is called', () => {
+        jest.setTimeout(50000);
+        let epoch: EpochEntity;
   
-  //       beforeEach(async () => {
-  //         jest.spyOn(service, "getEpoch");
-  //         epoch = await service.getEpoch();
-  //       });
+        beforeEach(async () => {
+          jest.spyOn(service, "getEpoch");
+          epoch = await service.getEpoch();
+        });
   
-  //       test('then it should call stakingService.getEpoch', () => {
-  //         expect(service.getEpoch).toHaveBeenCalled();
-  //       });
+        test('then it should call stakingService.getEpoch', () => {
+          expect(service.getEpoch).toHaveBeenCalled();
+        });
   
-  //       test('then it should return an EpochEntity', () => {
-  //         expect(typeof epoch).toBe("object");
-  //       });
-  //     });
-  //   });     
-  // });
+        test('then it should return an EpochEntity', () => {
+          expect(typeof epoch).toBe("object");
+        });
+      });
+    });     
+  });
 
   describe('getLocks', () => {
     describe('When getLocks is called', () => {
