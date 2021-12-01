@@ -17,6 +17,16 @@ describe('FreeRiders integration tests', () => {
   let votes = VotesStub();
   let { stakers, accounts } = StakersStub();
 
+  let blockNumber = 13527858;
+  let month = 10;
+  let distributedRewards = "1350000";
+  let windowIndex = 0;
+  let proposals = [
+    '\"QmRkF9A2NigXcBBFfASnM7akNvAo6c9jgNxpt1faX6hvjK\"',
+    '\"QmebDo3uTVJ5bHWgYhf7CvcK7by1da1WUX4jw5uX6M7EUW\"',
+    '\"QmRakdstZdU1Mx1vYhjon8tYnv5o1dkir8v3HDBmmnCGUc\"'
+  ];
+
   function filterStakers(stakers, ids) {
     return new Promise((resolve) => {
       let filteredStakers = stakers.filter((s) => {
@@ -74,7 +84,7 @@ describe('FreeRiders integration tests', () => {
     });
 
     it('No one should be a freerider', async () => {
-      let freeRiders = await service.getFreeRiders();
+      let freeRiders = await service.getFreeRiders(month, blockNumber, proposals);
       expect(freeRiders).toStrictEqual([]);
     });
   });
@@ -102,7 +112,7 @@ describe('FreeRiders integration tests', () => {
     });
 
     it('should return alice as freerider', async () => {
-      let freeRiders = await service.getFreeRiders();
+      let freeRiders = await service.getFreeRiders(month, blockNumber, proposals);
       let ids = freeRiders.map(( {id: id} ) => id);
 
       expect(ids).toContain(accounts.alice);
@@ -136,7 +146,7 @@ describe('FreeRiders integration tests', () => {
     });
 
     it('No one should be a freerider', async () => {
-      let freeRiders = await service.getFreeRiders();
+      let freeRiders = await service.getFreeRiders(month, blockNumber, proposals);
       expect(freeRiders).toStrictEqual([]);
     });
   });
@@ -164,7 +174,7 @@ describe('FreeRiders integration tests', () => {
     });
 
     it('No one should be a freerider', async () => {
-      let freeRiders = await service.getFreeRiders();
+      let freeRiders = await service.getFreeRiders(month, blockNumber, proposals);
       expect(freeRiders).toStrictEqual([]);
     });
   });
@@ -202,7 +212,7 @@ describe('FreeRiders integration tests', () => {
     });
 
     it('No one should be a freerider', async () => {
-      let freeRiders = await service.getFreeRiders();
+      let freeRiders = await service.getFreeRiders(month, blockNumber, proposals);
       expect(freeRiders).toStrictEqual([]);
     });
   });
@@ -240,7 +250,7 @@ describe('FreeRiders integration tests', () => {
     });
 
     it('No one should be a freerider', async () => {
-      let freeRiders = await service.getFreeRiders();
+      let freeRiders = await service.getFreeRiders(month, blockNumber, proposals);
       expect(freeRiders).toStrictEqual([]);
     });
   });

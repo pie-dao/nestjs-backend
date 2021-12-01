@@ -3,7 +3,7 @@ import { StakingService } from './staking.service';
 import { StakingController } from './staking.controller';
 import { HttpModule} from '@nestjs/axios';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MerkleTree } from '../helpers/merkleTree/merkle-tree';
+import { MerkleTreeDistributor } from '../helpers/merkleTreeDistributor/merkleTreeDistributor';
 import { EpochEntity, EpochSchema } from './entities/epoch.entity';
 
 @Module({
@@ -12,6 +12,6 @@ import { EpochEntity, EpochSchema } from './entities/epoch.entity';
     MongooseModule.forFeature([{ name: EpochEntity.name, schema: EpochSchema }])
   ],
   controllers: [StakingController],
-  providers: [StakingService, MerkleTree]
+  providers: [StakingService, MerkleTreeDistributor]
 })
 export class StakingModule {}

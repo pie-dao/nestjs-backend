@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { EpochEntity } from '../entities/epoch.entity';
 import { StakingController } from '../staking.controller';
@@ -12,6 +12,12 @@ jest.mock('../staking.service');
 describe('StakingController', () => {
   let controller: StakingController;
   let service: StakingService;
+
+  let blockNumber = 13527858;
+  let month = 10;
+  let distributedRewards = "1350000";
+  let windowIndex = 0;
+  let proposals = "QmRkF9A2NigXcBBFfASnM7akNvAo6c9jgNxpt1faX6hvjK,QmebDo3uTVJ5bHWgYhf7CvcK7by1da1WUX4jw5uX6M7EUW,QmRakdstZdU1Mx1vYhjon8tYnv5o1dkir8v3HDBmmnCGUc";
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -75,6 +81,38 @@ describe('StakingController', () => {
       });      
     });
   });  
+
+  describe('generateEpoch', () => {
+    describe('When generateEpoch is called', () => {
+      let epoch: EpochEntity;
+
+      beforeEach(async () => {
+        epoch = await controller.generateEpoch(month, distributedRewards, windowIndex, blockNumber, proposals);
+      });
+
+      test('then it should call stakingService.generateEpoch', () => {
+        let proposalsIds = proposals.split(",").map(id => '"' + id + '"');
+        expect(service.generateEpoch).toHaveBeenCalledWith(month, distributedRewards, windowIndex, blockNumber, proposalsIds);
+      });
+
+      test('then it should return an Epoch', () => {
+        let epochs = EpochsStub();
+        expect(epoch).toEqual(epochs[epochs.length - 1]);
+      });   
+      
+      test('it should throw an error if no parameters are passed', async() => {
+        await expect(controller.generateEpoch())
+        .rejects
+        .toThrow(NotFoundException);
+      }); 
+      
+      test('it should throw an error if something went wrong', async() => {
+        await expect(controller.generateEpoch(month, distributedRewards, windowIndex, blockNumber, "invalid_id"))
+        .rejects
+        .toThrow(NotFoundException);
+      });      
+    });
+  });  
   
   describe('getEpoch', () => {
     describe('When getEpoch is called', () => {
@@ -130,24 +168,20 @@ describe('StakingController', () => {
       let freeRiders: any;
 
       beforeEach(async() => {
-        freeRiders = await controller.getFreeRiders(); 
+        freeRiders = await controller.getFreeRiders(month, blockNumber, proposals); 
       });
 
       test('it should call stakingService.getFreeRiders()', () => {
-        expect(service.getFreeRiders).toHaveBeenCalled();
-      })
+        let proposalsIds = proposals.split(",").map(id => '"' + id + '"');
+        expect(service.getFreeRiders).toHaveBeenCalledWith(month, blockNumber, proposalsIds);
+      });
+
+      test('it should throw an error if no records are found', async() => {
+        await expect(controller.getFreeRiders())
+        .rejects
+        .toThrow(NotFoundException);
+      });      
     });
   });
 
-  describe('getMerkleTree', () => {
-    describe('When getMerkleTree is called', () => {
-      let merkleTree = null;
-      
-      test('it should throw an error if no valid parameter is passed', async() => {
-        await expect(controller.getMerkleTree([]))
-        .rejects
-        .toThrow(NotFoundException);
-      });       
-    });
-  }); 
 });
