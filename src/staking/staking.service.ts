@@ -210,8 +210,9 @@ export class StakingService {
         // fetching all votes from snapshot in the last 3 months...
         let from = moment({ year: moment().year(), month: month - 4, day: 1});
         let to = moment({ year: moment().year(), month: month - 1, day: 1}).endOf('month');
-      
+        
         let votes = await this.getSnapshotVotes(from.unix(), to.unix(), proposalsIds);
+
         // getting all voters addresses from snapshot's votes...
         let voters = await this.getVotersFromShapshotVotes(votes);
 
@@ -244,6 +245,7 @@ export class StakingService {
 
         resolve(freeRiders);        
       } catch(error) {
+        console.log(error);
         /* istanbul ignore next */
         reject(error);
       }
@@ -267,7 +269,9 @@ export class StakingService {
         // fetching all votes from snapshot in the last month...
         let from = moment({ year: moment().year(), month: month - 1, day: 1});
         let to = from.clone().endOf('month');
+
         let votes : Vote[] = await this.getSnapshotVotes(from.unix(), to.unix(), proposalsIds);
+
         // generating the participations...
         let participations : Participation[] = await this.getParticipations(votes, blockNumber);
         // generating the merkleTreeDistribution...
@@ -451,7 +455,7 @@ export class StakingService {
         query += `, where: {id_gt: "${lastID}"`;
 
         if(ids) {
-          query += `, ${condition}: [${ids}]`;
+          query += `, ${condition}: [${ids.map(id => '"' + id + '"')}]`;
         }
 
         query += `}) {
@@ -541,6 +545,7 @@ export class StakingService {
                 proposal {
                   id
                   created
+                  state
                 }
                 choice
                 space {
@@ -551,8 +556,11 @@ export class StakingService {
           }
         ).toPromise();
 
-        var startingStakingDate = (new Date("2021-10-22")).getTime() / 1000;
-        resolve(response.data.data.votes.filter(vote => vote.proposal.created >= startingStakingDate));
+        resolve(response.data.data.votes.filter(vote => {
+          if(vote.proposal.state == 'closed') {
+            return vote;
+          }
+        }));
       } catch (error) {
         /* istanbul ignore next */
         reject(error);
