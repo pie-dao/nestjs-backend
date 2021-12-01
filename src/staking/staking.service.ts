@@ -245,7 +245,6 @@ export class StakingService {
 
         resolve(freeRiders);        
       } catch(error) {
-        console.log(error);
         /* istanbul ignore next */
         reject(error);
       }
