@@ -20,15 +20,18 @@ export class MerkleTreeDistributor {
     const sliceUnits = new Decimal(totalRewardsDistributed).times(this.EXPLODE_DECIMALS);
 
     let totalVeDoughSupply = new Decimal(0);
+    let notVotingAddresses = [];
 
     participations.forEach(participation => {
       if(participation.participation) {
         totalVeDoughSupply = totalVeDoughSupply.plus(participation.staker.accountVeTokenBalance);
+      } else {
+        notVotingAddresses.push(ethers.utils.getAddress(participation.address));
       }
     });
 
     const proRata = new Decimal(sliceUnits).times(this.EXPLODE_DECIMALS).div(totalVeDoughSupply.toString());
-    return { proRata: proRata, totalVeDoughSupply: totalVeDoughSupply };
+    return { proRata: proRata, totalVeDoughSupply: totalVeDoughSupply, notVotingAddresses: notVotingAddresses };
   }
 
   generateMerkleTree(totalRewardsDistributed: string, windowIndex: number, participations: Participation[]): MerkleTree {
@@ -68,6 +71,7 @@ export class MerkleTreeDistributor {
       stats: {
         proRata: calculations.proRata.toString(),
         totalVeDoughSupply: calculations.totalVeDoughSupply.toString(),
+        notVotingAddresses: calculations.notVotingAddresses
       },
       chainId: 1,
       rewardToken: this.SLICE_ADDRESS,

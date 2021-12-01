@@ -96,7 +96,7 @@ export class StakingController {
       }
 
       /* istanbul ignore next */
-      let proposalsIds = proposals ? proposals.split(",").map(id => '"' + id + '"'): null;
+      let proposalsIds = proposals ? proposals.split(",").map(id => '"' + id + '"') : null;
       
       return await this.stakingService.generateEpoch(month, distributedRewards, windowIndex, blockNumber, proposalsIds);
     } catch(error) {
@@ -121,7 +121,7 @@ export class StakingController {
         throw new InternalServerErrorException({error: "month / blockNumber are mandatory params."}, null);
       }
 
-      let proposalsIds = proposals.split(",").map(id => '"' + id + '"');  
+      let proposalsIds = proposals ? proposals.split(",").map(id => '"' + id + '"') : null;  
 
       return await this.stakingService.getFreeRiders(month, blockNumber, proposalsIds);
     } catch(error) {
