@@ -12,6 +12,8 @@ import { Vote } from './types/staking.types.Vote';
 import { FreeRider } from './types/staking.types.FreeRider';
 import { Participation } from './types/staking.types.Participation';
 import { Delegate } from './types/staking.types.Delegate';
+import { Decimal } from 'decimal.js';
+import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
 // import { Cron } from '@nestjs/schedule';
 
 @Injectable()
@@ -69,14 +71,14 @@ export class StakingService {
     });
   }  
 
-  getEpoch(id?: string): Promise<EpochEntity> {
+  getEpoch(windowIndex?: number): Promise<EpochEntity> {
     return new Promise(async(resolve, reject) => {
       try {
         let epochDB = null;
         
-        if(id) {
+        if(windowIndex) {
           epochDB = await this.epochModel
-          .findOne({_id: id})
+          .findOne({'merkleTree.windowIndex': windowIndex})
           .lean();
         } else {
           epochDB = await this.epochModel
@@ -111,6 +113,27 @@ export class StakingService {
         }
 
         resolve(stakers);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  getRewards(blockNumber: number, windowIndex: number): Promise<any[]> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let lastID = "";
+        let blocks = 1000;
+        let rewards = [];
+
+        let claimedRewards = await this.fetchRewards(blocks, lastID, windowIndex, blockNumber);
+
+        while(claimedRewards.length > 0) {
+          rewards = rewards.concat(claimedRewards);
+          claimedRewards = await this.fetchRewards(blocks, claimedRewards[claimedRewards.length - 1].id, windowIndex, blockNumber);
+        }
+
+        resolve(rewards);
       } catch (error) {
         reject(error);
       }
@@ -260,6 +283,7 @@ export class StakingService {
     month: number, 
     distributedRewards: string,
     windowIndex: number, 
+    prevWindowIndex: number, 
     blockNumber: number,
     proposalsIds: Array<string>
   ): Promise<EpochEntity> {
@@ -269,17 +293,35 @@ export class StakingService {
         let from = moment({ year: moment().year(), month: month - 1, day: 1});
         let to = from.clone().endOf('month');
 
-        let votes : Vote[] = await this.getSnapshotVotes(from.unix(), to.unix(), proposalsIds);
+        let votes: Vote[] = await this.getSnapshotVotes(from.unix(), to.unix(), proposalsIds);
+
+        let previousEpoch: EpochEntity = null;
+        let rewards: any[] = [];
+        let unclaimed: any = null;
+
+        if(prevWindowIndex !== undefined) {
+          // retrieving previous epoch from database...
+          previousEpoch = await this.getEpoch(prevWindowIndex);
+          // genereting the rewards array...
+          rewards = await this.getRewards(blockNumber, prevWindowIndex);
+        }
 
         // generating the participations...
         let participations : Participation[] = await this.getParticipations(votes, blockNumber);
         // generating the merkleTreeDistribution...
         let merkleTreeDistributor = new MerkleTreeDistributor();
-        const merkleTree = merkleTreeDistributor.generateMerkleTree(distributedRewards, windowIndex, participations);
-
-        let epoch = await this.saveEpoch(participations, merkleTree, votes, 'rewards has to be implemented', from.unix(), to.unix());
+        const merkleTree = await merkleTreeDistributor.generateMerkleTree(
+          distributedRewards, 
+          windowIndex, 
+          participations,
+          previousEpoch,
+          rewards
+          );
+        // finally, saving the epoch into database...
+        let epoch = await this.saveEpoch(participations, merkleTree, votes, rewards, from.unix(), to.unix());
         resolve(epoch);
       } catch(error) {
+        console.log(error);
         reject(error);
       }
     });
@@ -289,7 +331,7 @@ export class StakingService {
     participations: Array<Participation>,
     merkleTree: Object, 
     votes: Vote[], 
-    rewards: string,
+    rewards: any[],
     startDate: number,
     endDate: number
   ): Promise<EpochEntity> {
@@ -489,6 +531,39 @@ export class StakingService {
         ).toPromise();
 
         resolve(response.data.data.stakers);
+      } catch(error) {
+        reject(error);
+      }
+    })
+  }
+
+  private fetchRewards(blocks: number, lastID: string, windowIndex: number, blockNumber: number): Promise<Staker[]> {
+    return new Promise(async(resolve, reject) => {
+      try {
+        let query = `{
+          rewards(
+            first: ${blocks}, 
+            block: {number: ${blockNumber}}, 
+            where: {id_gt: "${lastID}", windowIndex: ${windowIndex}}) {
+              id
+              timestamp
+              amount
+              account
+              rewardToken
+              windowIndex
+              accountIndex
+              type
+          }
+        }`;
+
+        let response = await this.httpService.post(
+          this.graphUrl,
+          {
+            query: query
+          }
+        ).toPromise();
+
+        resolve(response.data.data.rewards);
       } catch(error) {
         reject(error);
       }

@@ -64,11 +64,11 @@ export class StakingController {
   @ApiOkResponse({type: EpochEntity})
   @ApiNotFoundResponse()
   @ApiBadRequestResponse()
-  @ApiQuery({name: 'id', required: false})
+  @ApiQuery({name: 'windowIndex', required: false})
   @Get('epoch')
-  async getEpoch(@Query('id') id?: string): Promise<EpochEntity> {
+  async getEpoch(@Query('windowIndex') windowIndex?: number): Promise<EpochEntity> {
     try {
-      return await this.stakingService.getEpoch(id);
+      return await this.stakingService.getEpoch(windowIndex);
     } catch(error) {
       throw new NotFoundException(error);
     }
@@ -80,6 +80,7 @@ export class StakingController {
   @ApiQuery({name: 'month', required: true})
   @ApiQuery({name: 'distributedRewards', required: true})
   @ApiQuery({name: 'windowIndex', required: true})
+  @ApiQuery({name: 'prevWindowIndex', required: true})
   @ApiQuery({name: 'blockNumber', required: true})
   @ApiQuery({name: 'proposals', required: true, isArray: true})
   @Get('generate-epoch')
@@ -87,18 +88,19 @@ export class StakingController {
     @Query('month') month?: number, 
     @Query('distributedRewards') distributedRewards?: string,
     @Query('windowIndex') windowIndex?: number,
+    @Query('prevWindowIndex') prevWindowIndex?: number,
     @Query('blockNumber') blockNumber?: number,
     @Query('proposals') proposals?: string
   ): Promise<EpochEntity> {
     try {
       if(month === undefined || distributedRewards === undefined || windowIndex === undefined || blockNumber === undefined) {
-        throw new InternalServerErrorException({error: "month / distributed_rewards / window_index / blockNumber are mandatory params."}, null);
+        throw new InternalServerErrorException({error: "month / distributedRewards / windowIndex / blockNumber are mandatory params."}, null);
       }
 
       /* istanbul ignore next */
       let proposalsIds = proposals ? proposals.split(",").map(id => '"' + id + '"') : null;
       
-      return await this.stakingService.generateEpoch(month, distributedRewards, windowIndex, blockNumber, proposalsIds);
+      return await this.stakingService.generateEpoch(month, distributedRewards, windowIndex, prevWindowIndex, blockNumber, proposalsIds);
     } catch(error) {
       throw new NotFoundException(error);
     }

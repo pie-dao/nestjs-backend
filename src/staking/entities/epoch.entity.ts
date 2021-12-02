@@ -1,5 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsHexadecimal } from "class-validator";
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
@@ -25,7 +24,7 @@ export class EpochEntity {
 
   @Prop()
   @ApiProperty()
-  participants: Array<Object>
+  participants: Array<any>
 
   @Prop()
   @ApiProperty()
@@ -33,12 +32,12 @@ export class EpochEntity {
 
   @Prop({type: Object})
   @ApiProperty()
-  merkleTree: Object
+  merkleTree: any
 
   // TODO: to be completed, and transformed into one-to-many relationship...
   @Prop()
   @ApiProperty()
-  rewards: string 
+  rewards: Array<any> 
 }
 
 export const EpochSchema = SchemaFactory.createForClass(EpochEntity);
