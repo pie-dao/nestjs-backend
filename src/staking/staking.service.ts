@@ -119,18 +119,18 @@ export class StakingService {
     });
   }
 
-  getRewards(blockNumber: number, windowIndex: number): Promise<any[]> {
+  getRewards(windowIndex: number): Promise<any[]> {
     return new Promise(async (resolve, reject) => {
       try {
         let lastID = "";
         let blocks = 1000;
         let rewards = [];
 
-        let claimedRewards = await this.fetchRewards(blocks, lastID, windowIndex, blockNumber);
+        let claimedRewards = await this.fetchRewards(blocks, lastID, windowIndex);
 
         while(claimedRewards.length > 0) {
           rewards = rewards.concat(claimedRewards);
-          claimedRewards = await this.fetchRewards(blocks, claimedRewards[claimedRewards.length - 1].id, windowIndex, blockNumber);
+          claimedRewards = await this.fetchRewards(blocks, claimedRewards[claimedRewards.length - 1].id, windowIndex);
         }
 
         resolve(rewards);
@@ -297,13 +297,12 @@ export class StakingService {
 
         let previousEpoch: EpochEntity = null;
         let rewards: any[] = [];
-        let unclaimed: any = null;
 
         if(prevWindowIndex !== undefined) {
           // retrieving previous epoch from database...
           previousEpoch = await this.getEpoch(prevWindowIndex);
           // genereting the rewards array...
-          rewards = await this.getRewards(blockNumber, prevWindowIndex);
+          rewards = await this.getRewards(prevWindowIndex);
         }
 
         // generating the participations...
@@ -537,13 +536,12 @@ export class StakingService {
     })
   }
 
-  private fetchRewards(blocks: number, lastID: string, windowIndex: number, blockNumber: number): Promise<Staker[]> {
+  private fetchRewards(blocks: number, lastID: string, windowIndex: number): Promise<Staker[]> {
     return new Promise(async(resolve, reject) => {
       try {
         let query = `{
           rewards(
             first: ${blocks}, 
-            block: {number: ${blockNumber}}, 
             where: {id_gt: "${lastID}", windowIndex: ${windowIndex}}) {
               id
               timestamp

@@ -17,15 +17,21 @@ export class MerkleTreeDistributor {
     });
   }
 
-  private calculateProRata(totalRewardsDistributed: string, participations: Participation[]): any {
+  private calculateProRata(windowIndex: number, totalRewardsDistributed: string, participations: Participation[]): any {
     const sliceUnits = new Decimal(totalRewardsDistributed).times(this.EXPLODE_DECIMALS);
 
     let totalVeDoughSupply = new Decimal(0);
 
     participations.forEach(participation => {
-      if(participation.participation) {
+      // handle edge case for first distribution...
+      if(windowIndex == 0) {
+        if(participation.participation) {
+          totalVeDoughSupply = totalVeDoughSupply.plus(participation.staker.accountVeTokenBalance);
+        }
+      } else {
         totalVeDoughSupply = totalVeDoughSupply.plus(participation.staker.accountVeTokenBalance);
       }
+      
     });
 
     const proRata = new Decimal(sliceUnits).times(this.EXPLODE_DECIMALS).div(totalVeDoughSupply.toString());
@@ -101,7 +107,7 @@ export class MerkleTreeDistributor {
     rewards: any[]
   ): Promise<Claims> {
     let unclaimed = previousEpoch ? await this.getUnclaimed(rewards, previousEpoch) : null;  
-    let calculations = this.calculateProRata(totalRewardsDistributed, participations);
+    let calculations = this.calculateProRata(windowIndex, totalRewardsDistributed, participations);
 
     let claims = {
       stats: {
@@ -117,45 +123,81 @@ export class MerkleTreeDistributor {
     };
 
     let totalCalculatedRewards = new Decimal(0);
+    let sliceUnits = new Decimal(totalRewardsDistributed).times(this.EXPLODE_DECIMALS);
+    let minRewarded = sliceUnits;
+    let minRewardedStaker = null;
 
+    // distributing the rewards to all the users...
     participations.forEach(participation => {
       let stakerBalance = new Decimal(participation.staker.accountVeTokenBalance);
       let stakerProRata = stakerBalance.times(calculations.proRata).div(this.EXPLODE_DECIMALS).truncated();
-      
-      if(participation.participation) {
-        totalCalculatedRewards = totalCalculatedRewards.plus(stakerProRata);
-  
-        let unclaimedAddress = unclaimed ? unclaimed.addresses.find(element => 
-          ethers.utils.getAddress(participation.address) ===  ethers.utils.getAddress(element.address)
-        ) : null;
-  
-        if(unclaimedAddress) {
-          stakerProRata = stakerProRata.plus(unclaimedAddress.amount);
-        }
 
-        claims.recipients[participation.staker.id] = {
-          amount: stakerProRata,
-          metaData: {
-            reason: [`Distribution for epoch ${windowIndex}`]
+      // calculating minimum rewarded to add delta...
+      if(stakerProRata.lt(minRewarded)) {
+        minRewarded = stakerProRata;
+        minRewardedStaker = participation.staker.id;
+      }
+
+      totalCalculatedRewards = totalCalculatedRewards.plus(stakerProRata);
+
+      claims.recipients[participation.staker.id] = {
+        participation: participation.participation,
+        amount: stakerProRata,
+        metaData: {
+          reason: [`Distribution for epoch ${windowIndex}`]
+        }
+      }      
+
+      if(!participation.participation) {
+        if(windowIndex != 0) {
+          let notVotingStakerAddress = previousEpoch && previousEpoch.merkleTree.stats.notVotingAddresses
+           ? Object.keys(previousEpoch.merkleTree.stats.notVotingAddresses).find(address =>
+            ethers.utils.getAddress(address) == ethers.utils.getAddress(participation.address)
+          ) : null;
+  
+          if(!notVotingStakerAddress) {
+            claims.stats.notVotingAddresses[ethers.utils.getAddress(participation.address)] = {
+              amount: stakerProRata,
+              windowIndex: [Number(windowIndex)]
+            };
+
+          } else {
+            let notVotingStaker = previousEpoch.merkleTree.stats.notVotingAddresses[notVotingStakerAddress];
+            notVotingStaker.amount = stakerProRata.plus(notVotingStaker.amount);
+            notVotingStaker.windowIndex.push(Number(windowIndex));         
+  
+            claims.stats.notVotingAddresses[notVotingStakerAddress] = notVotingStaker;
           }
-        }     
-      } else {
-        let notVotingStakerAddress = Object.keys(previousEpoch.merkleTree.stats.notVotingAddresses).find(address =>
-          ethers.utils.getAddress(address) == ethers.utils.getAddress(participation.address)
-        );
-
-        if(!notVotingStakerAddress) {
-          claims.stats.notVotingAddresses[ethers.utils.getAddress(participation.address)] = {
-            amount: stakerProRata,
-            windowIndex: [Number(windowIndex)]
-          };
-        } else {
-          let notVotingStaker = previousEpoch.merkleTree.stats.notVotingAddresses[notVotingStakerAddress];
-          notVotingStaker.amount = stakerProRata.plus(notVotingStaker.amount);
-          notVotingStaker.windowIndex.push(Number(windowIndex));         
-
-          claims.stats.notVotingAddresses[notVotingStakerAddress] = notVotingStaker;
         }
+      }
+    });
+
+    // adding delta to the min reward item...
+    if(!minRewarded.eq(sliceUnits)) {
+      let delta = Number(sliceUnits.minus(totalCalculatedRewards).toFixed(0));
+      claims.recipients[minRewardedStaker].amount = claims.recipients[minRewardedStaker].amount.plus(delta);
+      totalCalculatedRewards = totalCalculatedRewards.plus(delta);
+    }    
+
+    // calculating the compounds for the unclaimed ones...
+    participations.forEach(participation => {
+      let unclaimedAddress = unclaimed ? unclaimed.addresses.find(element => 
+        ethers.utils.getAddress(participation.address) ===  ethers.utils.getAddress(element.address)
+      ) : null;
+
+      if(unclaimedAddress) {
+        claims.recipients[participation.staker.id].amount = 
+          claims.recipients[participation.staker.id].amount.plus(unclaimedAddress.amount);
+      }
+    });
+
+    // finally, we re-iterate all over the claims, and we remove the not-active ones...
+    Object.keys(claims.recipients).forEach(key => {
+      let claim = claims.recipients[key];
+
+      if(!claim.participation) {
+        totalCalculatedRewards = totalCalculatedRewards.minus(claim.amount);
+        delete claims.recipients[key];
       }
     });
 
