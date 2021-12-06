@@ -12,8 +12,6 @@ import { Vote } from './types/staking.types.Vote';
 import { FreeRider } from './types/staking.types.FreeRider';
 import { Participation } from './types/staking.types.Participation';
 import { Delegate } from './types/staking.types.Delegate';
-import { Decimal } from 'decimal.js';
-import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
 // import { Cron } from '@nestjs/schedule';
 
 @Injectable()
