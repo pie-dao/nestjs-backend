@@ -176,7 +176,6 @@ export class MerkleTreeDistributor {
     if(!minRewarded.eq(sliceUnits)) {
       let delta = Number(sliceUnits.minus(totalCalculatedRewards).toFixed(0));
       claims.recipients[minRewardedStaker].amount = claims.recipients[minRewardedStaker].amount.plus(delta);
-      totalCalculatedRewards = totalCalculatedRewards.plus(delta);
     }    
 
     // calculating the compounds for the unclaimed ones...
@@ -192,16 +191,18 @@ export class MerkleTreeDistributor {
     });
 
     // finally, we re-iterate all over the claims, and we remove the not-active ones...
+    let finalCalculatedRewards = new Decimal(0);
     Object.keys(claims.recipients).forEach(key => {
       let claim = claims.recipients[key];
 
       if(!claim.participation) {
-        totalCalculatedRewards = totalCalculatedRewards.minus(claim.amount);
         delete claims.recipients[key];
+      } else {
+        finalCalculatedRewards = finalCalculatedRewards.plus(claim.amount);
       }
     });
 
-    claims.totalRewardsDistributed = totalCalculatedRewards;
+    claims.totalRewardsDistributed = finalCalculatedRewards;
     return claims;
   }
 }
