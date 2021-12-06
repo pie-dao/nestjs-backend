@@ -4227,7 +4227,7 @@ const epochs = [
         }
       }
     },
-    "rewards": "rewards has to be implemented",
+    "rewards": [],
     "__v": 0
   }
 ];
