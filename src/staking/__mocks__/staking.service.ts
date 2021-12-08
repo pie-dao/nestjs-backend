@@ -59,7 +59,7 @@ export const StakingService = jest.fn().mockReturnValue({
   }),
   getEpoch: jest.fn().mockImplementation((id) => {
     return new Promise((resolve, reject) => {
-      if(id) {
+      if((typeof id) == 'number') {
         let epochs = EpochsStub();
         resolve(epochs[epochs.length - 1]);
       } else {
@@ -94,9 +94,7 @@ export const StakingService = jest.fn().mockReturnValue({
     blockNumber: number, 
     proposals: string) => {
     return new Promise((resolve, reject) => {
-      console.log("PROPOSALS", proposals);
       if(proposals.length == 1 && proposals[0] == '"invalid_id"') {
-        console.log("going to reject");
         reject(new Error());
       } else {
         let epochs = EpochsStub();

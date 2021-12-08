@@ -123,6 +123,7 @@ export class StakingController {
         throw new InternalServerErrorException({error: "month / blockNumber are mandatory params."}, null);
       }
 
+      /* istanbul ignore next */
       let proposalsIds = proposals ? proposals.split(",").map(id => '"' + id + '"') : null;  
 
       return await this.stakingService.getFreeRiders(month, blockNumber, proposalsIds);

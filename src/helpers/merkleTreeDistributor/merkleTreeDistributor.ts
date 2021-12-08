@@ -29,6 +29,7 @@ export class MerkleTreeDistributor {
           totalVeDoughSupply = totalVeDoughSupply.plus(participation.staker.accountVeTokenBalance);
         }
       } else {
+        /* istanbul ignore next */
         totalVeDoughSupply = totalVeDoughSupply.plus(participation.staker.accountVeTokenBalance);
       }
       
@@ -56,6 +57,7 @@ export class MerkleTreeDistributor {
 
         resolve({addresses: unclaimed, total: unclaimed.length, tokens: unclaimedTokens});
       } catch(error) {
+        /* istanbul ignore next */
         reject(error);
       }
     });
@@ -148,6 +150,7 @@ export class MerkleTreeDistributor {
         }
       }      
 
+      /* istanbul ignore next */
       if(!participation.participation) {
         if(windowIndex != 0) {
           let notVotingStakerAddress = previousEpoch && previousEpoch.merkleTree.stats.notVotingAddresses
