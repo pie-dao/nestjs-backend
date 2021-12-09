@@ -52,7 +52,7 @@ describe('StakingService', () => {
         );
       });
 
-      test('then it should call stakingService.generateEpochhh', () => {
+      test('then it should call stakingService.generateEpoch', () => {
         expect(service.generateEpoch).toHaveBeenCalled();
       });
 
