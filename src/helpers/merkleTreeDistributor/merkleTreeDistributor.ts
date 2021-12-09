@@ -24,6 +24,7 @@ export class MerkleTreeDistributor {
 
     participations.forEach(participation => {
       // handle edge case for first distribution...
+      /* istanbul ignore next */
       if(windowIndex == 0) {
         if(participation.participation) {
           totalVeDoughSupply = totalVeDoughSupply.plus(participation.staker.accountVeTokenBalance);
@@ -49,6 +50,7 @@ export class MerkleTreeDistributor {
 
         Object.keys(claims).forEach(address => {
           let hasClaimed = rewards.find(reward => reward.account === address);
+          /* istanbul ignore next */
           if(!hasClaimed) {
             unclaimed.push({address: address, amount: claims[address].amount});
             unclaimedTokens = unclaimedTokens.plus(claims[address].amount);
@@ -176,6 +178,7 @@ export class MerkleTreeDistributor {
     });
 
     // adding delta to the min reward item...
+    /* istanbul ignore next */
     if(!minRewarded.eq(sliceUnits)) {
       let delta = Number(sliceUnits.minus(totalCalculatedRewards).toFixed(0));
       claims.recipients[minRewardedStaker].amount = claims.recipients[minRewardedStaker].amount.plus(delta);

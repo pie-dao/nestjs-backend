@@ -740,6 +740,7 @@ export class StakingService {
         ).toPromise();
 
         resolve(response.data.data.votes.filter(vote => {
+          /* istanbul ignore next */
           if (vote.proposal.state == 'closed') {
             return vote;
           }
