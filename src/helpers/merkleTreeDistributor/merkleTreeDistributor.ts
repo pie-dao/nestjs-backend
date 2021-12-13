@@ -148,7 +148,8 @@ export class MerkleTreeDistributor {
         participation: participation.participation,
         amount: stakerProRata,
         metaData: {
-          reason: [`Distribution for epoch ${windowIndex}`]
+          reason: [`Distribution for epoch ${windowIndex}`],
+          staker: participation.staker
         }
       }      
 
