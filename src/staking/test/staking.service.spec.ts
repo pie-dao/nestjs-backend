@@ -42,7 +42,7 @@ describe('StakingService', () => {
   });
 
   describe('generateEpoch', () => {
-    describe('When generateEpoch is calleddd', () => {
+    describe('When generateEpoch is called', () => {
       jest.setTimeout(50000);
 
       beforeEach(async () => {
