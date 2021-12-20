@@ -258,6 +258,7 @@ export class StakingService {
 
           /* istanbul ignore next */
           if (oldestLock && oldestLock.lockedAt < votedTimeRange) {
+            console.log("staker", staker.id, oldestLock.lockedAt, votedTimeRange);
             isFreeRider = true;
           }
 

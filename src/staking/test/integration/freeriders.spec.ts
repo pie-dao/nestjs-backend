@@ -61,7 +61,7 @@ describe('FreeRiders integration tests', () => {
     });
   });
 
-  describe('getFreeRiders, on third month (month 2)', () => {
+  describe('getFreeRiders, on month 3', () => {
     let service: StakingService;
 
     jest.setTimeout(50000);
@@ -84,12 +84,18 @@ describe('FreeRiders integration tests', () => {
     });
 
     it('No one should be a freerider', async () => {
-      let freeRiders = await service.getFreeRiders(month, blockNumber, proposals);
-      expect(typeof freeRiders).toBe('object');
+      let freeRiders = await service.getFreeRiders(3, blockNumber, proposals);
+      expect(freeRiders).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({isFreeRider: false}),
+          expect.objectContaining({isFreeRider: false}),
+          expect.objectContaining({isFreeRider: false})
+        ])
+      );      
     });
   });
 
-  describe('getFreeRiders, on fourth month (month 3)', () => {
+  describe('getFreeRiders, on month 4', () => {
     let service: StakingService;
 
     jest.setTimeout(50000);
@@ -112,7 +118,7 @@ describe('FreeRiders integration tests', () => {
     });
 
     it('should return alice as freerider', async () => {
-      let freeRiders = await service.getFreeRiders(month, blockNumber, proposals);
+      let freeRiders = await service.getFreeRiders(4, blockNumber, proposals);
       let ids = freeRiders.map(( {id: id} ) => id);
 
       expect(ids).toContain(accounts.alice);
@@ -123,7 +129,7 @@ describe('FreeRiders integration tests', () => {
     });
   });
 
-  describe('getFreeRiders, on fifth month (month 4)', () => {
+  describe('getFreeRiders, on month 5', () => {
     let service: StakingService;
 
     jest.setTimeout(50000);
@@ -146,12 +152,19 @@ describe('FreeRiders integration tests', () => {
     });
 
     it('No one should be a freerider', async () => {
-      let freeRiders = await service.getFreeRiders(month, blockNumber, proposals);
-      expect(typeof freeRiders).toBe('object');
+      let freeRiders = await service.getFreeRiders(5, blockNumber, proposals);
+
+      expect(freeRiders).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({isFreeRider: false}),
+          expect.objectContaining({isFreeRider: false}),
+          expect.objectContaining({isFreeRider: false})
+        ])
+      );
     });
   });
 
-  describe('getFreeRiders, on sixth month (month 5)', () => {
+  describe('getFreeRiders, on month 6', () => {
     let service: StakingService;
 
     jest.setTimeout(50000);
@@ -174,12 +187,19 @@ describe('FreeRiders integration tests', () => {
     });
 
     it('No one should be a freerider', async () => {
-      let freeRiders = await service.getFreeRiders(month, blockNumber, proposals);
-      expect(typeof freeRiders).toBe('object');
+      let freeRiders = await service.getFreeRiders(6, blockNumber, proposals);
+
+      expect(freeRiders).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({isFreeRider: false}),
+          expect.objectContaining({isFreeRider: false}),
+          expect.objectContaining({isFreeRider: false})
+        ])
+      );
     });
   });
 
-  describe('getFreeRiders, on seventh month (month 6)', () => {
+  describe('getFreeRiders, on month 7', () => {
     let service: StakingService;
     let stakersWithoutAlice = stakers.filter((x) => x.id != accounts.alice);
 
@@ -212,12 +232,18 @@ describe('FreeRiders integration tests', () => {
     });
 
     it('No one should be a freerider', async () => {
-      let freeRiders = await service.getFreeRiders(month, blockNumber, proposals);
-      expect(typeof freeRiders).toBe('object');
+      let freeRiders = await service.getFreeRiders(7, blockNumber, proposals);
+
+      expect(freeRiders).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({isFreeRider: false}),
+          expect.objectContaining({isFreeRider: false})
+        ])
+      );      
     });
   });
 
-  describe('getFreeRiders, on eighth month (month 7)', () => {
+  describe('getFreeRiders, on month 8', () => {
     let service: StakingService;
     let stakersWithoutAlice = stakers.filter((x) => x.id != accounts.alice);
 
@@ -250,8 +276,14 @@ describe('FreeRiders integration tests', () => {
     });
 
     it('No one should be a freerider', async () => {
-      let freeRiders = await service.getFreeRiders(month, blockNumber, proposals);
-      expect(typeof freeRiders).toBe('object');
+      let freeRiders = await service.getFreeRiders(8, blockNumber, proposals);
+
+      expect(freeRiders).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({isFreeRider: false}),
+          expect.objectContaining({isFreeRider: false})
+        ])
+      );      
     });
   });
 });
