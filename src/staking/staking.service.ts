@@ -35,7 +35,7 @@ export class StakingService {
     command: 'generate-epoch',
     description: 'Generate a new Epoch using CLI.'
   })
-  async listContent(directory: string): Promise<void> {
+  async generateEpochCommand(): Promise<void> {
     let params = await inquirer.prompt([
       {
         type: 'input',
