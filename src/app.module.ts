@@ -8,6 +8,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { StakingModule } from './staking/staking.module';
 import { TreasuryModule } from './treasury/treasury.module';
 import { TasksModule } from './tasks/tasks.module';
+import { ConsoleModule } from 'nestjs-console';
 
 @Module({
   imports: [
@@ -17,9 +18,11 @@ import { TasksModule } from './tasks/tasks.module';
     MongooseModule.forRoot(process.env.MONGO_DB),
     StakingModule,
     TreasuryModule,    
-    TasksModule
-  ],
+    TasksModule,
+    ConsoleModule
+  ],  
   controllers: [AppController],
   providers: [AppService],
+  exports: [AppService]
 })
 export class AppModule {}

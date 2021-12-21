@@ -74,37 +74,37 @@ export class StakingController {
     }
   };
 
-  @ApiOkResponse({type: EpochEntity})
-  @ApiNotFoundResponse()
-  @ApiBadRequestResponse()
-  @ApiQuery({name: 'month', required: true})
-  @ApiQuery({name: 'distributedRewards', required: true})
-  @ApiQuery({name: 'windowIndex', required: true})
-  @ApiQuery({name: 'prevWindowIndex', required: true})
-  @ApiQuery({name: 'blockNumber', required: true})
-  @ApiQuery({name: 'proposals', required: true, isArray: true})
-  @Get('generate-epoch')
-  async generateEpoch(
-    @Query('month') month?: number, 
-    @Query('distributedRewards') distributedRewards?: string,
-    @Query('windowIndex') windowIndex?: number,
-    @Query('prevWindowIndex') prevWindowIndex?: number,
-    @Query('blockNumber') blockNumber?: number,
-    @Query('proposals') proposals?: string
-  ): Promise<EpochEntity> {
-    try {
-      if(month === undefined || distributedRewards === undefined || windowIndex === undefined || blockNumber === undefined) {
-        throw new InternalServerErrorException({error: "month / distributedRewards / windowIndex / blockNumber are mandatory params."}, null);
-      }
+  // @ApiOkResponse({type: EpochEntity})
+  // @ApiNotFoundResponse()
+  // @ApiBadRequestResponse()
+  // @ApiQuery({name: 'month', required: true})
+  // @ApiQuery({name: 'distributedRewards', required: true})
+  // @ApiQuery({name: 'windowIndex', required: true})
+  // @ApiQuery({name: 'prevWindowIndex', required: true})
+  // @ApiQuery({name: 'blockNumber', required: true})
+  // @ApiQuery({name: 'proposals', required: true, isArray: true})
+  // @Get('generate-epoch')
+  // async generateEpoch(
+  //   @Query('month') month?: number, 
+  //   @Query('distributedRewards') distributedRewards?: string,
+  //   @Query('windowIndex') windowIndex?: number,
+  //   @Query('prevWindowIndex') prevWindowIndex?: number,
+  //   @Query('blockNumber') blockNumber?: number,
+  //   @Query('proposals') proposals?: string
+  // ): Promise<EpochEntity> {
+  //   try {
+  //     if(month === undefined || distributedRewards === undefined || windowIndex === undefined || blockNumber === undefined) {
+  //       throw new InternalServerErrorException({error: "month / distributedRewards / windowIndex / blockNumber are mandatory params."}, null);
+  //     }
 
-      /* istanbul ignore next */
-      let proposalsIds = proposals ? proposals.split(",").map(id => '"' + id + '"') : null;
+  //     /* istanbul ignore next */
+  //     let proposalsIds = proposals ? proposals.split(",").map(id => '"' + id + '"') : null;
       
-      return await this.stakingService.generateEpoch(month, distributedRewards, windowIndex, prevWindowIndex, blockNumber, proposalsIds);
-    } catch(error) {
-      throw new NotFoundException(error);
-    }
-  };
+  //     return await this.stakingService.generateEpoch(month, distributedRewards, windowIndex, prevWindowIndex, blockNumber, proposalsIds);
+  //   } catch(error) {
+  //     throw new NotFoundException(error);
+  //   }
+  // };
 
   @ApiOkResponse({type: Object, isArray: false})
   @ApiNotFoundResponse()

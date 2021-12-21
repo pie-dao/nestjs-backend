@@ -14,10 +14,11 @@ import { Participation } from './types/staking.types.Participation';
 import { Delegate } from './types/staking.types.Delegate';
 import * as lodash from 'lodash';
 import * as pieABI from './abis/Pie.json';
-import BigNumber from 'bignumber.js';
-// import { Cron } from '@nestjs/schedule';
+import { Console, Command, createSpinner } from 'nestjs-console';
+import * as inquirer from 'inquirer';
 
 @Injectable()
+@Console()
 export class StakingService {
   private SLICE_ADDRESS = ethers.utils.getAddress('0x1083D743A1E53805a95249fEf7310D75029f7Cd6');
   private snapshotSpaceID = process.env.SNAPSHOT_SPACE_ID;
@@ -29,6 +30,71 @@ export class StakingService {
     private httpService: HttpService,
     @InjectModel(EpochEntity.name) private epochModel: Model<EpochDocument>,
   ) {}
+
+  @Command({
+    command: 'generate-epoch',
+    description: 'Generate a new Epoch using CLI.'
+  })
+  async listContent(directory: string): Promise<void> {
+    let params = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'month',
+        message: 'Which is the month (number) you want to generate the epoch for?',
+      },
+      {
+        type: 'input',
+        name: 'distributedRewards',
+        message: 'How many rewards you want to distribute?',
+      },
+      {
+        type: 'input',
+        name: 'windowIndex',
+        message: 'Which will be the windowIndex for this epoch?',
+      },
+      {
+        type: 'input',
+        name: 'prevWindowIndex',
+        message: 'Which will be the previous WindowIndex for this epoch?',
+        default: params => params.windowIndex - 1
+      },
+      {
+        type: 'input',
+        name: 'blockNumber',
+        message: 'Which will be the blockNumber for this epoch?',
+      }, 
+      {
+        type: 'input',
+        name: 'proposals',
+        message: 'What are the proposal Ids (comma separated string, or empty for use them all)?',
+      },           
+    ]);
+
+    try {
+      if(params.month === undefined || params.distributedRewards === undefined || params.windowIndex === undefined || params.blockNumber === undefined) {
+        console.error("month / distributedRewards / windowIndex / blockNumber are mandatory params.");
+      }
+
+      const spin = createSpinner();
+      spin.start(`Generating the epoch...`);
+
+      /* istanbul ignore next */
+      let proposalsIds = params.proposals ? params.proposals.split(",").map(id => '"' + id + '"') : null;
+      
+      let epoch = await this.generateEpoch(
+        params.month, 
+        params.distributedRewards, 
+        params.windowIndex, 
+        params.prevWindowIndex, 
+        params.blockNumber, 
+        proposalsIds
+      );
+
+      spin.succeed('Epoch has been generated!!');
+    } catch(error) {
+      console.log(error);
+    }
+  }
 
   setEthProvider(provider: string): void {
     this.ethProvider = provider;
@@ -280,11 +346,6 @@ export class StakingService {
     });
   }
 
-  // @Cron('0 0 1 * *')
-  // Use this every 10 seconds cron setup, for testing purposes.
-  // 10 * * * * *
-  // USe this every first day of the month, for production releases.
-  // 0 0 1 * * 
   generateEpoch(
     month: number,
     distributedRewards: string,

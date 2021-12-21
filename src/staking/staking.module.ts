@@ -12,6 +12,7 @@ import { EpochEntity, EpochSchema } from './entities/epoch.entity';
     MongooseModule.forFeature([{ name: EpochEntity.name, schema: EpochSchema }])
   ],
   controllers: [StakingController],
-  providers: [StakingService, MerkleTreeDistributor]
+  providers: [StakingService, MerkleTreeDistributor],
+  exports: [StakingService, MerkleTreeDistributor]
 })
 export class StakingModule {}
