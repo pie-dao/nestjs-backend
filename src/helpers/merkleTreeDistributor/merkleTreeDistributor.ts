@@ -24,11 +24,13 @@ export class MerkleTreeDistributor {
 
     participations.forEach(participation => {
       // handle edge case for first distribution...
+      /* istanbul ignore next */
       if(windowIndex == 0) {
         if(participation.participation) {
           totalVeDoughSupply = totalVeDoughSupply.plus(participation.staker.accountVeTokenBalance);
         }
       } else {
+        /* istanbul ignore next */
         totalVeDoughSupply = totalVeDoughSupply.plus(participation.staker.accountVeTokenBalance);
       }
       
@@ -48,6 +50,7 @@ export class MerkleTreeDistributor {
 
         Object.keys(claims).forEach(address => {
           let hasClaimed = rewards.find(reward => reward.account === address);
+          /* istanbul ignore next */
           if(!hasClaimed) {
             unclaimed.push({address: address, amount: claims[address].amount});
             unclaimedTokens = unclaimedTokens.plus(claims[address].amount);
@@ -56,6 +59,7 @@ export class MerkleTreeDistributor {
 
         resolve({addresses: unclaimed, total: unclaimed.length, tokens: unclaimedTokens});
       } catch(error) {
+        /* istanbul ignore next */
         reject(error);
       }
     });
@@ -144,10 +148,12 @@ export class MerkleTreeDistributor {
         participation: participation.participation,
         amount: stakerProRata,
         metaData: {
-          reason: [`Distribution for epoch ${windowIndex}`]
+          reason: [`Distribution for epoch ${windowIndex}`],
+          staker: participation.staker
         }
       }      
 
+      /* istanbul ignore next */
       if(!participation.participation) {
         if(windowIndex != 0) {
           let notVotingStakerAddress = previousEpoch && previousEpoch.merkleTree.stats.notVotingAddresses
@@ -173,6 +179,7 @@ export class MerkleTreeDistributor {
     });
 
     // adding delta to the min reward item...
+    /* istanbul ignore next */
     if(!minRewarded.eq(sliceUnits)) {
       let delta = Number(sliceUnits.minus(totalCalculatedRewards).toFixed(0));
       claims.recipients[minRewardedStaker].amount = claims.recipients[minRewardedStaker].amount.plus(delta);

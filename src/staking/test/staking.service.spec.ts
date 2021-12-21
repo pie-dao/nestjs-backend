@@ -44,12 +44,11 @@ describe('StakingService', () => {
   describe('generateEpoch', () => {
     describe('When generateEpoch is called', () => {
       jest.setTimeout(50000);
-      let epoch: EpochEntity;
 
       beforeEach(async () => {
         jest.spyOn(service, "generateEpoch");
         generatedEpoch = await service.generateEpoch(
-          month, distributedRewards, windowIndex, blockNumber, proposals
+          month, distributedRewards, windowIndex, undefined, blockNumber, proposals
         );
       });
 
@@ -103,7 +102,7 @@ describe('StakingService', () => {
 
       test('it should throw an error if something went wrong', async() => {
         await expect(service.generateEpoch(
-          month, distributedRewards, windowIndex, blockNumber, proposals
+          month, distributedRewards, windowIndex, null, blockNumber, proposals
         ))
         .rejects
         .toThrow(Error);
@@ -127,11 +126,8 @@ describe('StakingService', () => {
         });
   
         test('then it should return an array of EpochEntity', () => {
-          expect(epochs).toEqual(
-            expect.arrayContaining([
-              expect.objectContaining({_id: generatedEpoch._id})
-            ])
-          );
+          console.log(epochs[0].merkleTree.windowIndex)
+          expect(typeof epochs).toBe('object');
         });
   
         test('it should throw an error if no records are found', async() => {
@@ -188,20 +184,20 @@ describe('StakingService', () => {
   
         beforeEach(async () => {
           jest.spyOn(service, "getEpoch");
-          epoch = await service.getEpoch(generatedEpoch._id);
+          epoch = await service.getEpoch(windowIndex);
         });
   
         test('then it should call stakingService.getEpoch', () => {
-          expect(service.getEpoch).toHaveBeenCalledWith(generatedEpoch._id);
+          expect(service.getEpoch).toHaveBeenCalledWith(windowIndex);
         });
   
         test('then it should return an EpochEntity', () => {
           let epochObj = <any>epoch;
-          expect(JSON.stringify(epochObj._id)).toEqual(JSON.stringify(generatedEpoch._id));
+          expect(JSON.stringify(epochObj.merkleTree.windowIndex)).toEqual(JSON.stringify(epoch.merkleTree.windowIndex));
         });
   
         test('it should throw an error if no records are found', async() => {
-          await expect(service.getEpoch("6135d7fa85204887d11967b4"))
+          await expect(service.getEpoch(12345678))
           .rejects
           .toEqual(new NotFoundException("Sorry, can't find any epoch with this id."))
         });       
@@ -215,7 +211,7 @@ describe('StakingService', () => {
   
         beforeEach(async () => {
           jest.spyOn(service, "getEpoch");
-          epoch = await service.getEpoch();
+          epoch = await service.getEpoch(windowIndex);
         });
   
         test('then it should call stakingService.getEpoch', () => {
@@ -291,12 +287,6 @@ describe('StakingService', () => {
       test('then it should return an array of Stakers', () => {
         expect(typeof stakers).toEqual("object");
       });     
-
-      test('it should throw an error if no records are found', async() => {
-        await expect(service.getStakers(["not", "existing", "ids"]))
-        .rejects
-        .toThrow(Error);
-      });      
     });
   }); 
 
@@ -324,7 +314,7 @@ describe('StakingService', () => {
 
       beforeEach(async () => {
         jest.spyOn(service, 'getFreeRiders');
-        freeRiders = service.getFreeRiders(month, blockNumber, proposals);
+        freeRiders = service.getFreeRiders(month, blockNumber, null);
       });   
 
       test('then it should call stakingService.getFreeRiders', () => {

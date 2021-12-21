@@ -34,6 +34,14 @@ export class EpochEntity {
   @ApiProperty()
   merkleTree: any
 
+  @Prop({type: Object})
+  @ApiProperty()
+  stakingStats: any
+
+  @Prop({type: Object})
+  @ApiProperty()
+  slice: any  
+
   // TODO: to be completed, and transformed into one-to-many relationship...
   @Prop()
   @ApiProperty()

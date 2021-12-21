@@ -2,6 +2,22 @@ import { EpochEntity } from "src/staking/entities/epoch.entity";
 
 const epochs = [
   {
+    "stakingStats": {
+      "averageTimeLock": "92418000",
+      "boostedLocksCounter": "9",
+      "boostedLocksValue": "15231080000000000000000",
+      "depositedLocksCounter": "183",
+      "depositedLocksValue": "5777199924280545277253281",
+      "ejectedLocksCounter": "0",
+      "ejectedLocksValue": "0",
+      "id": "1634128071",
+      "stakersCounter": "146",
+      "timestamp": "1634128071",
+      "totalDoughStaked": "5777199924280545277253281",
+      "veTokenTotalSupply": "5765804412618793913896939",
+      "withdrawnLocksCounter": "0",
+      "withdrawnLocksValue": "0"
+    },    
     "proposals": [
       "QmRakdstZdU1Mx1vYhjon8tYnv5o1dkir8v3HDBmmnCGUc",
       "QmRkF9A2NigXcBBFfASnM7akNvAo6c9jgNxpt1faX6hvjK",
@@ -4228,6 +4244,26 @@ const epochs = [
       }
     },
     "rewards": [],
+    "slice": {
+      "usd": 0.5,
+      "underlying": [
+        {
+          "address": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+          "symbol": "WBTC",
+          "amount": 424
+        },
+        {
+          "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          "symbol": "WETH",
+          "amount": 123213.45
+        },
+        {
+          "address": "0x8d1ce361eb68e9e05573443c407d4a3bed23b033",
+          "symbol": "DEFI++",
+          "amount": 12354.476
+        }        
+      ]
+    },
     "__v": 0
   }
 ];
