@@ -81,38 +81,6 @@ describe('StakingController', () => {
       });      
     });
   });  
-
-  describe('generateEpoch', () => {
-    describe('When generateEpoch is called', () => {
-      let epoch: EpochEntity;
-
-      beforeEach(async () => {
-        epoch = await controller.generateEpoch(month, distributedRewards, windowIndex, null, blockNumber, proposals);
-      });
-
-      test('then it should call stakingService.generateEpoch', () => {
-        let proposalsIds = proposals.split(",").map(id => '"' + id + '"');
-        expect(service.generateEpoch).toHaveBeenCalledWith(month, distributedRewards, windowIndex, null, blockNumber, proposalsIds);
-      });
-
-      test('then it should return an Epoch', () => {
-        let epochs = EpochsStub();
-        expect(epoch).toEqual(epochs[epochs.length - 1]);
-      });   
-      
-      test('it should throw an error if no parameters are passed', async() => {
-        await expect(controller.generateEpoch())
-        .rejects
-        .toThrow(NotFoundException);
-      }); 
-      
-      test('it should throw an error if something went wrong', async() => {
-        await expect(controller.generateEpoch(month, distributedRewards, undefined, undefined, blockNumber, "invalid_id"))
-        .rejects
-        .toThrow(NotFoundException);
-      });      
-    });
-  });  
   
   describe('getEpoch', () => {
     describe('When getEpoch is called', () => {

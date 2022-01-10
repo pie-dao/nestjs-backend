@@ -4,6 +4,7 @@ import { Participation } from 'src/staking/types/staking.types.Participation';
 import * as MerkleDistributorHelper from "@uma/merkle-distributor";
 import { MerkleTree } from 'src/staking/types/staking.types.MerkleTree';
 import { Decimal } from 'decimal.js';
+import { BigNumber } from 'bignumber.js';
 import { EpochEntity } from 'src/staking/entities/epoch.entity';
 
 export class MerkleTreeDistributor {
@@ -142,7 +143,7 @@ export class MerkleTreeDistributor {
         minRewardedStaker = participation.staker.id;
       }
 
-      totalCalculatedRewards = totalCalculatedRewards.plus(stakerProRata);
+      totalCalculatedRewards = totalCalculatedRewards.plus(stakerProRata);     
 
       claims.recipients[participation.staker.id] = {
         participation: participation.participation,
@@ -151,7 +152,7 @@ export class MerkleTreeDistributor {
           reason: [`Distribution for epoch ${windowIndex}`],
           staker: participation.staker
         }
-      }      
+      }   
 
       /* istanbul ignore next */
       if(!participation.participation) {
@@ -181,8 +182,11 @@ export class MerkleTreeDistributor {
     // adding delta to the min reward item...
     /* istanbul ignore next */
     if(!minRewarded.eq(sliceUnits)) {
-      let delta = Number(sliceUnits.minus(totalCalculatedRewards).toFixed(0));
-      claims.recipients[minRewardedStaker].amount = claims.recipients[minRewardedStaker].amount.plus(delta);
+      let delta = new Decimal(sliceUnits.minus(totalCalculatedRewards).toFixed(0));
+
+      if(delta.gt(0)) {
+        claims.recipients[minRewardedStaker].amount = claims.recipients[minRewardedStaker].amount.plus(delta);
+      }
     }    
 
     // calculating the compounds for the unclaimed ones...
@@ -193,8 +197,8 @@ export class MerkleTreeDistributor {
 
       if(unclaimedAddress) {
         claims.recipients[participation.staker.id].amount = 
-          claims.recipients[participation.staker.id].amount.plus(unclaimedAddress.amount);
-      }
+          claims.recipients[participation.staker.id].amount.plus(unclaimedAddress.amount); 
+      }       
     });
 
     // finally, we re-iterate all over the claims, and we remove the not-active ones...
