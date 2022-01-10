@@ -44,6 +44,11 @@ export class StakingService {
       },
       {
         type: 'input',
+        name: 'year',
+        message: 'Which is the year you want to generate the epoch for?',
+      },      
+      {
+        type: 'input',
         name: 'distributedRewards',
         message: 'How many rewards you want to distribute?',
       },
@@ -71,8 +76,8 @@ export class StakingService {
     ]);
 
     try {
-      if(params.month === undefined || params.distributedRewards === undefined || params.windowIndex === undefined || params.blockNumber === undefined) {
-        console.error("month / distributedRewards / windowIndex / blockNumber are mandatory params.");
+      if(params.month === undefined || params.year === undefined || params.distributedRewards === undefined || params.windowIndex === undefined || params.blockNumber === undefined) {
+        console.error("month / year / distributedRewards / windowIndex / blockNumber are mandatory params.");
       }
 
       const spin = createSpinner();
@@ -82,7 +87,8 @@ export class StakingService {
       let proposalsIds = params.proposals ? params.proposals.split(",").map(id => '"' + id + '"') : null;
       
       let epoch = await this.generateEpoch(
-        params.month, 
+        params.month,
+        params.year, 
         params.distributedRewards, 
         params.windowIndex, 
         params.prevWindowIndex, 
@@ -348,6 +354,7 @@ export class StakingService {
 
   generateEpoch(
     month: number,
+    year: number,
     distributedRewards: string,
     windowIndex: number,
     prevWindowIndex: number,
@@ -357,7 +364,7 @@ export class StakingService {
     return new Promise(async (resolve, reject) => {
       try {
         // fetching all votes from snapshot in the last month...
-        let from = moment({ year: moment().year(), month: month - 1, day: 1 });
+        let from = moment({ year: year, month: month - 1, day: 1 });
         let to = from.clone().endOf('month');
 
         let votes: Vote[] = await this.getSnapshotVotes(from.unix(), to.unix(), proposalsIds);
@@ -365,7 +372,7 @@ export class StakingService {
         let previousEpoch: EpochEntity = null;
         let rewards: any[] = [];
 
-        if (prevWindowIndex !== undefined) {
+        if (prevWindowIndex !== undefined && prevWindowIndex >= 0) {
           // retrieving previous epoch from database...
           previousEpoch = await this.getEpoch(prevWindowIndex);
           // genereting the rewards array...

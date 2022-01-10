@@ -14,6 +14,7 @@ describe('StakingService', () => {
 
   let blockNumber = 13527858;
   let month = 10;
+  let year = 2021;
   let distributedRewards = "1350000";
   let windowIndex = 0;
   let proposals = [
@@ -48,7 +49,7 @@ describe('StakingService', () => {
       beforeEach(async () => {
         jest.spyOn(service, "generateEpoch");
         generatedEpoch = await service.generateEpoch(
-          month, distributedRewards, windowIndex, undefined, blockNumber, proposals
+          month, year, distributedRewards, windowIndex, undefined, blockNumber, proposals
         );
       });
 
@@ -102,7 +103,7 @@ describe('StakingService', () => {
 
       test('it should throw an error if something went wrong', async() => {
         await expect(service.generateEpoch(
-          month, distributedRewards, windowIndex, null, blockNumber, proposals
+          month, year, distributedRewards, windowIndex, null, blockNumber, proposals
         ))
         .rejects
         .toThrow(Error);
